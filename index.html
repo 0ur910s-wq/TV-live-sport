@@ -46,6 +46,7 @@ const jget=(k,d)=>{try{return JSON.parse(LS.getItem(k))??d}catch{return d}},jset
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=d=>d.toLocaleTimeString("el-GR",{hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
 const norm=s=>String(s??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/ς/g,"σ").replace(/(.)\1+/g,"$1");
+const nameKey=s=>norm(s).replace(/&/g," and ").replace(/[^\p{L}\p{N}]+/gu," ").trim().replace(/\s+/g," ");
 // [άθλημα, regex, διάρκεια σε λεπτά] — η σειρά μετράει
 const SP=[["Στίβος",/μαραθ|δρόμου/,300],["Formula 1",/formula|γκραν πρι/,150],["Εκπομπή",/εκπομπή|athletiko fc/,90],["Τένις",/\batp\b|\bwta\b|τένις|tennis|roland|wimbledon/,150],["Χάντμπολ",/ehf|handball|χάντμπολ/,100],["Βόλεϊ",/volley|βόλεϊ/,120],["Μπάσκετ",/gbl|nba|basket|acb|μπάσκετ|euroleague/,120],["NFL",/nfl/,200],["Ποδόσφαιρο",/league|liga|serie|bundesliga|eredivisie|premier|copa|torneo|cup|champions|conference|europa|ποδόσφαιρο/,120]];
 const sportOf=(c,t)=>{const s=(c+" "+t).toLowerCase();return SP.find(x=>x[1].test(s))||["Άλλο",0,120]};
@@ -68,7 +69,21 @@ async function loadScores(){const d=n=>{const x=new Date(Date.now()-n*864e5);ret
  render()}
 const stat=m=>String(m.match_status||m.status||"").toLowerCase();
 const ended=m=>/ended|closed|finished/.test(stat(m)),livem=m=>/live|progress|half|period|quarter|overtime|set\d?|break/.test(stat(m))&&!/not_started|scheduled/.test(stat(m));
-function sc(ev){if(SCM.has(ev))return SCM.get(ev);const t=norm(ev.title);const m=SC.find(m=>{const h=norm(m.home_team?.name),a=norm(m.away_team?.name);return h.length>2&&a.length>2&&t.includes(h)&&t.includes(a)});SCM.set(ev,m);return m}
+function nameMatch(team,text){const a=nameKey(team),b=nameKey(text);if(a.length<4||!b)return 0;if(b.includes(a))return 1;
+ const aa=a.split(" ").filter(x=>x.length>1),bb=new Set(b.split(" ").filter(x=>x.length>1));if(!aa.length)return 0;
+ const overlap=aa.filter(x=>bb.has(x)).length/aa.length;return overlap>=.75?overlap:0}
+function sc(ev){if(SCM.has(ev))return SCM.get(ev);const title=nameKey(ev.title),comp=nameKey(ev.comp),program=nameKey(`${ev.title} ${ev.comp} ${ev.channel}`),at=ev.start.getTime();let best=null,bestScore=0;
+ for(const m of SC){const h=m.home_team?.name,a=m.away_team?.name;if(!h||!a)continue;
+  const eventName=m.event?.name||"",ht=nameMatch(h,program),atc=nameMatch(a,program);
+  const eventPair=nameMatch(h,eventName)>=.75&&nameMatch(a,eventName)>=.75&&(nameMatch(h,title)>=.75||nameMatch(a,title)>=.75);
+  const both=ht>=.75&&atc>=.75||eventPair;
+  if(!both)continue;
+  const kickoff=Date.parse(m.start_time||m.time);const delta=Number.isFinite(kickoff)?Math.abs(kickoff-at):0;
+  if(delta>18*36e5)continue;
+  const compMatch=comp&&nameMatch(m.competition?.name,comp)>.5?0.15:0;
+  const score=(eventPair?2:ht+atc)+compMatch-delta/(18*36e5)*.25;
+  if(score>bestScore){best=m;bestScore=score}}
+ SCM.set(ev,best);return best}
 function state(ev,now){const m=sc(ev);if(ev.start>now)return"up";if(m&&ended(m))return"done";return now<=ev.end||(m&&livem(m))?"live":"done"}
 const rid=ev=>ev.start.getTime()+"_"+ev.title.replace(/\W/g,"");
 function dayLabel(d,now){const a=new Date(now).setHours(0,0,0,0),b=new Date(d).setHours(0,0,0,0),n=Math.round((b-a)/864e5);return n===0?"Σήμερα":n===1?"Αύριο":d.toLocaleDateString("el-GR",{weekday:"short",day:"numeric",month:"short"})}
