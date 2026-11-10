@@ -36,7 +36,6 @@ h2{font-size:18px;margin:20px 0 12px}.count{background:#2a2a2a;padding:3px 9px;b
 <div id="rbox" class="box" hidden>🔔 <span id="rcount">0</span> υπενθυμίσεις <button class="chip" id="rclear" style="margin-left:8px">Καθαρισμός</button></div>
 <div class="dim" style="margin:6px 2px"><span id="rcnt"></span></div>
 <h2>🔴 Live τώρα <span class="count" id="liveCount">0</span></h2><div class="grid" id="liveList"></div>
-<section class="box" aria-labelledby="sofaTitle" style="margin-top:14px"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b id="sofaTitle">Live σκορ από SofaScore</b><select id="sofaSport" aria-label="Άθλημα στο SofaScore" style="width:auto;flex:1;min-width:140px"><option value="basketball">Μπάσκετ</option><option value="football">Ποδόσφαιρο</option><option value="tennis">Τένις</option><option value="volleyball">Βόλεϊ</option><option value="handball">Χάντμπολ</option></select><a id="sofaExternal" class="btn" href="https://www.sofascore.com/basketball" target="_blank" rel="noopener noreferrer">Άνοιγμα live σκορ</a></div><div class="dim" style="margin:8px 0">Το SofaScore μπλοκάρει την εμφάνιση της live σελίδας μέσα στο πλαίσιο (403). Άνοιξε τα επίσημα σκορ απευθείας στο SofaScore. Για ενσωμάτωση μέσα σε κάρτα απαιτείται widget συγκεκριμένου αγώνα.</div></section>
 <h2>⏭️ Επόμενες 6 ώρες <span class="count" id="upCount">0</span></h2><div class="grid" id="upList"></div>
 <h2>📅 Όλο το πρόγραμμα <span class="count" id="allCount">0</span></h2><div class="grid" id="allList"></div>
 <div class="footer">Διάρκειες (εκτίμηση): ποδόσφαιρο/βόλεϊ/μπάσκετ 120′, χάντμπολ 100′, τένις/F1 150′, NFL 200′, μαραθώνιος 300′, εκπομπή 90′. Όταν υπάρχει σκορ από το Athletiko, η ένδειξη Live/Τελικό βασίζεται σε αυτό.<br>Για 100% επιβεβαίωση δες το κανάλι.</div></div>
@@ -126,8 +125,6 @@ document.querySelectorAll("#quick [data-f]").forEach(b=>b.onclick=()=>{st.f=b.da
 $("hide").onclick=()=>{st.hide=!st.hide;save();render()};
 $("favEdit").onclick=()=>{const v=prompt("Αγαπημένες ομάδες (χωρισμένες με κόμμα):",st.fav);if(v!==null){st.fav=v;save();render()}};
 $("refresh").onclick=()=>{load();loadScores()};$("rclear").onclick=()=>{jset("sports_rem",[]);render()};
-const sofaUrl=()=>`https://www.sofascore.com/${encodeURIComponent($("sofaSport").value)}`;
-$("sofaSport").onchange=()=>{$("sofaExternal").href=sofaUrl()};
 $("notifBtn").onclick=async()=>{if("Notification" in window){await Notification.requestPermission();updNotif()}};
 const tick=()=>{const n=new Date();$("clock").textContent=n.toLocaleTimeString("el-GR",{hourCycle:"h23"});$("dateLine").textContent=n.toLocaleDateString("el-GR",{weekday:"long",day:"numeric",month:"long",year:"numeric"})};
 let lastLoad=Date.now();
