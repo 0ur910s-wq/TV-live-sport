@@ -53,7 +53,7 @@ const sportOf=(c,t)=>{const s=(c+" "+t).toLowerCase();return SP.find(x=>x[1].tes
 let EV=[],SC=[],scErr="",SCM=new Map(),st={q:"",ch:"all",sp:"all",f:"all",hide:true,rem:15,fav:"Παναθηναϊκός",...jget("sports_state",{})};
 const save=()=>jset("sports_state",st);
 const setStatus=(c,t,d)=>{$("pill").className="pill "+c;$("pill").textContent=t;$("stxt").textContent=d||""};
-function setEvents(list){EV=list.map(e=>{const x=sportOf(e.c,e.t);return{start:new Date(e.s),end:new Date(e.s+x[2]*6e4),comp:e.c,title:e.t,channel:e.h||"—",sport:x[0]}}).sort((a,b)=>a.start-b.start);
+function setEvents(list){EV=list.map(e=>{const x=sportOf(e.c,e.t);return{start:new Date(e.s),end:new Date(e.s+x[2]*6e4),comp:e.c,title:e.t,opponent:e.o||"",channel:e.h||"—",sport:x[0]}}).sort((a,b)=>a.start-b.start);
  const opt=(a,all,v)=>`<option value="all">${all}</option>`+[...new Set(a)].sort().map(x=>`<option value="${esc(x)}"${x===v?" selected":""}>${esc(x)}</option>`).join("");
  $("chSel").innerHTML=opt(EV.map(e=>e.channel),"Όλα τα κανάλια",st.ch);$("spSel").innerHTML=opt(EV.map(e=>e.sport),"Όλα τα αθλήματα",st.sp);
  if(![...$("chSel").options].some(o=>o.value===st.ch))st.ch="all";if(![...$("spSel").options].some(o=>o.value===st.sp))st.sp="all"}
@@ -72,7 +72,7 @@ const ended=m=>/ended|closed|finished/.test(stat(m)),livem=m=>/live|progress|hal
 function nameMatch(team,text){const a=nameKey(team),b=nameKey(text);if(a.length<4||!b)return 0;if(b.includes(a))return 1;
  const aa=a.split(" ").filter(x=>x.length>1),bb=new Set(b.split(" ").filter(x=>x.length>1));if(!aa.length)return 0;
  const overlap=aa.filter(x=>bb.has(x)).length/aa.length;return overlap>=.75?overlap:0}
-function sc(ev){if(SCM.has(ev))return SCM.get(ev);const title=nameKey(ev.title),comp=nameKey(ev.comp),program=nameKey(`${ev.title} ${ev.comp} ${ev.channel}`),at=ev.start.getTime();let best=null,bestScore=0;
+function sc(ev){if(SCM.has(ev))return SCM.get(ev);const title=nameKey(ev.title),comp=nameKey(ev.comp),program=nameKey(`${ev.title} ${ev.opponent} ${ev.comp} ${ev.channel}`),at=ev.start.getTime();let best=null,bestScore=0;
  for(const m of SC){const h=m.home_team?.name,a=m.away_team?.name;if(!h||!a)continue;
   const eventName=m.event?.name||"",ht=nameMatch(h,program),atc=nameMatch(a,program);
   const eventPair=nameMatch(h,eventName)>=.75&&nameMatch(a,eventName)>=.75&&(nameMatch(h,title)>=.75||nameMatch(a,title)>=.75);
@@ -99,7 +99,7 @@ function card(ev,now,R){const s=state(ev,now),m=sc(ev),i=EV.indexOf(ev),on=R.has
  const badge=s==="live"?'<span class="badge live">● LIVE</span>':s==="up"?`<span class="badge">${dayLabel(ev.start,now)} ${fmt(ev.start)}</span>`:'<span class="badge" style="background:#555;color:#fff">ΤΕΛΕΙΩΣΕ</span>';
  const score=m&&m.home_score!=null&&m.away_score!=null&&ev.start<=now?`<div style="margin:4px 0;color:#2ed573;font-weight:700">Σκορ ${esc(m.home_score)} – ${esc(m.away_score)}${ended(m)?" • Τελικό":livem(m)?" • LIVE":""}</div>`:"";
  const info=s==="up"?(mins<60?`Ξεκινά σε ${mins}′`:`Ξεκινά σε ${Math.floor(mins/60)}ώ ${mins%60}′`):s==="live"?"Εκτ. λήξη "+fmt(ev.end):"";
- return `<article class="card ${s}"><span class="ch">${esc(ev.channel)}</span>${badge}<div class="title">${esc(ev.title)}</div>${score}<div class="dim">${esc(ev.comp)} • ${esc(ev.sport)}</div><div class="foot"><b>🕐 ${fmt(ev.start)}–${fmt(ev.end)}</b><span class="dim">${info}</span>${s==="up"?`<button data-a="rem" data-i="${i}">${on?"🔔 Ορίστηκε":"🔔 Ειδοποίηση"}</button>`:""}<button data-a="ics" data-i="${i}">📅 Ημερολόγιο</button></div></article>`}
+ return `<article class="card ${s}"><span class="ch">${esc(ev.channel)}</span>${badge}<div class="title">${esc(ev.title)}${ev.opponent?` – ${esc(ev.opponent)}`:""}</div>${score}<div class="dim">${esc(ev.comp)} • ${esc(ev.sport)}</div><div class="foot"><b>🕐 ${fmt(ev.start)}–${fmt(ev.end)}</b><span class="dim">${info}</span>${s==="up"?`<button data-a="rem" data-i="${i}">${on?"🔔 Ορίστηκε":"🔔 Ειδοποίηση"}</button>`:""}<button data-a="ics" data-i="${i}">📅 Ημερολόγιο</button></div></article>`}
 const rems=()=>jget("sports_rem",[]);
 function render(){const now=new Date();SCM.clear();const all=filtered(now),R=new Set(rems().map(r=>rid({start:new Date(r.start),title:r.title})));
  const live=all.filter(e=>state(e,now)==="live"),up=all.filter(e=>state(e,now)==="up"&&e.start<now.getTime()+6*36e5),box=(a,t)=>a.length?a.map(e=>card(e,now,R)).join(""):`<div class="empty">${t}</div>`;

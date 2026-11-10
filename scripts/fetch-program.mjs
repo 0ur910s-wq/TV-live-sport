@@ -20,12 +20,19 @@ const offset = (d) =>
 const today = new Intl.DateTimeFormat("sv", { timeZone: "Europe/Athens" }).format(new Date());
 
 const timeRe = /^([01]\d|2[0-3]):[0-5]\d$/;
+const channelRe = /^(?:novasports|magenta\s*sport|cosmote\s*sport|action\s*24|athletiko|ert(?:\s|\d|$)|ΕΡΤ(?:\s|$)|dazn|ant1|mega|skai|open|star(?:\s|$)|one(?:\s|$)|sport\s*tv)/i;
 const events = [], seen = new Set();
 let day = 0, prev = null;
 for (let i = 0; i < lines.length; i++) {
   if (!timeRe.test(lines[i])) continue;
-  const [c, t, h] = [lines[i - 1] || "", lines[i + 1] || "", lines[i + 2] || "—"];
+  const c = lines[i - 1] || "", t = lines[i + 1] || "";
   if (t.length < 2 || timeRe.test(t)) continue;
+  let channelIndex = -1;
+  for (let j = i + 2; j < Math.min(lines.length, i + 7) && !timeRe.test(lines[j]); j++) {
+    if (channelRe.test(lines[j])) { channelIndex = j; break; }
+  }
+  const opponent = channelIndex > i + 2 ? lines[i + 2] : "";
+  const h = channelIndex >= 0 ? lines[channelIndex] : lines[i + 2] || "—";
   const [hh, mm] = lines[i].split(":").map(Number);
   const cur = hh * 60 + mm;
   if (prev !== null && cur < prev - 180) day++; // η λίστα είναι χρονολογική: πτώση ώρας = νέα μέρα
@@ -37,7 +44,7 @@ for (let i = 0; i < lines.length; i++) {
   const key = s + "|" + t;
   if (seen.has(key)) continue;
   seen.add(key);
-  events.push({ s, c, t, h: h.length > 40 ? h.slice(0, 40) : h });
+  events.push({ s, c, t, h: h.length > 40 ? h.slice(0, 40) : h, ...(opponent ? { o: opponent } : {}) });
 }
 
 if (events.length < 10) { console.error("Βρέθηκαν μόνο " + events.length + " μεταδόσεις. Δεν γράφω αρχείο."); process.exit(1); }
