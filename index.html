@@ -97,7 +97,7 @@ function filtered(now){const q=norm(st.q),favs=st.fav.split(",").map(norm).filte
   return!(st.f==="today"&&dd!==0||st.f==="tomorrow"&&dd!==1)})}
 function card(ev,now,R){const s=state(ev,now),m=sc(ev),i=EV.indexOf(ev),on=R.has(rid(ev)),mins=Math.round((ev.start-now)/6e4);
  const badge=s==="live"?'<span class="badge live">● LIVE</span>':s==="up"?`<span class="badge">${dayLabel(ev.start,now)} ${fmt(ev.start)}</span>`:'<span class="badge" style="background:#555;color:#fff">ΤΕΛΕΙΩΣΕ</span>';
- const score=m&&m.home_score!=null&&m.away_score!=null&&ev.start<=now?`<div style="margin:4px 0;color:#2ed573;font-weight:700">Σκορ ${esc(m.home_score)} – ${esc(m.away_score)}${ended(m)?" • Τελικό":livem(m)?" • LIVE":""}</div>`:"";
+ const score=m&&livem(m)&&m.home_score!=null&&m.away_score!=null&&ev.start<=now?`<div style="margin:4px 0;color:#2ed573;font-weight:700">Σκορ ${esc(m.home_score)} – ${esc(m.away_score)} • LIVE</div>`:"";
  const info=s==="up"?(mins<60?`Ξεκινά σε ${mins}′`:`Ξεκινά σε ${Math.floor(mins/60)}ώ ${mins%60}′`):s==="live"?"Εκτ. λήξη "+fmt(ev.end):"";
  return `<article class="card ${s}"><span class="ch">${esc(ev.channel)}</span>${badge}<div class="title">${esc(ev.title)}${ev.opponent?` – ${esc(ev.opponent)}`:""}</div>${score}<div class="dim">${esc(ev.comp)} • ${esc(ev.sport)}</div><div class="foot"><b>🕐 ${fmt(ev.start)}–${fmt(ev.end)}</b><span class="dim">${info}</span>${s==="up"?`<button data-a="rem" data-i="${i}">${on?"🔔 Ορίστηκε":"🔔 Ειδοποίηση"}</button>`:""}<button data-a="ics" data-i="${i}">📅 Ημερολόγιο</button></div></article>`}
 const rems=()=>jget("sports_rem",[]);
