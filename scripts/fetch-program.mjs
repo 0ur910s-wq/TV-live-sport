@@ -11,7 +11,7 @@ const text = html
   .replace(/<(script|style|noscript)[\s\S]*?<\/\1>/gi, " ")
   .replace(/<img[^>]*alt="([^"]*)"[^>]*>/gi, "\n$1\n") // τα κανάλια είναι λογότυπα με alt
   .replace(/<[^>]+>/g, "\n")
-  .replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&nbsp;/g, " ");
+  .replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&#x2F;/gi, "/").replace(/&nbsp;/g, " ");
 const lines = text.split("\n").map((s) => s.trim()).filter(Boolean);
 
 const offset = (d) =>

@@ -48,7 +48,7 @@ const fmt=d=>d.toLocaleTimeString("el-GR",{hour:"2-digit",minute:"2-digit",hourC
 const norm=s=>String(s??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/ς/g,"σ").replace(/(.)\1+/g,"$1");
 const nameKey=s=>norm(s).replace(/&/g," and ").replace(/[^\p{L}\p{N}]+/gu," ").trim().replace(/\s+/g," ");
 // [άθλημα, regex, διάρκεια σε λεπτά] — η σειρά μετράει
-const SP=[["Στίβος",/μαραθ|δρόμου/,300],["Formula 1",/formula|γκραν πρι/,150],["Εκπομπή",/εκπομπή|athletiko fc/,90],["Τένις",/\batp\b|\bwta\b|τένις|tennis|roland|wimbledon/,150],["Χάντμπολ",/ehf|handball|χάντμπολ/,100],["Βόλεϊ",/volley|βόλεϊ/,120],["Μπάσκετ",/gbl|nba|basket|acb|μπάσκετ|euroleague/,120],["NFL",/nfl/,200],["Ποδόσφαιρο",/league|liga|serie|bundesliga|eredivisie|premier|copa|torneo|cup|champions|conference|europa|ποδόσφαιρο/,120]];
+const SP=[["Στίβος",/μαραθ|δρόμου/,300],["Formula 1",/formula|γκραν πρι/,150],["Εκπομπή",/εκπομπή|athletiko fc/,90],["Τένις",/\batp\b|\bwta\b|τένις|tennis|roland|wimbledon/,150],["Χάντμπολ",/ehf|handball|χάντμπολ/,100],["Βόλεϊ",/volley|βόλεϊ/,120],["Μπάσκετ",/gbl|nba|basket|acb|μπάσκετ|euroleague|eurocup/,120],["NFL",/nfl/,200],["Ποδόσφαιρο",/league|liga|serie|bundesliga|eredivisie|premier|copa|torneo|cup|champions|conference|europa|ποδόσφαιρο/,120]];
 const sportOf=(c,t)=>{const s=(c+" "+t).toLowerCase();return SP.find(x=>x[1].test(s))||["Άλλο",0,120]};
 let EV=[],SC=[],scErr="",SCM=new Map(),st={q:"",ch:"all",sp:"all",f:"all",hide:true,rem:15,fav:"Παναθηναϊκός",...jget("sports_state",{})};
 const save=()=>jset("sports_state",st);
