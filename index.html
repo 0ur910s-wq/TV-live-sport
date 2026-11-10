@@ -130,6 +130,7 @@ const tick=()=>{const n=new Date();$("clock").textContent=n.toLocaleTimeString("
 let lastLoad=Date.now();
 const auto=()=>{if(Date.now()-lastLoad>30*6e4){lastLoad=Date.now();load()}loadScores();checkRem()};
 tick();updNotif();load();loadScores();setInterval(tick,1000);setInterval(()=>{checkRem();render()},30000);setInterval(()=>{if(!document.hidden)auto()},60000);
+setInterval(()=>{if(!document.hidden)location.reload()},5*60*1000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)auto()});
 let dp=null;addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;$("installBar").style.display="block"});
 $("installBtn").onclick=async()=>{if(dp){dp.prompt();await dp.userChoice;$("installBar").style.display="none";dp=null}};$("installX").onclick=()=>$("installBar").style.display="none";
