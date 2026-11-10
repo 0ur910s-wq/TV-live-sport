@@ -71,17 +71,17 @@ const stat=m=>String(m.match_status||m.status||"").toLowerCase();
 const ended=m=>/ended|closed|finished/.test(stat(m)),livem=m=>/live|progress|half|period|quarter|overtime|set\d?|break/.test(stat(m))&&!/not_started|scheduled/.test(stat(m));
 function nameMatch(team,text){const a=nameKey(team),b=nameKey(text);if(a.length<4||!b)return 0;if(b.includes(a))return 1;
  const aa=a.split(" ").filter(x=>x.length>1),bb=new Set(b.split(" ").filter(x=>x.length>1));if(!aa.length)return 0;
- const overlap=aa.filter(x=>bb.has(x)).length/aa.length;return overlap>=.75?overlap:0}
+ const overlap=aa.filter(x=>bb.has(x)).length/aa.length;return overlap>=.5&&aa.some(x=>x.length>=5&&bb.has(x))?overlap:0}
 function sc(ev){if(SCM.has(ev))return SCM.get(ev);const title=nameKey(ev.title),comp=nameKey(ev.comp),program=nameKey(`${ev.title} ${ev.opponent} ${ev.comp} ${ev.channel}`),at=ev.start.getTime();let best=null,bestScore=0;
  for(const m of SC){const h=m.home_team?.name,a=m.away_team?.name;if(!h||!a)continue;
   const eventName=m.event?.name||"",ht=nameMatch(h,program),atc=nameMatch(a,program);
-  const eventPair=nameMatch(h,eventName)>=.75&&nameMatch(a,eventName)>=.75&&(nameMatch(h,title)>=.75||nameMatch(a,title)>=.75);
-  const both=ht>=.75&&atc>=.75||eventPair;
+  const eventPair=nameMatch(h,eventName)>=.5&&nameMatch(a,eventName)>=.5&&(nameMatch(h,title)>=.5||nameMatch(a,title)>=.5);
+  const both=ht>=.5&&atc>=.5||eventPair;
   if(!both)continue;
   const kickoff=Date.parse(m.start_time||m.time);const delta=Number.isFinite(kickoff)?Math.abs(kickoff-at):0;
-  if(delta>18*36e5)continue;
+  if(delta>6*36e5)continue;
   const compMatch=comp&&nameMatch(m.competition?.name,comp)>.5?0.15:0;
-  const score=(eventPair?2:ht+atc)+compMatch-delta/(18*36e5)*.25;
+  const score=(eventPair?2:ht+atc)+compMatch-delta/(6*36e5)*.25;
   if(score>bestScore){best=m;bestScore=score}}
  SCM.set(ev,best);return best}
 function state(ev,now){const m=sc(ev);if(ev.start>now)return"up";if(m&&ended(m))return"done";return now<=ev.end||(m&&livem(m))?"live":"done"}
