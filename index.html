@@ -43,8 +43,8 @@ body{background:radial-gradient(ellipse at 50% -15%,#20313b 0,transparent 50%),#
 <div class="src"><b>Πηγή:</b> <a href="https://www.athletiko.gr/tvprogram" target="_blank" rel="noopener" style="color:#7ab8ff">athletiko.gr/tvprogram</a>
 <span id="statusPill" class="pill warn" role="status" aria-live="polite">ΦΟΡΤΩΣΗ…</span>
 <div id="statusText" style="margin-top:6px;color:#bbb">Προσπάθεια live ανάγνωσης από το Athletiko…</div>
-<div style="margin-top:9px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="loadLive(true)">🔄 Ανανέωση τώρα</button><button class="btn btn2" onclick="useFallback()">Χρήση αποθηκευμένου προγράμματος 7-8/11</button></div>
-<div style="margin-top:8px;color:#888">Γιατί proxy; Το athletiko.gr δεν στέλνει CORS headers, οπότε ο browser μπλοκάρει το απευθείας fetch. Η εφαρμογή δοκιμάζει 5 δημόσια proxies (Jina Reader πρώτα) με τη σειρά. Αν κοπούν όλα, δείχνει το τελευταίο επιβεβαιωμένο πρόγραμμα (7-8/11) που είναι αποθηκευμένο μέσα στο αρχείο.</div></div>
+<div style="margin-top:9px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="loadLive(true)">🔄 Ανανέωση τώρα</button></div>
+<div style="margin-top:8px;color:#888">Το πρόγραμμα φορτώνεται ζωντανά από το Athletiko. Αν η ανάκτηση αποτύχει, δεν εμφανίζονται παλιά ή αποθηκευμένα παιχνίδια. Τα σκορ LIVE ανανεώνονται ξεχωριστά από το Sport24 κάθε 60″.</div></div>
 
 <div class="controls"><input id="search" aria-label="Αναζήτηση αγώνων" autocomplete="off" placeholder="Αναζήτηση: ομάδα, διοργάνωση ή κανάλι… π.χ. Ολυμπιακός, Super League, Novasports">
 <div class="row"><select id="channelFilter" aria-label="Φίλτρο καναλιού"><option value="all">Όλα τα κανάλια</option></select><select id="sportFilter" aria-label="Φίλτρο αθλήματος"><option value="all">Όλες οι διοργανώσεις</option></select></div></div>
@@ -65,11 +65,10 @@ body{background:radial-gradient(ellipse at 50% -15%,#20313b 0,transparent 50%),#
 <h2>🔴 Αθλητικά Live Τώρα <span class="count" id="liveCount">0</span><small>Έναρξη ≤ Τώρα ≤ Λήξη (εκτίμηση διάρκειας)</small></h2><div class="grid" id="liveList"></div>
 <section id="liveScoresBox" class="score-panel" aria-labelledby="scoresHeading"><div class="score-panel-head"><h2 id="scoresHeading" class="score-heading"><i class="score-live-dot" aria-hidden="true"></i> LIVE Αποτελέσματα <span id="liveScoreCount" class="count">0</span></h2><div class="live-toolbar"><span class="auto-label">Αυτόματη ενημέρωση</span><button class="score-refresh" id="refreshScoresBtn" onclick="loadSport24Scores(true)" aria-label="Ανανέωση ζωντανών σκορ">↻ Ανανέωση</button></div></div><div id="liveScoresUpdated" class="score-updated" role="status" aria-live="polite">Σύνδεση με Sport24…</div><div id="liveScoresList" class="score-list"><div class="empty">Φόρτωση ζωντανών αποτελεσμάτων…</div></div><div class="score-source">Πηγή: <a href="https://www.sport24.gr/matchcenter/" target="_blank" rel="noopener">Sport24 Matchcenter</a> · Τα σκορ ανανεώνονται χωρίς επαναφόρτωση της σελίδας.</div></section>
 <h2>⏭️ Επόμενες Μεταδόσεις (6 Ώρες) <span class="count" id="upCount">0</span><small>Έως <span id="untilLabel"></span></small></h2><div class="grid" id="upList"></div>
-<h2>📅 Όλο το Πρόγραμμα <span class="count" id="allCount">0</span><small>Σήμερα + Αύριο από Athletiko</small></h2><div class="grid" id="allList"></div>
+<h2>📅 Όλο το Πρόγραμμα <span class="count" id="allCount">0</span><small>Μόνο τρέχουσες και επερχόμενες μεταδόσεις</small></h2><div class="grid" id="allList"></div>
 <div class="footer">Διάρκειες: Ποδόσφαιρο 120′, Μπάσκετ/Βόλεϊ 120′, F1 150′, Τένις 150′, Μαραθώνιος 300′, Εκπομπή 90′ — εκτίμηση, γιατί το Athletiko δίνει μόνο ώρα έναρξης.<br>Η Live ένδειξη είναι εκτίμηση βάσει ώρας έναρξης + διάρκειας. Για 100% επιβεβαίωση δες το κανάλι.</div></div>
 <script>
-const FALLBACK = [[0, "14:30", "Premier League", "Λιντς - Τότεναμ", "Novasports Premier League"], [0, "14:30", "Sky Bet EFL Championship", "Ρέξαμ - Γουλβς", "MAGENTA SPORT 7"], [0, "14:45", "Superbet League 2", "Απόλλων 1926 - Πανσερραϊκός", "ΕΡΤ 2"], [0, "15:00", "La Liga", "Μάλαγα - Ρασίνγκ Σανταντέρ", "MAGENTA SPORT 3 LEAGUE"], [0, "15:00", "Stoiximan GBL", "Δόξα Λευκάδας - Άρης", "ΣΠΟΡ FM 1"], [0, "16:00", "Serie A", "Κάλιαρι - Φροζινόνε", "MAGENTA SPORT 3"], [0, "16:00", "Serie A", "Τορίνο - Λέτσε", "MAGENTA SPORT 2"], [0, "16:00", "Stoiximan GBL", "Κολοσσός Ρόδου - Περιστέρι", "ΣΠΟΡ FM 2"], [0, "16:30", "Bundesliga", "Πάντερμπορν - Άιντραχτ Φρανκφούρτης", "Novasports 6 HD"], [0, "16:30", "Bundesliga", "Ντόρτμουντ - Έλβερσμπεργκ", "Novasports 4HD"], [0, "16:30", "Bundesliga", "Μάιντς - Μπάγερν Μονάχου", "Novasports 3HD"], [0, "17:00", "Premier League", "Άρσεναλ - Χαλ", "Novasports Premier League"], [0, "17:00", "Premier League", "Φούλαμ - Νιούκαστλ", "Novasports Start"], [0, "17:00", "Stoiximan Super League", "Βόλος - Κηφισιά", "MAGENTA SPORT 2 LEAGUE"], [0, "17:00", "Sky Bet EFL Championship", "Μπέρμιγχαμ - Σουόνσι", "MAGENTA SPORT 7"], [0, "17:00", "Α1 Γυναικών Volley League", "ΑΕΚ - Α.Ο. Θήρας", "ΕΡΤ 2"], [0, "17:00", "Stoiximan GBL", "Ηρακλής - Μύκονος", "ΣΠΟΡ FM 3"], [0, "17:00", "Stoiximan GBL", "Προμηθέας Πάτρας - Καρδίτσα", "ΣΠΟΡ FM 4"], [0, "17:30", "Stoiximan GBL", "ΠΑΟΚ - Βίκος Ιωαννίνων", "ΣΚΑΪ"], [0, "19:00", "Serie A", "Πάρμα - Μπολόνια", "MAGENTA SPORT 2"], [0, "19:30", "Premier League", "Νότιγχαμ Φόρεστ - Μάντσεστερ Σίτι", "Novasports Premier League"], [0, "19:30", "Bundesliga", "Στουτγκάρδη - Βέρντερ Βρέμης", "Novasports Prime"], [0, "19:30", "La Liga", "Οσασούνα - Μπιλμπάο", "MAGENTA SPORT 3 LEAGUE"], [0, "19:30", "Turkish Basketball Super League", "Μπούρσασπορ - Φενέρμπαχτσε", "MAGENTA SPORT 4"], [0, "19:30", "Volley League Ανδρών", "Ολυμπιακός - Φλοίσβος", "ΕΡΤ 2"], [0, "19:30", "Stoiximan Super League", "Άρης - Παναιτωλικός", "Novasports 1HD"], [0, "21:30", "Bundesliga 2", "Χέρτα Βερολίνου - Βόλφσμπουργκ", "Novasports Start"], [0, "21:45", "Serie A", "Ρόμα - Σασουόλο", "MAGENTA SPORT 2"], [0, "22:00", "La Liga", "Βαλένθια - Ρεάλ Μαδρίτης", "MAGENTA SPORT 3 LEAGUE"], [0, "22:30", "Liga Portugal", "Σπόρτινγκ Λισαβόνας - Μορεϊρένσε", "MAGENTA SPORT 3"], [0, "22:30", "Torneo Clausura", "Μπόκα Τζούνιορς - Ντιφένσα Τζουστίσια", "ACTION 24"], [0, "23:00", "Copa do Brasil 2026", "Ατλέτικο Μινέιρο - Γκρέμιο", "Novasports 2HD"], [1, "08:30", "Αγώνας Δρόμου", "43ος Μαραθώνιος Αθήνας", "ΕΡΤ 1"], [1, "12:30", "Superbet League 2", "Ολυμπιακός Β - Ελλάς Σύρου", "ΕΡΤ 2"], [1, "13:00", "ACB Liga Endesa", "Μπαρτσελόνα - Μπρέογκαν", "MAGENTA SPORT 4"], [1, "13:00", "Stoiximan GBL", "ΑΕΚ - Παναθηναϊκός AKTOR", "ΣΚΑΪ"], [1, "13:15", "Eredivisie", "Χέρενφεν - Φέγενορντ", "Novasports Prime"], [1, "13:30", "Serie A", "Νάπολι - Λάτσιο", "MAGENTA SPORT 1"], [1, "14:30", "Turkish Basketball Super League", "Αναντολού Εφές - Τόφας", "MAGENTA SPORT 7"], [1, "14:30", "Bundesliga 2", "Χάιντενχαϊμ - Ανόβερο", "Novasports 3HD"], [1, "14:45", "Superbet League 2", "Athens Kallithea - Πανιώνιος", "ΕΡΤ 2"], [1, "15:00", "La Liga", "Έλτσε - Μπέτις", "MAGENTA SPORT 3 LEAGUE"], [1, "15:30", "Eredivisie", "Τβέντε - Άγιαξ", "Novasports 1HD"], [1, "16:00", "Cyprus League", "Ανόρθωση - Ομόνοια", "MAGENTA SPORT 3"], [1, "16:00", "Serie A", "Τζένοα - Μίλαν", "MAGENTA SPORT 1"], [1, "16:00", "Serie A", "Μόντσα - Αταλάντα", "MAGENTA SPORT 2"], [1, "16:00", "Premier League", "Κρίσταλ Πάλας - Λίβερπουλ", "Novasports Premier League"], [1, "16:00", "Premier League", "Μπράιτον - Μπρέντφορντ", "Novasports Prime"], [1, "16:00", "Premier League", "Ίπσουιτς - Μπόρνμουθ", "Novasports 6 HD"], [1, "16:30", "Bundesliga", "Κολωνία - Λεβερκούζεν", "Novasports Start"], [1, "17:00", "Stoiximan Super League", "ΑΕΚ - Λεβαδειακός", "MAGENTA SPORT 1"], [1, "17:00", "EHF Euro 2028 - Προκριματικά Ανδρών", "Ελλάδα - Βόρεια Μακεδονία", "ΕΡΤ 2"], [1, "17:00", "Premier League", "Σάντερλαντ - Τσέλσι", "Novasports 4HD"], [1, "17:15", "La Liga", "Ρεάλ Σοσιεδάδ - Ράγιο Βαγιεκάνο", "MAGENTA SPORT 3 LEAGUE"], [1, "17:15", "Stoiximan GBL", "Μαρούσι - Ολυμπιακός", "ΣΠΟΡ FM 2"], [1, "17:30", "Stoiximan Super League", "Ηρακλής - Παναθηναϊκός", "ΣΚΑΪ"], [1, "17:45", "Eredivisie", "Καμπούρ - PSV Αϊντχόφεν", "Novasports 2HD"], [1, "17:45", "Eredivisie", "Άλκμααρ - Γκρόνινγκεν", "Novasports 1HD"], [1, "18:30", "Stoiximan Super League", "ΟΦΗ - Ατρόμητος", "MAGENTA SPORT 2 LEAGUE"], [1, "18:30", "Premier League", "Μάντσεστερ Γιουνάιτεντ - Άστον Βίλα", "Novasports Prime"], [1, "18:30", "Bundesliga", "Φράιμπουργκ - Ουνιόν Βερολίνου", "Novasports 3HD"], [1, "18:45", "Formula 1 2026", "Γκραν Πρι Σάο Πάουλο", "ANT1"], [1, "19:00", "Cyprus League", "ΑΠΟΕΛ - Άρης Λεμεσού", "MAGENTA SPORT 3"], [1, "19:00", "Serie A", "Ίντερ - Κόμο", "MAGENTA SPORT 1"], [1, "19:30", "La Liga", "Θέλτα - Λεβάντε", "MAGENTA SPORT 4 LEAGUE"], [1, "19:30", "La Liga", "Βιγιαρεάλ - Χετάφε", "MAGENTA SPORT 3 LEAGUE"], [1, "20:00", "ACB Liga Endesa", "Ρεάλ Μαδρίτης - Μούρθια", "MAGENTA SPORT 4"], [1, "20:00", "Liga Portugal", "Βιτόρια Γκιμαράες - Πόρτο", "MAGENTA SPORT 2"], [1, "20:00", "NFL", "Νιου Γιορκ Τζετς – Κάνσας Σίτι Τσιφς", "ΕΡΤ 2"], [1, "21:00", "Stoiximan Super League", "Ολυμπιακός - ΠΑΟΚ", "MAGENTA SPORT 1"], [1, "21:45", "Serie A", "Φιορεντίνα - Γιουβέντους", "MAGENTA SPORT 1"], [1, "22:00", "Copa do Brasil 2026", "Βάσκο ντα Γκάμα - Παλμέιρας", "Novasports 2HD"], [1, "22:00", "LaLiga", "Ατλέτικο Μαδρίτης - Μπαρτσελόνα", "MAGENTA SPORT 3 LEAGUE"], [1, "22:30", "Εκπομπή", "Athletiko FC", "ACTION 24"], [1, "22:30", "ΝΒΑ", "Σικάγο Μπουλς - Φιλαδέλφεια 76ερς", "MAGENTA SPORT 4"], [1, "22:30", "Liga Portugal", "Εστρέλα - Μπενφίκα", "MAGENTA SPORT 2"]];
-let EVENTS=[]; let quick="all"; let sourceLabel="fallback";
+let EVENTS=[]; let quick="all"; let sourceLabel="unavailable";
 let SPORT24_SCORES=[]; let scoresError=""; let scoresLoading=false; let lastScoresSuccess=0; let nextScoresRefresh=0;
 function durFor(comp,title){
  const c=(comp+" "+title).toLowerCase();
@@ -100,17 +99,6 @@ function iconFor(ch){
   if(c.includes("ACTION")) return {t:"ACT", bg:"#ea580c"};
   return {t:"TV", bg:"#444"};
 }
-// Μετατροπή fallback (d=0 σήμερα, d=1 αύριο) σε Events με πραγματικές ημερομηνίες
-function fallbackToEvents(){
- const base=new Date(2026,10,7); base.setHours(0,0,0,0);
- return FALLBACK.map(f=>{
-   const d=new Date(base); d.setDate(d.getDate()+f[0]);
-   const [h,m]=f[1].split(":").map(Number); d.setHours(h,m,0,0);
-   const dur=durFor(f[2],f[3]);
-   return {start:d,end:new Date(d.getTime()+dur*60000),comp:f[2],title:f[3],channel:f[4],sport:sportFor(f[2]),dur};
- }).sort((a,b)=>a.start-b.start);
-}
-
 
 function extractLogo(s){
   if(!s) return "";
@@ -219,7 +207,9 @@ async function loadLive(manual){
      if(html.length<1000) continue;
      let parsed=parseAthletikoHTML(html);
      if(parsed.length<10) parsed=parseAthletikoMarkdown(html);
-     if(parsed.length>=10){
+     const now=new Date(); const tomorrow=new Date(); tomorrow.setHours(0,0,0,0); tomorrow.setDate(tomorrow.getDate()+2);
+     parsed=parsed.filter(e=>e.end>now && e.start<tomorrow);
+     if(parsed.length>=5){
        EVENTS=parsed; sourceLabel="live";
        pill.className="pill ok"; pill.textContent="● LIVE ΑΠΟ ATHLETIKO";
        txt.textContent="Επιτυχία! Διαβάστηκαν "+parsed.length+" μεταδόσεις live από athletiko.gr (μέσω "+pr.name+").";
@@ -227,13 +217,9 @@ async function loadLive(manual){
      }
    }catch(e){ console.log("proxy failed", pr.name, e); }
  }
- useFallback();
- pill.className="pill err"; pill.textContent="OFFLINE / FALLBACK";
- txt.textContent="Τα proxies μπλοκαρίστηκαν. Δείχνεται το αποθηκευμένο επιβεβαιωμένο πρόγραμμα 7-8/11. Πάτα «Ανανέωση τώρα» αργότερα.";
-}
-function useFallback(){
- EVENTS=fallbackToEvents(); sourceLabel="fallback";
- buildFilters(); render();
+ EVENTS=[]; sourceLabel="unavailable"; buildFilters(); render();
+ pill.className="pill err"; pill.textContent="ΠΡΟΓΡΑΜΜΑ ΜΗ ΔΙΑΘΕΣΙΜΟ";
+ txt.textContent="Δεν ήταν δυνατή η ζωντανή ανάκτηση προγράμματος από το Athletiko. Δεν εμφανίζουμε παλιά παιχνίδια. Πάτησε «Ανανέωση τώρα» για νέα προσπάθεια· τα live σκορ Sport24 συνεχίζουν να ενημερώνονται παρακάτω.";
 }
 function buildFilters(){
  const chSel=document.getElementById("channelFilter"); const spSel=document.getElementById("sportFilter");
@@ -276,7 +262,7 @@ async function loadSport24Scores(manual=false){
   const markdown=await r.text();if(markdown.length<1000)throw new Error("Κενή απάντηση");
   const parsed=parseSport24Scores(markdown);if(!parsed.length)throw new Error("Δεν εντοπίστηκαν σκορ στην απάντηση");
   SPORT24_SCORES=parsed;scoresError="";lastScoresSuccess=Date.now();
- }catch(e){scoresError="Δεν ήταν δυνατή η ανάκτηση σκορ από το Sport24 αυτή τη στιγμή.";console.warn("Sport24 scores unavailable",e);}
+ }catch(e){scoresError="Δεν ήταν δυνατή η ανάκτηση σκορ από το Sport24 αυτή τη στιγμή.";if(!lastScoresSuccess||Date.now()-lastScoresSuccess>120000)SPORT24_SCORES=[];console.warn("Sport24 scores unavailable",e);}
  finally{scoresLoading=false;nextScoresRefresh=Date.now()+60000;if(button){button.disabled=false;button.textContent="↻ Ανανέωση";}}
  renderPanathinaikosScores(); renderLiveScores(); render(); updateScoreRefreshLabel();
 }
@@ -328,6 +314,7 @@ function filtered(){
  const now=new Date(); const q=document.getElementById("search").value.toLowerCase().trim();
  const chF=document.getElementById("channelFilter").value; const spF=document.getElementById("sportFilter").value;
  return EVENTS.filter(ev=>{
+   if(ev.end < now) return false;
    const hay=(ev.title+" "+ev.comp+" "+ev.sport+" "+ev.channel).toLowerCase();
    if(q && !hay.includes(q)) return false;
    if(chF!=="all" && ev.channel!==chF) return false;
@@ -348,12 +335,12 @@ function render(){
  document.getElementById("liveCount").textContent=live.length;
  document.getElementById("upCount").textContent=up.length;
  document.getElementById("allCount").textContent=all.length;
- document.getElementById("resultCount").textContent=`${all.length} μεταδόσεις • πηγή: ${sourceLabel==="live"?"Athletiko LIVE":"Athletiko fallback 7-8/11"}`;
+ document.getElementById("resultCount").textContent=sourceLabel==="live"?`${all.length} τρέχουσες/επερχόμενες μεταδόσεις • Athletiko LIVE`:"Πρόγραμμα μη διαθέσιμο — τα live σκορ φορτώνονται από Sport24";
  document.getElementById("updated").textContent=fmtFull(now);
  document.getElementById("untilLabel").textContent=fmt(new Date(now.getTime()+6*3600*1000));
  document.getElementById("liveList").innerHTML= live.length? live.map(cardHTML(true)).join("") : `<div class="empty">Δεν υπάρχει Live αυτή τη στιγμή με αυτά τα φίλτρα.<br>Δες τις επόμενες παρακάτω.</div>`;
  document.getElementById("upList").innerHTML= up.length? up.map(cardHTML(false)).join("") : `<div class="empty">Καμία επόμενη μετάδοση στις επόμενες 6 ώρες με αυτά τα φίλτρα.</div>`;
- document.getElementById("allList").innerHTML= all.length? all.map(cardHTML(null)).join("") : `<div class="empty">Δεν βρέθηκαν μεταδόσεις.</div>`;
+ document.getElementById("allList").innerHTML= all.length? all.map(cardHTML(null)).join("") : `<div class="empty">${sourceLabel==="live"?"Δεν υπάρχουν τρέχουσες ή επερχόμενες μεταδόσεις.":"Το σημερινό πρόγραμμα δεν είναι διαθέσιμο αυτή τη στιγμή. Δεν εμφανίζονται παλιοί αγώνες. Δοκίμασε ξανά με «Ανανέωση τώρα»."}</div>`;
 }
 function cardHTML(mode){
  return ev=>{
@@ -435,7 +422,7 @@ document.getElementById("channelFilter").addEventListener("change",render);
 document.getElementById("sportFilter").addEventListener("change",render);
 document.querySelectorAll("#quick .chip").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll("#quick .chip").forEach(x=>x.classList.remove("active")); b.classList.add("active"); quick=b.dataset.f; renderPanathinaikosScores(); render();}));
 // Για quick live/upcoming: φιλτράρουμε οπτικά κρατώντας όλες τις ενότητες αλλά τονίζουμε
-tick(); renderReminders(); updateNotifBar(); useFallback(); loadLive(false); loadSport24Scores(); setInterval(()=>{if(!document.hidden)loadSport24Scores();},60000); document.addEventListener("visibilitychange",()=>{if(!document.hidden&&(!lastScoresSuccess||Date.now()-lastScoresSuccess>45000))loadSport24Scores();}); setInterval(()=>{tick();render();},30000); setInterval(tick,1000);
+tick(); renderReminders(); updateNotifBar(); buildFilters(); render(); loadLive(false); loadSport24Scores(); setInterval(()=>{if(!document.hidden)loadSport24Scores();},60000); document.addEventListener("visibilitychange",()=>{if(!document.hidden&&(!lastScoresSuccess||Date.now()-lastScoresSuccess>45000))loadSport24Scores();}); setInterval(()=>{tick();render();},30000); setInterval(tick,1000);
 </script>
 <div id="installBar" style="display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:50;background:#fff;color:#121212;border-radius:16px;padding:13px 14px;box-shadow:0 10px 30px rgba(0,0,0,.5)">
 <div style="display:flex;gap:10px;align-items:center"><span style="font-size:24px">📱</span><div style="flex:1"><b>Εγκατάσταση εφαρμογής</b><div style="font-size:12.5px;color:#444">Άνοιξέ την σαν κανονική εφαρμογή, χωρίς μπάρα browser.</div></div><button id="installBtn" style="background:#ff4757;color:#fff;border:0;padding:10px 14px;border-radius:999px;font-weight:800;cursor:pointer">Εγκατάσταση</button><button onclick="document.getElementById('installBar').style.display='none'" style="background:#eee;border:0;padding:8px 10px;border-radius:999px;cursor:pointer">✕</button></div>
