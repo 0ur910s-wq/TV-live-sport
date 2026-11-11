@@ -24,7 +24,7 @@ h2{font-size:18px;margin:20px 0 12px;display:flex;gap:8px;align-items:center;fle
 @media(min-width:700px){.controls{flex-direction:row}.controls>*{flex:1}.grid{display:grid;grid-template-columns:1fr 1fr}}
 .score-panel{margin:18px 0 22px;padding:16px;background:linear-gradient(145deg,#111b24,#10141a);border:1px solid #293743;border-radius:20px;box-shadow:0 14px 38px rgba(0,0,0,.22)}
 .score-panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.score-heading{display:flex;align-items:center;gap:9px;margin:0;font-size:20px}.score-live-dot{display:inline-block;width:9px;height:9px;background:#ff4757;border-radius:50%;box-shadow:0 0 12px #ff4757;animation:blink 1.1s infinite}.score-refresh{background:#26323b;color:#e8f0f5;border:1px solid #384955;border-radius:999px;padding:8px 12px;font-weight:750;cursor:pointer}.score-refresh:disabled{opacity:.6;cursor:wait}.score-updated{color:#9aabb7;font-size:12px;margin:7px 0 13px}.score-list{display:grid;grid-template-columns:1fr;gap:10px}.score-match{background:#1a222a;border:1px solid #2b3944;border-radius:15px;padding:13px 14px;transition:transform .16s,border-color .16s}.score-match:hover{transform:translateY(-1px);border-color:#4b6575}.score-match-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}.score-league{color:#91a4b2;font-size:11px;font-weight:750;letter-spacing:.35px;text-transform:uppercase}.score-state{display:flex;align-items:center;gap:6px;color:#ff6572;font-size:11px;font-weight:900}.score-state i{width:6px;height:6px;background:#ff4757;border-radius:50%;display:inline-block}.score-row{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:10px}.score-team{font-size:14px;font-weight:750;line-height:1.25;overflow-wrap:anywhere}.score-team.home{text-align:right}.score-team.away{text-align:left}.score-value{font-size:23px;font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap;color:#fff;min-width:66px;text-align:center}.score-link{display:block;margin-top:11px;text-align:right;color:#8ea3b2;text-decoration:none;font-size:11px}.score-link:hover{color:#fff}.score-source{margin-top:13px;color:#80909c;font-size:12px}.score-source a{color:#a9d0e6}.live-toolbar{display:flex;align-items:center;gap:8px}.auto-label{font-size:11px;color:#a6b8c4;padding:6px 9px;border:1px solid #2c3b46;border-radius:999px;white-space:nowrap}
-body{background:radial-gradient(ellipse at 50% -15%,#20313b 0,transparent 50%),#0d1217;color:#e8edf1}header{background:rgba(13,18,23,.94);border-bottom-color:#293743}.logo span{color:#ff5a68}.card{background:#171e24;border-color:#28333b}.card.live{border-left-color:#ff5362}.card.upcoming{border-left-color:#58ce9b}.chip.active{background:#b4e36a;color:#14200c}.btn{background:#b4e36a;color:#14200c}.badge.live{background:#ff5362}.src{background:#171e24;border-color:#293743}
+body{background:radial-gradient(ellipse at 50% -15%,#20313b 0,transparent 50%),#0d1217;color:#e8edf1}header{background:rgba(13,18,23,.94);border-bottom-color:#293743}.logo span{color:#ff5a68}.card{background:#171e24;border-color:#28333b}.card.live{border-left-color:#ff5362}.card.upcoming{border-left-color:#58ce9b}.chip.active{background:#b4e36a;color:#14200c}.btn{background:#b4e36a;color:#14200c}.badge.live{background:#ff5362}.badge.estimate{background:#594827;color:#ffe19a}.badge.final{background:#34434d;color:#d2dde5}.src{background:#171e24;border-color:#293743}
 @media(min-width:700px){.score-list{grid-template-columns:1fr 1fr}.score-panel{padding:20px}}
 @media(max-width:420px){.score-panel{padding:13px}.score-heading{font-size:18px}.score-team{font-size:13px}.score-value{font-size:21px;min-width:58px}.auto-label{display:none}}
 </style>
@@ -48,7 +48,7 @@ body{background:radial-gradient(ellipse at 50% -15%,#20313b 0,transparent 50%),#
 
 <div class="controls"><input id="search" aria-label="Αναζήτηση αγώνων" autocomplete="off" placeholder="Αναζήτηση: ομάδα, διοργάνωση ή κανάλι… π.χ. Ολυμπιακός, Super League, Novasports">
 <div class="row"><select id="channelFilter" aria-label="Φίλτρο καναλιού"><option value="all">Όλα τα κανάλια</option></select><select id="sportFilter" aria-label="Φίλτρο αθλήματος"><option value="all">Όλες οι διοργανώσεις</option></select></div></div>
-<div class="row" id="quick"><button class="chip active" data-f="all">Όλα</button><button class="chip" data-f="live">🔴 Μόνο Live</button><button class="chip" data-f="upcoming">⏭️ Μόνο Επόμενα</button><button class="chip" data-f="panathinaikos">☘️ Παναθηναϊκός</button><button class="chip" data-f="today">📅 Σήμερα</button><button class="chip" data-f="tomorrow">📅 Αύριο</button></div>
+<div class="row" id="quick"><button class="chip active" data-f="all">Όλα</button><button class="chip" data-f="live">📺 Μεταδόσεις τώρα</button><button class="chip" data-f="upcoming">⏭️ Μόνο Επόμενα</button><button class="chip" data-f="panathinaikos">☘️ Παναθηναϊκός</button><button class="chip" data-f="today">📅 Σήμερα</button><button class="chip" data-f="tomorrow">📅 Αύριο</button></div>
 <div id="scoreBox" class="src" style="display:none;margin-top:12px"><b>Σκορ Παναθηναϊκού</b> <span id="scoreUpdated" style="color:#999;font-size:12px"></span><div id="scoreList" style="margin-top:8px"></div><div style="margin-top:8px;color:#888;font-size:12px">Δεδομένα σκορ: <a href="https://www.sport24.gr/matchcenter/" target="_blank" rel="noopener" style="color:#7ab8ff">Sport24 Matchcenter</a></div></div>
 
 <div id="remindersBox" style="background:#1e1e1e;border:1px solid #333;border-radius:14px;padding:12px 13px;margin-bottom:12px;display:none">
@@ -62,11 +62,11 @@ body{background:radial-gradient(ellipse at 50% -15%,#20313b 0,transparent 50%),#
 </div>
 <div class="meta"><span>Τελευταία ενημέρωση: <b id="updated">—</b></span><span id="resultCount"></span></div>
 
-<h2>🔴 Αθλητικά Live Τώρα <span class="count" id="liveCount">0</span><small>Έναρξη ≤ Τώρα ≤ Λήξη (εκτίμηση διάρκειας)</small></h2><div class="grid" id="liveList"></div>
+<h2>📺 Μεταδόσεις τώρα <span class="count" id="liveCount">0</span><small>Με βάση το πρόγραμμα και εκτιμώμενη διάρκεια — όχι επιβεβαίωση αγώνα</small></h2><div class="grid" id="liveList"></div>
 <section id="liveScoresBox" class="score-panel" aria-labelledby="scoresHeading"><div class="score-panel-head"><h2 id="scoresHeading" class="score-heading"><i class="score-live-dot" aria-hidden="true"></i> LIVE Αποτελέσματα <span id="liveScoreCount" class="count">0</span></h2><div class="live-toolbar"><span class="auto-label">Αυτόματη ενημέρωση</span><button class="score-refresh" id="refreshScoresBtn" onclick="loadSport24Scores(true)" aria-label="Ανανέωση ζωντανών σκορ">↻ Ανανέωση</button></div></div><div id="liveScoresUpdated" class="score-updated" role="status" aria-live="polite">Σύνδεση με Sport24…</div><div id="liveScoresList" class="score-list"><div class="empty">Φόρτωση ζωντανών αποτελεσμάτων…</div></div><div class="score-source">Πηγή: <a href="https://www.sport24.gr/matchcenter/" target="_blank" rel="noopener">Sport24 Matchcenter</a> · Τα σκορ ανανεώνονται χωρίς επαναφόρτωση της σελίδας.</div></section>
 <h2>⏭️ Επόμενες Μεταδόσεις (6 Ώρες) <span class="count" id="upCount">0</span><small>Έως <span id="untilLabel"></span></small></h2><div class="grid" id="upList"></div>
 <h2>📅 Όλο το Πρόγραμμα <span class="count" id="allCount">0</span><small>Μόνο τρέχουσες και επερχόμενες μεταδόσεις</small></h2><div class="grid" id="allList"></div>
-<div class="footer">Διάρκειες: Ποδόσφαιρο 120′, Μπάσκετ/Βόλεϊ 120′, F1 150′, Τένις 150′, Μαραθώνιος 300′, Εκπομπή 90′ — εκτίμηση, γιατί το Athletiko δίνει μόνο ώρα έναρξης.<br>Η Live ένδειξη είναι εκτίμηση βάσει ώρας έναρξης + διάρκειας. Για 100% επιβεβαίωση δες το κανάλι.</div></div>
+<div class="footer">Διάρκειες: Ποδόσφαιρο 120′, Μπάσκετ/Βόλεϊ 120′, F1 150′, Τένις 150′, Μαραθώνιος 300′, Εκπομπή 90′ — εκτίμηση, γιατί το Athletiko δίνει μόνο ώρα έναρξης.<br>Η ένδειξη «Μετάδοση τώρα» βασίζεται στην ώρα έναρξης και σε εκτιμώμενη διάρκεια. Η ένδειξη LIVE και το σκορ εμφανίζονται μόνο όταν επιβεβαιώνονται από το Sport24.</div></div>
 <script>
 let EVENTS=[]; let quick="all"; let sourceLabel="unavailable";
 let SPORT24_SCORES=[]; let scoresError=""; let scoresLoading=false; let lastScoresSuccess=0; let nextScoresRefresh=0;
@@ -211,8 +211,8 @@ async function loadLive(manual){
      parsed=parsed.filter(e=>e.end>now && e.start<tomorrow);
      if(parsed.length>=5){
        EVENTS=parsed; sourceLabel="live";
-       pill.className="pill ok"; pill.textContent="● LIVE ΑΠΟ ATHLETIKO";
-       txt.textContent="Επιτυχία! Διαβάστηκαν "+parsed.length+" μεταδόσεις live από athletiko.gr (μέσω "+pr.name+").";
+       pill.className="pill ok"; pill.textContent="● ΠΡΟΓΡΑΜΜΑ ΕΝΗΜΕΡΩΘΗΚΕ";
+       txt.textContent="Επιτυχία! Διαβάστηκαν "+parsed.length+" προγραμματισμένες μεταδόσεις από athletiko.gr (μέσω "+pr.name+").";
        buildFilters(); render(); return;
      }
    }catch(e){ console.log("proxy failed", pr.name, e); }
@@ -268,6 +268,7 @@ async function loadSport24Scores(manual=false){
 }
 function scoreStatus(m){return String(m.match_status||m.status||"").toLowerCase();}
 function isMatchLive(m){const s=scoreStatus(m);return /live|in.?progress|1st_half|2nd_half|first_half|second_half|period|quarter|overtime|set[0-9]?|break/.test(s)&&!/(not_started|scheduled)/.test(s);}
+function isMatchFinished(m){return !!m&&/(ended|closed|finished|final|full.?time|τελ)/i.test(scoreStatus(m));}
 function scoreText(m){return m.home_score!==null&&m.home_score!==undefined&&m.away_score!==null&&m.away_score!==undefined?`${m.home_score} – ${m.away_score}`:"—";}
 function latinizeTeam(s){return normalizeTeamText(s).replace(/γκ/g,"g").replace(/γγ/g,"ng").replace(/ου/g,"u").replace(/αι/g,"ai").replace(/ει|οι|υι/g,"i").replace(/μπ/g,"b").replace(/ντ/g,"d").replace(/τσ/g,"ts").replace(/τζ/g,"tz").replace(/θ/g,"th").replace(/χ/g,"ch").replace(/ψ/g,"ps").replace(/ξ/g,"x").replace(/[αά]/g,"a").replace(/[β]/g,"v").replace(/[γ]/g,"g").replace(/[δ]/g,"d").replace(/[εέ]/g,"e").replace(/[ζ]/g,"z").replace(/[ηή]/g,"i").replace(/[ιί]/g,"i").replace(/[κ]/g,"k").replace(/[λ]/g,"l").replace(/[μ]/g,"m").replace(/[ν]/g,"n").replace(/[οό]/g,"o").replace(/[π]/g,"p").replace(/[ρ]/g,"r").replace(/[σς]/g,"s").replace(/[τ]/g,"t").replace(/[υύ]/g,"i").replace(/[φ]/g,"f").replace(/[ωώ]/g,"o").replace(/c/g,"k").replace(/[^a-z0-9]/g,"");}
 function teamMatchesTitle(title,team){
@@ -319,7 +320,7 @@ function filtered(){
    if(q && !hay.includes(q)) return false;
    if(chF!=="all" && ev.channel!==chF) return false;
    if(spF!=="all" && ev.sport!==spF) return false;
-   if(quick==="live" && !(ev.start<=now && now<=ev.end)) return false;
+   if(quick==="live" && (!(ev.start<=now && now<=ev.end) || isMatchFinished(findScoreForEvent(ev)))) return false;
    if(quick==="upcoming" && !(ev.start>now)) return false;
    if(quick==="panathinaikos"){const t=normalizeTeamText(ev.title); if(!t.includes("παναθηναικ") && !t.includes("panathinaikos") && !/(^|\W)pao(\W|$)/i.test(ev.title)) return false;}
    if(quick==="today" && dayLabel(ev.start)!=="Σήμερα") return false;
@@ -330,7 +331,7 @@ function filtered(){
 function render(){
  const now=new Date();
  const all=filtered();
- const live=all.filter(e=>e.start<=now && now<=e.end);
+ const live=all.filter(e=>e.start<=now && now<=e.end && !isMatchFinished(findScoreForEvent(e)));
  const up=all.filter(e=>e.start>now && e.start<=new Date(now.getTime()+6*3600*1000));
  document.getElementById("liveCount").textContent=live.length;
  document.getElementById("upCount").textContent=up.length;
@@ -338,24 +339,27 @@ function render(){
  document.getElementById("resultCount").textContent=sourceLabel==="live"?`${all.length} τρέχουσες/επερχόμενες μεταδόσεις • Athletiko LIVE`:"Πρόγραμμα μη διαθέσιμο — τα live σκορ φορτώνονται από Sport24";
  document.getElementById("updated").textContent=fmtFull(now);
  document.getElementById("untilLabel").textContent=fmt(new Date(now.getTime()+6*3600*1000));
- document.getElementById("liveList").innerHTML= live.length? live.map(cardHTML(true)).join("") : `<div class="empty">Δεν υπάρχει Live αυτή τη στιγμή με αυτά τα φίλτρα.<br>Δες τις επόμενες παρακάτω.</div>`;
+ document.getElementById("liveList").innerHTML= live.length? live.map(cardHTML(true)).join("") : `<div class="empty">Δεν υπάρχουν μεταδόσεις προγραμματισμένες για τώρα με αυτά τα φίλτρα.<br>Οι εκτιμώμενες ώρες δεν επιβεβαιώνουν ότι ο αγώνας παίζεται.</div>`;
  document.getElementById("upList").innerHTML= up.length? up.map(cardHTML(false)).join("") : `<div class="empty">Καμία επόμενη μετάδοση στις επόμενες 6 ώρες με αυτά τα φίλτρα.</div>`;
  document.getElementById("allList").innerHTML= all.length? all.map(cardHTML(null)).join("") : `<div class="empty">${sourceLabel==="live"?"Δεν υπάρχουν τρέχουσες ή επερχόμενες μεταδόσεις.":"Το σημερινό πρόγραμμα δεν είναι διαθέσιμο αυτή τη στιγμή. Δεν εμφανίζονται παλιοί αγώνες. Δοκίμασε ξανά με «Ανανέωση τώρα»."}</div>`;
 }
 function cardHTML(mode){
  return ev=>{
-  const now=new Date(); const isLive=ev.start<=now && now<=ev.end;
-  const cls=isLive?"live":"upcoming";
+  const now=new Date(); const scheduledNow=ev.start<=now && now<=ev.end;
+  const matchScore=scheduledNow?findScoreForEvent(ev):null;
+  const confirmedLive=!!matchScore&&isMatchLive(matchScore);
+  const confirmedFinal=isMatchFinished(matchScore);
+  const cls=confirmedLive?"live":scheduledNow?"estimated":"upcoming";
   let prog="",starts="";
-  if(isLive){const pct=Math.max(2,Math.min(98,Math.round((now-ev.start)/(ev.end-ev.start)*100))); prog=`<div class="progress"><i style="width:${pct}%"></i></div>`;}
-  else {const diff=Math.round((ev.start-now)/60000); starts= diff<0? "" : diff<60? `Ξεκινά σε ${diff}′` : `Ξεκινά σε ${Math.floor(diff/60)}ώ ${diff%60}′`;}
-  const remId = (ev.start.getTime()+"_"+ev.title).replace(/[^a-zA-Z0-9_]/g,"_");
-  const isRem = hasReminder(remId);
-  const matchScore=isLive?findScoreForEvent(ev):null;
-  const matchScoreLabel=matchScore?(isMatchLive(matchScore)?"LIVE":["ended","closed","finished"].includes(scoreStatus(matchScore))?"ΤΕΛΙΚΟ":"ΣΚΟΡ"):"ΜΗ ΔΙΑΘΕΣΙΜΟ";
-  const scoreBadge=isLive?`<div class="desc" style="margin:4px 0 6px;color:${matchScore?"#2ed573":"#aaa"};font-weight:700">⚽ ${matchScore?`Σκορ ${esc(scoreText(matchScore))} • ${matchScoreLabel}`:"Δεν βρέθηκε σκορ για αυτόν τον αγώνα στο Sport24"}</div>`:"";
-  const bellBtn = !isLive ? `<button onclick="event.stopPropagation();toggleReminder('${remId}', ${esc(JSON.stringify(ev.title))}, ${esc(JSON.stringify(ev.channel))}, ${ev.start.getTime()})" style="margin-left:auto;background:${isRem?"#2ed573":"#2a2a2a"};color:${isRem?"#06281a":"#e0e0e0"};border:1px solid #444;border-radius:999px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700">${isRem?"🔔 Ορίστηκε":"🔔 Ειδοποίηση"}</button>` : "";
-  return `<article class="card ${cls}">${ev.logo ? `<img src="${esc(ev.logo)}" alt="${esc(ev.channel)}" loading="lazy" style="width:52px;height:52px;object-fit:contain;background:#fff;border-radius:12px;padding:4px;flex-shrink:0" onerror="this.remove()">` : `<div class="icon" style="background:${iconFor(ev.channel).bg};color:#fff;font-size:13px;font-weight:900;letter-spacing:.5px">${iconFor(ev.channel).t}</div>`}<div class="main"><div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center"><span class="channel">${esc(ev.channel)}</span>${isLive?`<span class="badge live">● LIVE</span>`:`<span class="badge soon">${dayLabel(ev.start)} • ΣΕ ${fmt(ev.start)}</span>`}</div><div class="title">${esc(ev.title)}</div>${scoreBadge}<div class="desc">${esc(ev.comp)} • ${esc(ev.sport)}</div><div class="foot">${bellBtn}<span class="time">🕐 ${fmt(ev.start)} – ${fmt(ev.end)}</span><span class="tag">${esc(ev.sport)}</span><span class="starts">${isLive? Math.round((ev.end-now)/60000)+"′ απομένουν (εκτ.)" : starts}</span></div>${prog}</div></article>`;
+  if(scheduledNow){const pct=Math.max(2,Math.min(98,Math.round((now-ev.start)/(ev.end-ev.start)*100)));prog=`<div class="progress"><i style="width:${pct}%"></i></div>`;}
+  else {const diff=Math.round((ev.start-now)/60000);starts=diff<0?"":diff<60?`Ξεκινά σε ${diff}′`:`Ξεκινά σε ${Math.floor(diff/60)}ώ ${diff%60}′`;}
+  const remId=(ev.start.getTime()+"_"+ev.title).replace(/[^a-zA-Z0-9_]/g,"_");
+  const isRem=hasReminder(remId);
+  const stateBadge=confirmedLive?`<span class="badge live">● LIVE • SPORT24</span>`:confirmedFinal?`<span class="badge final">ΤΕΛΙΚΟ • SPORT24</span>`:scheduledNow?`<span class="badge estimate">ΩΡΑ ΠΡΟΓΡΑΜΜΑΤΟΣ*</span>`:`<span class="badge soon">${dayLabel(ev.start)} • ΣΕ ${fmt(ev.start)}</span>`;
+  const scoreBadge=scheduledNow?`<div class="desc" style="margin:4px 0 6px;color:${confirmedLive?"#2ed573":confirmedFinal?"#a9bac4":"#e0bd72"};font-weight:700">${matchScore?`⚽ Σκορ ${esc(scoreText(matchScore))} • ${confirmedLive?"LIVE":confirmedFinal?"ΤΕΛΙΚΟ":"Sport24"}`:"ℹ️ Η ώρα μετάδοσης έχει φτάσει· live αγώνας δεν έχει επιβεβαιωθεί από το Sport24."}</div>`:"";
+  const bellBtn=!scheduledNow?`<button onclick="event.stopPropagation();toggleReminder('${remId}', ${esc(JSON.stringify(ev.title))}, ${esc(JSON.stringify(ev.channel))}, ${ev.start.getTime()})" style="margin-left:auto;background:${isRem?"#2ed573":"#2a2a2a"};color:${isRem?"#06281a":"#e0e0e0"};border:1px solid #444;border-radius:999px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700">${isRem?"🔔 Ορίστηκε":"🔔 Ειδοποίηση"}</button>`:"";
+  const channelIcon=iconFor(ev.channel);
+  return `<article class="card ${cls}">${ev.logo?`<img src="${esc(ev.logo)}" alt="${esc(ev.channel)}" loading="lazy" style="width:52px;height:52px;object-fit:contain;background:#fff;border-radius:12px;padding:4px;flex-shrink:0" onerror="this.remove()">`:`<div class="icon" style="background:${channelIcon.bg};color:#fff;font-size:13px;font-weight:900;letter-spacing:.5px">${channelIcon.t}</div>`}<div class="main"><div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center"><span class="channel">${esc(ev.channel)}</span>${stateBadge}</div><div class="title">${esc(ev.title)}</div>${scoreBadge}<div class="desc">${esc(ev.comp)} • ${esc(ev.sport)}</div><div class="foot">${bellBtn}<span class="time">🕐 ${fmt(ev.start)} – ${fmt(ev.end)}</span><span class="tag">${esc(ev.sport)}</span><span class="starts">${scheduledNow?Math.max(0,Math.round((ev.end-now)/60000))+"′ απομένουν (εκτ.)":starts}</span></div>${prog}</div></article>`;
  }
 }
 
