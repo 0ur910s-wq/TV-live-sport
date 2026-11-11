@@ -55,7 +55,7 @@ const sportOf=(c,t)=>{const s=(c+" "+t).toLowerCase();return SP.find(x=>x[1].tes
 let EV=[],SC=[],scErr="",SCM=new Map(),st={q:"",ch:"all",sp:"all",f:"all",hide:true,rem:15,fav:"Παναθηναϊκός",...jget("sports_state",{})};
 const save=()=>jset("sports_state",st);
 const setStatus=(c,t,d)=>{$("pill").className="pill "+c;$("pill").textContent=t;$("stxt").textContent=d||""};
-function setEvents(list){EV=list.map(e=>{const x=sportOf(e.c,e.t);return{start:new Date(e.s),end:new Date(e.s+x[2]*6e4),comp:e.c,title:e.t,channel:e.h||"—",sport:x[0]}}).sort((a,b)=>a.start-b.start);
+function setEvents(list){EV=list.map(e=>{const x=sportOf(e.c,e.t),start=new Date(e.s);return{start,end:new Date(start.getTime()+x[2]*6e4),comp:e.c,title:e.t,channel:e.h||"—",sport:x[0]}}).sort((a,b)=>a.start-b.start);
  const opt=(a,all,v)=>`<option value="all">${all}</option>`+[...new Set(a)].sort().map(x=>`<option value="${esc(x)}"${x===v?" selected":""}>${esc(x)}</option>`).join("");
  $("chSel").innerHTML=opt(EV.map(e=>e.channel),"Όλα τα κανάλια",st.ch);$("spSel").innerHTML=opt(EV.map(e=>e.sport),"Όλα τα αθλήματα",st.sp);
  if(![...$("chSel").options].some(o=>o.value===st.ch))st.ch="all";if(![...$("spSel").options].some(o=>o.value===st.sp))st.sp="all"}
