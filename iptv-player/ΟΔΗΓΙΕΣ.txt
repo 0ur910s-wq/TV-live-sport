@@ -1,0 +1,69 @@
+ΑΥΤΟΜΑΤΗ ΕΚΚΙΝΗΣΗ ΤΟΥ IPTV PLAYER PRO ΣΤΑ WINDOWS 11
+=====================================================
+
+ΒΗΜΑ 0 — Τοποθέτηση αρχείων
+---------------------------
+Αντίγραψε τα δύο αρχεία:
+   - start_server.bat
+   - start_server_hidden.vbs
+ΜΕΣΑ στον ίδιο φάκελο όπου βρίσκεται το server.py σου (μαζί με τα
+channels.json, settings.json κ.λπ.).
+
+
+ΜΕΘΟΔΟΣ Α (ΣΥΝΙΣΤΑΤΑΙ) — Task Scheduler
+----------------------------------------
+Πιο αξιόπιστη: ξεκινά ακόμα και πριν συνδεθείς, και μπορεί να κάνει
+αυτόματη επανεκκίνηση αν κρασάρει.
+
+1. Πάτησε Start, γράψε "Task Scheduler" (Πρόγραμμα Προγραμματισμού
+   Εργασιών) και άνοιξέ το.
+2. Δεξί κλικ στο "Task Scheduler Library" -> "Create Task..." (ΟΧΙ
+   "Create Basic Task", θέλουμε τις πλήρεις επιλογές).
+3. Tab "General":
+      - Name: IPTV Player Pro
+      - Επίλεξε "Run whether user is logged on or not"
+      - Τσέκαρε "Run with highest privileges" (προαιρετικό, βοηθάει αν
+        έχεις προβλήματα δικαιωμάτων στον φάκελο εγγραφών)
+4. Tab "Triggers" -> "New...":
+      - Begin the task: "At startup" (ξεκινά με τα Windows, πριν καν
+        συνδεθείς) — ή "At log on" αν προτιμάς να ξεκινά μόνο όταν
+        μπαίνεις εσύ.
+5. Tab "Actions" -> "New...":
+      - Action: "Start a program"
+      - Program/script: πλήρες path στο start_server.bat, π.χ.:
+            C:\Users\ΟνομαΣου\Documents\IPTVApp\start_server.bat
+      - Start in (optional): ο ΙΔΙΟΣ φάκελος, π.χ.:
+            C:\Users\ΟνομαΣου\Documents\IPTVApp
+6. Tab "Conditions": ξετσεκάρισε το "Start the task only if the
+   computer is on AC power" (αν είναι laptop, αλλιώς δεν θα ξεκινά
+   ενώ είναι στην μπαταρία).
+7. Tab "Settings": τσέκαρε "If the task fails, restart every: 1 minute"
+   — έτσι αν κρασάρει, θα ξανασηκωθεί μόνο του.
+8. OK. Θα σου ζητήσει τον κωδικό των Windows σου (χρειάζεται για το
+   "Run whether user is logged on or not").
+
+Δοκιμή: κάνε δεξί κλικ στο task -> "Run" και άνοιξε browser στο
+http://127.0.0.1:5000 (ή στο τοπικό IP της συσκευής) για επιβεβαίωση.
+
+
+ΜΕΘΟΔΟΣ Β (ΠΙΟ ΑΠΛΗ) — Φάκελος Εκκίνησης (Startup folder)
+-----------------------------------------------------------
+Πιο απλή, αλλά ξεκινά μόνο ΑΦΟΥ συνδεθείς στα Windows.
+
+1. Πάτησε Win+R, γράψε: shell:startup , Enter.
+   (Ανοίγει τον φάκελο Εκκίνησης του τρέχοντος χρήστη.)
+2. Αντίγραψε ΕΚΕΙ ΜΕΣΑ ένα shortcut (δεξί κλικ -> New -> Shortcut) που
+   να δείχνει στο:
+       start_server_hidden.vbs
+   (δώσε το πλήρες path στο αρχείο μέσα στον φάκελο της εφαρμογής σου).
+
+Από την επόμενη φορά που θα συνδεθείς στα Windows, ο server θα ξεκινά
+μόνος του, εντελώς αθόρυβα (χωρίς κανένα παράθυρο).
+
+
+ΣΗΜΕΙΩΣΗ ΓΙΑ FIREWALL
+---------------------
+Την πρώτη φορά που θα τρέξει, τα Windows Defender Firewall μπορεί να
+ρωτήσουν αν επιτρέπεις την πρόσβαση για το Python — πάτα "Allow access"
+(τουλάχιστον για "Private networks") ώστε να μπορείς να συνδέεσαι από
+κινητό/άλλες συσκευές στο ίδιο δίκτυο.
