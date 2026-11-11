@@ -123,6 +123,12 @@ function cleanText(s){
   if(!s) return "";
   return String(s).replace(/!\[IMAGE\s*\d+:\s*([^\]]+)\]\([^)]+\)/gi,"$1").replace(/\(https?:[^)]+\)/g,"").trim();
 }
+function scheduleDateForTime(timeText,today,state){
+ const [h,mm]=timeText.split(":").map(Number),minutes=h*60+mm;
+ if(state.lastMinutes!==null&&state.lastMinutes-minutes>360)state.dayOffset++;
+ state.lastMinutes=minutes;
+ const date=new Date(today);date.setDate(date.getDate()+state.dayOffset);date.setHours(h,mm,0,0);return date;
+}
 function parseAthletikoHTML(html){
  // Καθαρισμός HTML -> κείμενο, κράτα διαχωριστικά
  const tmp=new DOMParser().parseFromString(String(html),"text/html");
@@ -132,7 +138,7 @@ function parseAthletikoHTML(html){
  // Χρησιμοποιούμε regex πάνω στο raw HTML για τα alt / κείμενα των καναλιών όπου γίνεται
  // Fallback parser: ψάχνουμε γραμμές ώρας HH:MM
  const lines=text.split("\n").map(s=>s.trim()).filter(Boolean);
- const out=[]; let dayOffset=0; let seenMarathon=false;
+ const out=[]; const today=new Date();today.setHours(0,0,0,0);const dateState={dayOffset:0,lastMinutes:null};
  for(let i=0;i<lines.length;i++){
    if(/^([01]\d|2[0-3]):[0-5]\d$/.test(lines[i])){
      let comp=lines[i-1]||"";
@@ -140,18 +146,9 @@ function parseAthletikoHTML(html){
      let channel=lines[i+2]||""; let logo=extractLogo(channel);
      // Αν το επόμενο είναι πάλι διοργάνωση, το κανάλι χάθηκε στο parsing -> άγνωστο
      if(!title||title.length<2) continue;
-     if(title.includes("Μαραθώνιος")) dayOffset=1;
-     // Το Athletiko δεν έχει ξεκάθαρο διαχωριστικό ημέρας στο text, κρατάμε σειρά: μετά τον Μαραθώνιο θεωρούμε αύριο
-     // Για σήμερα όμως ο Μαραθώνιος είναι αύριο, οπότε όλα πριν από αυτόν είναι σήμερα
-     const isTomorrow = dayOffset===1 && !title.includes("Μαραθώνιος") ? 1 : (title.includes("Μαραθώνιος")?1:0);
-     // Διόρθωση: αν είμαστε ακόμα πριν τον Μαραθώνιο, isTomorrow=0
-     const d = seenMarathon ? 1 : (title.includes("Μαραθώνιος") ? 1 : 0);
-     if(title.includes("Μαραθώνιος")) seenMarathon=true;
      // channel καθαρισμός
      channel=cleanChannel(channel); channel=cleanChannel(channel);
-     const today=new Date(); today.setHours(0,0,0,0);
-     const dt=new Date(today); dt.setDate(dt.getDate()+d);
-     const [h,m]=lines[i].split(":").map(Number); dt.setHours(h,m,0,0);
+     const dt=scheduleDateForTime(lines[i],today,dateState);
      comp=cleanText(comp); title=cleanText(title); channel=cleanChannel(channel); const dur=durFor(comp,title);
      out.push({start:dt,end:new Date(dt.getTime()+dur*60000),comp,title,channel:channel||"—",sport:sportFor(comp),dur,logo});
    }
@@ -163,7 +160,7 @@ function parseAthletikoHTML(html){
 function parseAthletikoMarkdown(text){
   // Jina format: γραμμές όπως "14:30 Leeds Tottenham" ή "Premier League" + επόμενη γραμμή ώρα
   const lines=text.split("\n").map(s=>s.trim()).filter(Boolean);
-  const out=[]; let seenMarathon=false;
+  const out=[]; const today=new Date();today.setHours(0,0,0,0);const dateState={dayOffset:0,lastMinutes:null};
   const timeRe=/^([01]\d|2[0-3]):[0-5]\d\b/;
   for(let i=0;i<lines.length;i++){
     const m=lines[i].match(timeRe);
@@ -173,13 +170,9 @@ function parseAthletikoMarkdown(text){
     let title=rest||lines[i+1]||"";
     let channel=lines[i+2]||""; let logo=extractLogo(channel);
     if(title.length<2) continue;
-    if(title.includes("Μαραθώνιος")) seenMarathon=true;
-    const d=seenMarathon && !title.includes("Μαραθώνιος") ? 1 : (title.includes("Μαραθώνιος")?1:0);
     // αν το channel μοιάζει με διοργάνωση, αγνόησέ το
     channel=cleanChannel(channel); channel=cleanChannel(channel);
-    const today=new Date(); today.setHours(0,0,0,0);
-    const dt=new Date(today); dt.setDate(dt.getDate()+d);
-    const [h,mm]=m[0].split(":").map(Number); dt.setHours(h,mm,0,0);
+    const dt=scheduleDateForTime(m[0],today,dateState);
     comp=cleanText(comp); title=cleanText(title); channel=cleanChannel(channel); const dur=durFor(comp,title);
     out.push({start:dt,end:new Date(dt.getTime()+dur*60000),comp,title,channel:channel||"—",sport:sportFor(comp),dur,logo});
   }
