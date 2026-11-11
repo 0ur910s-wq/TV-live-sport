@@ -1,434 +1,148 @@
-<!DOCTYPE html>
-<html lang="el"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!DOCTYPE html><html lang="el"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sports Live • Athletiko.gr</title>
-<style>*{box-sizing:border-box;margin:0;padding:0}body{background:#121212;color:#e0e0e0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding-bottom:40px}
-header{position:sticky;top:0;z-index:10;background:rgba(18,18,18,.94);backdrop-filter:blur(10px);padding:14px 16px 12px;border-bottom:1px solid #2c2c2c}
-.top{max-width:980px;margin:0 auto;display:flex;justify-content:space-between;gap:12px;align-items:center}
-.logo{font-size:22px;font-weight:900}.logo span{color:#ff4757}.sub{color:#9a9a9a;font-size:12.5px;margin-top:3px}
-#clock{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}#dateLine{font-size:12px;color:#9a9a9a;text-align:right}
-.wrap{max-width:980px;margin:0 auto;padding:14px 16px}
-.src{background:#1e1e1e;border:1px solid #333;border-radius:14px;padding:12px 13px;font-size:13px;line-height:1.5;margin-bottom:12px}
-.src b{color:#fff}.pill{display:inline-block;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:800;margin-left:6px}.ok{background:#2ed573;color:#06281a}.warn{background:#ffa502;color:#2a1800}.err{background:#ff4757;color:#fff}
-.controls{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
-input,select{width:100%;background:#1e1e1e;border:1px solid #333;color:#e0e0e0;padding:12px 13px;border-radius:13px;font-size:14.5px;outline:none}
-.row{display:flex;gap:8px;flex-wrap:wrap}.chip{border:1px solid #333;background:#1e1e1e;color:#e0e0e0;padding:9px 13px;border-radius:999px;font-size:13px;cursor:pointer}.chip.active{background:#fff;color:#121212;font-weight:700}.chip:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #7ab8ff;outline-offset:2px}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
-.btn{background:#ff4757;color:#fff;border:0;padding:11px 16px;border-radius:12px;font-weight:800;cursor:pointer;font-size:14px}.btn2{background:#2a2a2a;color:#e0e0e0;border:1px solid #333}
-.meta{display:flex;justify-content:space-between;color:#9a9a9a;font-size:12.5px;margin:6px 2px 10px}.meta b{color:#e0e0e0}
-h2{font-size:18px;margin:20px 0 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}.count{background:#2a2a2a;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:700}h2 small{font-size:12px;color:#9a9a9a;font-weight:400;margin-left:auto}
-.grid{display:flex;flex-direction:column;gap:11px}.card{background:#1e1e1e;border:1px solid #262626;border-radius:16px;padding:13px;display:flex;gap:12px}.card.live{border-left:4px solid #ff4757}.card.upcoming{border-left:4px solid #2ed573}
-.icon{width:52px;height:52px;border-radius:12px;background:#2b2b2b;display:grid;place-items:center;font-size:13px;font-weight:900;flex-shrink:0;text-align:center;line-height:1.1;padding:4px}.main{flex:1;min-width:0}.channel{font-size:11.5px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:#bbb}
-.badge{font-size:11px;font-weight:900;padding:4px 7px;border-radius:999px}.badge.live{background:#ff4757;color:#fff;animation:blink 1.1s infinite}@keyframes blink{50%{opacity:.55}}.badge.soon{background:#2ed573;color:#06281a}
-.title{font-size:16px;font-weight:800;margin:5px 0 3px;line-height:1.25}.desc{font-size:13px;color:#bdbdbd}.foot{display:flex;gap:9px;flex-wrap:wrap;margin-top:9px;align-items:center}.time{font-weight:800;font-size:14px}.tag{background:#2e2e2e;padding:4px 8px;border-radius:999px;font-size:11px}.starts{font-size:12px;color:#9a9a9a}.progress{height:5px;background:#333;border-radius:999px;overflow:hidden;margin-top:10px}.progress i{display:block;height:100%;background:#ff4757}
-.empty{background:#1a1a1a;border:1px dashed #333;border-radius:16px;padding:22px;text-align:center;color:#9a9a9a;line-height:1.5}.footer{margin-top:24px;text-align:center;color:#777;font-size:12px;line-height:1.6}
-@media(min-width:700px){.controls{flex-direction:row}.controls>*{flex:1}.grid{display:grid;grid-template-columns:1fr 1fr}}
-.score-panel{margin:18px 0 22px;padding:16px;background:linear-gradient(145deg,#111b24,#10141a);border:1px solid #293743;border-radius:20px;box-shadow:0 14px 38px rgba(0,0,0,.22)}
-.score-panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.score-heading{display:flex;align-items:center;gap:9px;margin:0;font-size:20px}.score-live-dot{display:inline-block;width:9px;height:9px;background:#ff4757;border-radius:50%;box-shadow:0 0 12px #ff4757;animation:blink 1.1s infinite}.score-refresh{background:#26323b;color:#e8f0f5;border:1px solid #384955;border-radius:999px;padding:8px 12px;font-weight:750;cursor:pointer}.score-refresh:disabled{opacity:.6;cursor:wait}.score-updated{color:#9aabb7;font-size:12px;margin:7px 0 13px}.score-list{display:grid;grid-template-columns:1fr;gap:10px}.score-match{background:#1a222a;border:1px solid #2b3944;border-radius:15px;padding:13px 14px;transition:transform .16s,border-color .16s}.score-match:hover{transform:translateY(-1px);border-color:#4b6575}.score-match-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}.score-league{color:#91a4b2;font-size:11px;font-weight:750;letter-spacing:.35px;text-transform:uppercase}.score-state{display:flex;align-items:center;gap:6px;color:#ff6572;font-size:11px;font-weight:900}.score-state i{width:6px;height:6px;background:#ff4757;border-radius:50%;display:inline-block}.score-row{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:10px}.score-team{font-size:14px;font-weight:750;line-height:1.25;overflow-wrap:anywhere}.score-team.home{text-align:right}.score-team.away{text-align:left}.score-value{font-size:23px;font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap;color:#fff;min-width:66px;text-align:center}.score-link{display:block;margin-top:11px;text-align:right;color:#8ea3b2;text-decoration:none;font-size:11px}.score-link:hover{color:#fff}.score-source{margin-top:13px;color:#80909c;font-size:12px}.score-source a{color:#a9d0e6}.live-toolbar{display:flex;align-items:center;gap:8px}.auto-label{font-size:11px;color:#a6b8c4;padding:6px 9px;border:1px solid #2c3b46;border-radius:999px;white-space:nowrap}
-body{background:radial-gradient(ellipse at 50% -15%,#20313b 0,transparent 50%),#0d1217;color:#e8edf1}header{background:rgba(13,18,23,.94);border-bottom-color:#293743}.logo span{color:#ff5a68}.card{background:#171e24;border-color:#28333b}.card.live{border-left-color:#ff5362}.card.upcoming{border-left-color:#58ce9b}.chip.active{background:#b4e36a;color:#14200c}.btn{background:#b4e36a;color:#14200c}.badge.live{background:#ff5362}.badge.estimate{background:#594827;color:#ffe19a}.badge.final{background:#34434d;color:#d2dde5}.src{background:#171e24;border-color:#293743}
-@media(min-width:700px){.score-list{grid-template-columns:1fr 1fr}.score-panel{padding:20px}}
-@media(max-width:420px){.score-panel{padding:13px}.score-heading{font-size:18px}.score-team{font-size:13px}.score-value{font-size:21px;min-width:58px}.auto-label{display:none}}
-</style>
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#121212">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Sports Live">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-</head><body>
-<header><div class="top"><div><div class="logo">SPORTS <span>LIVE</span> 🇬🇷</div><div class="sub">Πηγή: athletiko.gr/tvprogram • Live parsing</div></div><div><div id="clock">--:--:--</div><div id="dateLine"></div></div></div></header>
+<meta name="description" content="Πρόγραμμα αθλητικών μεταδόσεων στην ελληνική τηλεόραση με live ένδειξη, σκορ και υπενθυμίσεις.">
+<meta property="og:title" content="Sports Live 🇬🇷"><meta property="og:description" content="Τι παίζει τώρα και τι έρχεται στην ελληνική τηλεόραση.">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#121212">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Sports Live">
+<link rel="apple-touch-icon" href="icon-192.png"><link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<style>*{box-sizing:border-box;margin:0;padding:0}body{background:#121212;color:#e0e0e0;font:15px system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding-bottom:40px}
+header{position:sticky;top:0;z-index:10;background:rgba(18,18,18,.94);backdrop-filter:blur(10px);padding:12px 16px;border-bottom:1px solid #2c2c2c}
+.top,.wrap{max-width:980px;margin:0 auto}.top{display:flex;justify-content:space-between;align-items:center;gap:12px}.wrap{padding:14px 16px}
+.logo{font-size:22px;font-weight:900}.logo span{color:#ff4757}.dim{color:#a8a8a8;font-size:12.5px}#clock{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
+.box{background:#1e1e1e;border:1px solid #333;border-radius:14px;padding:12px 13px;font-size:13px;line-height:1.5;margin-bottom:12px}
+.pill{padding:3px 8px;border-radius:999px;font-size:11px;font-weight:800;margin-left:6px;background:#ffa502;color:#2a1800}.pill.ok{background:#2ed573;color:#06281a}.pill.err{background:#ff4757;color:#fff}
+input,select{width:100%;background:#1e1e1e;border:1px solid #333;color:#e0e0e0;padding:12px;border-radius:13px;font-size:14.5px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.row>select{flex:1}
+.chip,.btn{border:1px solid #333;background:#1e1e1e;color:#e0e0e0;padding:9px 13px;border-radius:999px;font-size:13px;cursor:pointer}.chip[aria-pressed=true]{background:#fff;color:#121212;font-weight:700}.btn{background:#ff4757;color:#fff;border:0;font-weight:800}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #7ab8ff;outline-offset:2px}
+h2{font-size:18px;margin:20px 0 12px}.count{background:#2a2a2a;padding:3px 9px;border-radius:999px;font-size:12px}
+.grid{display:grid;gap:11px}@media(min-width:700px){.grid{grid-template-columns:1fr 1fr}}
+.card{background:#1e1e1e;border:1px solid #262626;border-left:4px solid #2ed573;border-radius:16px;padding:13px}.card.live{border-left-color:#ff4757}.card.scheduled{border-left-color:#d6a84f}.card.done{opacity:.6;border-left-color:#555}
+.ch{font-size:11.5px;font-weight:800;text-transform:uppercase;color:#ccc}.title{font-size:16px;font-weight:800;margin:5px 0 3px}
+.badge{font-size:11px;font-weight:900;padding:3px 7px;border-radius:999px;background:#2ed573;color:#06281a;margin-left:6px}.badge.live{background:#ff4757;color:#fff}.badge.scheduled{background:#594827;color:#ffe19a}
+.foot{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:9px;font-size:13px}.foot button{background:#2a2a2a;color:#e0e0e0;border:1px solid #444;border-radius:999px;padding:6px 10px;font-size:12px;cursor:pointer}
+.empty{border:1px dashed #333;border-radius:16px;padding:20px;text-align:center;color:#a8a8a8}.footer{margin-top:24px;text-align:center;color:#999;font-size:12px;line-height:1.6}
+@media(prefers-reduced-motion:no-preference){.badge.live{animation:b 1.1s infinite}@keyframes b{50%{opacity:.55}}}</style></head><body>
+<header><div class="top"><div><div class="logo">SPORTS <span>LIVE</span> 🇬🇷</div><div class="dim">Πηγή: athletiko.gr/tvprogram</div></div><div><div id="clock">--:--:--</div><div class="dim" id="dateLine" style="text-align:right"></div></div></div></header>
 <div class="wrap">
-<div class="src"><b>Πηγή:</b> <a href="https://www.athletiko.gr/tvprogram" target="_blank" rel="noopener" style="color:#7ab8ff">athletiko.gr/tvprogram</a>
-<span id="statusPill" class="pill warn" role="status" aria-live="polite">ΦΟΡΤΩΣΗ…</span>
-<div id="statusText" style="margin-top:6px;color:#bbb">Προσπάθεια live ανάγνωσης από το Athletiko…</div>
-<div style="margin-top:9px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="loadLive(true)">🔄 Ανανέωση τώρα</button></div>
-<div style="margin-top:8px;color:#888">Το πρόγραμμα φορτώνεται ζωντανά από το Athletiko. Αν η ανάκτηση αποτύχει, δεν εμφανίζονται παλιά ή αποθηκευμένα παιχνίδια. Τα σκορ LIVE ανανεώνονται ξεχωριστά από το Sport24 κάθε 60″.</div></div>
-
-<div class="controls"><input id="search" aria-label="Αναζήτηση αγώνων" autocomplete="off" placeholder="Αναζήτηση: ομάδα, διοργάνωση ή κανάλι… π.χ. Ολυμπιακός, Super League, Novasports">
-<div class="row"><select id="channelFilter" aria-label="Φίλτρο καναλιού"><option value="all">Όλα τα κανάλια</option></select><select id="sportFilter" aria-label="Φίλτρο αθλήματος"><option value="all">Όλες οι διοργανώσεις</option></select></div></div>
-<div class="row" id="quick"><button class="chip active" data-f="all">Όλα</button><button class="chip" data-f="live">📺 Μεταδόσεις τώρα</button><button class="chip" data-f="upcoming">⏭️ Μόνο Επόμενα</button><button class="chip" data-f="panathinaikos">☘️ Παναθηναϊκός</button><button class="chip" data-f="today">📅 Σήμερα</button><button class="chip" data-f="tomorrow">📅 Αύριο</button></div>
-<div id="scoreBox" class="src" style="display:none;margin-top:12px"><b>Σκορ Παναθηναϊκού</b> <span id="scoreUpdated" style="color:#999;font-size:12px"></span><div id="scoreList" style="margin-top:8px"></div><div style="margin-top:8px;color:#888;font-size:12px">Δεδομένα σκορ: <a href="https://www.sport24.gr/matchcenter/" target="_blank" rel="noopener" style="color:#7ab8ff">Sport24 Matchcenter</a></div></div>
-
-<div id="remindersBox" style="background:#1e1e1e;border:1px solid #333;border-radius:14px;padding:12px 13px;margin-bottom:12px;display:none">
-<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b>🔔 Οι ειδοποιήσεις μου</b><button class="btn btn2" style="padding:7px 11px;font-size:12px" onclick="clearReminders()">Καθαρισμός</button></div>
-<div id="remindersList" style="margin-top:8px;font-size:13px;line-height:1.6;color:#bbb"></div>
-<div style="margin-top:6px;font-size:12px;color:#888">Η υπενθύμιση προγραμματίζεται για 15′ πριν την έναρξη. Η παράδοσή της εξαρτάται από τον browser/λειτουργικό και μπορεί να καθυστερήσει αν η καρτέλα είναι στο παρασκήνιο ή κλειστή.</div>
-</div>
-<div id="notifBar" style="background:#2a1a1a;border:1px solid #ff4757;border-radius:14px;padding:11px 13px;margin-bottom:12px;display:none;font-size:13px;line-height:1.5">
-🔔 Οι ειδοποιήσεις είναι κλειστές. Πάτα για να τις ενεργοποιήσεις και να σου έρχεται υπενθύμιση πριν από κάθε ματς που θα επιλέξεις.
-<button class="btn" style="margin-left:8px;padding:8px 12px;font-size:13px" onclick="enableNotifications()">Ενεργοποίηση ειδοποιήσεων</button>
-</div>
-<div class="meta"><span>Τελευταία ενημέρωση: <b id="updated">—</b></span><span id="resultCount"></span></div>
-
-<h2>📺 Μεταδόσεις τώρα <span class="count" id="liveCount">0</span><small>Με βάση το πρόγραμμα και εκτιμώμενη διάρκεια — όχι επιβεβαίωση αγώνα</small></h2><div class="grid" id="liveList"></div>
-<section id="liveScoresBox" class="score-panel" aria-labelledby="scoresHeading"><div class="score-panel-head"><h2 id="scoresHeading" class="score-heading"><i class="score-live-dot" aria-hidden="true"></i> LIVE Αποτελέσματα <span id="liveScoreCount" class="count">0</span></h2><div class="live-toolbar"><span class="auto-label">Αυτόματη ενημέρωση</span><button class="score-refresh" id="refreshScoresBtn" onclick="loadSport24Scores(true)" aria-label="Ανανέωση ζωντανών σκορ">↻ Ανανέωση</button></div></div><div id="liveScoresUpdated" class="score-updated" role="status" aria-live="polite">Σύνδεση με Sport24…</div><div id="liveScoresList" class="score-list"><div class="empty">Φόρτωση ζωντανών αποτελεσμάτων…</div></div><div class="score-source">Πηγή: <a href="https://www.sport24.gr/matchcenter/" target="_blank" rel="noopener">Sport24 Matchcenter</a> · Τα σκορ ανανεώνονται χωρίς επαναφόρτωση της σελίδας.</div></section>
-<h2>⏭️ Επόμενες Μεταδόσεις (6 Ώρες) <span class="count" id="upCount">0</span><small>Έως <span id="untilLabel"></span></small></h2><div class="grid" id="upList"></div>
-<h2>📅 Όλο το Πρόγραμμα <span class="count" id="allCount">0</span><small>Μόνο τρέχουσες και επερχόμενες μεταδόσεις</small></h2><div class="grid" id="allList"></div>
-<div class="footer">Διάρκειες: Ποδόσφαιρο 120′, Μπάσκετ/Βόλεϊ 120′, F1 150′, Τένις 150′, Μαραθώνιος 300′, Εκπομπή 90′ — εκτίμηση, γιατί το Athletiko δίνει μόνο ώρα έναρξης.<br>Η ένδειξη «Μετάδοση τώρα» βασίζεται στην ώρα έναρξης και σε εκτιμώμενη διάρκεια. Η ένδειξη LIVE και το σκορ εμφανίζονται μόνο όταν επιβεβαιώνονται από το Sport24.</div></div>
+<div class="box"><b>Πηγή:</b> <a href="https://www.athletiko.gr/tvprogram" target="_blank" rel="noopener" style="color:#7ab8ff">athletiko.gr/tvprogram</a><span id="pill" class="pill" role="status" aria-live="polite">ΦΟΡΤΩΣΗ…</span>
+<div id="stxt" style="margin-top:6px;color:#bbb"></div><div id="dbg" class="dim"></div><div style="margin-top:9px"><button class="btn" id="refresh">🔄 Ανανέωση τώρα</button></div></div>
+<input id="search" aria-label="Αναζήτηση" autocomplete="off" placeholder="Αναζήτηση: ομάδα, διοργάνωση ή κανάλι…" style="margin-bottom:10px">
+<div class="row"><select id="chSel" aria-label="Κανάλι"></select><select id="spSel" aria-label="Άθλημα"></select><select id="remSel" aria-label="Υπενθύμιση πριν"><option value="5">Υπενθύμιση 5′ πριν</option><option value="15">Υπενθύμιση 15′ πριν</option><option value="30">Υπενθύμιση 30′ πριν</option></select></div>
+<div class="row" id="quick"><button class="chip" data-f="all">Όλα</button><button class="chip" data-f="live">🔴 Live</button><button class="chip" data-f="up">⏭️ Επόμενα</button><button class="chip" data-f="fav">⭐ Αγαπημένες</button><button class="chip" data-f="today">📅 Σήμερα</button><button class="chip" data-f="tomorrow">📅 Αύριο</button></div>
+<div class="row"><button class="chip" id="hide">Κρύψε ολοκληρωμένα</button><button class="chip" id="favEdit">✏️ Αλλαγή αγαπημένων ομάδων</button></div>
+<div id="notifBar" class="box" style="display:none;border-color:#ff4757">🔔 Οι ειδοποιήσεις είναι κλειστές. <button class="btn" id="notifBtn" style="margin-left:6px">Ενεργοποίηση</button></div>
+<div id="rbox" class="box" hidden>🔔 <span id="rcount">0</span> υπενθυμίσεις <button class="chip" id="rclear" style="margin-left:8px">Καθαρισμός</button></div>
+<div class="dim" style="margin:6px 2px"><span id="rcnt"></span></div>
+<h2>🔴 Επιβεβαιωμένα LIVE <span class="count" id="liveCount">0</span></h2><div class="grid" id="liveList"></div>
+<h2>📺 Μεταδόσεις τώρα βάσει προγράμματος <span class="count" id="scheduledCount">0</span><small style="display:block;color:#aaa;font-size:12px;font-weight:400">Η ώρα έναρξης δεν επιβεβαιώνει ότι ο αγώνας παίζεται.</small></h2><div class="grid" id="scheduledList"></div>
+<h2>⏭️ Επόμενες 6 ώρες <span class="count" id="upCount">0</span></h2><div class="grid" id="upList"></div>
+<h2>📅 Όλο το πρόγραμμα <span class="count" id="allCount">0</span></h2><div class="grid" id="allList"></div>
+<div class="footer">Διάρκειες (εκτίμηση): ποδόσφαιρο/βόλεϊ/μπάσκετ 120′, χάντμπολ 100′, τένις/F1 150′, NFL 200′, μαραθώνιος 300′, εκπομπή 90′. Όταν υπάρχει σκορ από το Athletiko, η ένδειξη Live/Τελικό βασίζεται σε αυτό.<br>Για 100% επιβεβαίωση δες το κανάλι.</div></div>
+<div id="installBar" style="display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:50;background:#fff;color:#121212;border-radius:16px;padding:13px 14px;box-shadow:0 10px 30px rgba(0,0,0,.5)"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:24px">📱</span><b style="flex:1">Εγκατάσταση εφαρμογής</b><button id="installBtn" class="btn">Εγκατάσταση</button><button class="chip" id="installX" aria-label="Κλείσιμο" style="color:#121212">✕</button></div></div>
 <script>
-let EVENTS=[]; let quick="all"; let sourceLabel="unavailable";
-let SPORT24_SCORES=[]; let scoresError=""; let scoresLoading=false; let lastScoresSuccess=0; let nextScoresRefresh=0;
-function durFor(comp,title){
- const c=(comp+" "+title).toLowerCase();
- if(c.includes("μαραθώνιος")) return 300;
- if(c.includes("formula")||c.includes("γκραν πρι")) return 150;
- if(c.includes("εκπομπή")||c.includes("athletiko fc")) return 90;
- if(c.includes("nba")||c.includes("gbl")||c.includes("volley")||c.includes("μπάσκετ")||c.includes("basket")) return 120;
- return 120;
-}
-function sportFor(comp){
- const c=comp.toLowerCase();
- if(c.includes("gbl")||c.includes("nba")||c.includes("basket")||c.includes("acb")) return "Μπάσκετ";
- if(c.includes("volley")) return "Βόλεϊ";
- if(c.includes("formula")||c.includes("γκραν πρι")) return "Formula 1";
- if(c.includes("εκπομπή")) return "Εκπομπή";
- if(c.includes("δρόμου")||c.includes("μαραθώνιος")) return "Στίβος";
- if(c.includes("nfl")) return "NFL";
- return "Ποδόσφαιρο";
-}
-function iconFor(ch){
-  const c=(ch||"").toUpperCase();
-  if(c.includes("MAGENTA")) return {t:"MAG", bg:"#c2185b"};
-  if(c.includes("NOVASPORTS")) return {t:"NOVA", bg:"#6a1b9a"};
-  if(c.includes("ΕΡΤ")||c.includes("ERT")) return {t:"ΕΡΤ", bg:"#1b7a4d"};
-  if(c.includes("ΣΠΟΡ FM")) return {t:"SFM", bg:"#b45309"};
-  if(c.includes("ΣΚΑΪ")||c.includes("SKAI")) return {t:"ΣΚΑΪ", bg:"#1d4ed8"};
-  if(c.includes("ANT1")) return {t:"ANT1", bg:"#dc2626"};
-  if(c.includes("ACTION")) return {t:"ACT", bg:"#ea580c"};
-  return {t:"TV", bg:"#444"};
-}
-
-function extractLogo(s){
-  if(!s) return "";
-  const m=String(s).match(/\((https?:\/\/[^)]+)\)/);
-  if(m) return m[1];
-  const m2=String(s).match(/https?:\/\/\S+\.(?:png|jpg|jpeg|webp|svg)[^)\s]*/i);
-  return m2?m2[0]:"";
-}
-function cleanChannel(s){
-  if(!s) return "—";
-  s=String(s).trim();
-  // Jina markdown: ![IMAGE 21: MAGENTA SPORT 2](https://cdn...)
-  const m=s.match(/!\[IMAGE\s*\d+:\s*([^\]]+)\]/i);
-  if(m) return m[1].trim();
-  // Αν έμεινε URL, κόψτο
-  s=s.replace(/\(https?:[^)]+\)/g,"").replace(/https?:\S+/g,"").replace(/!\[IMAGE[^\]]*\]/gi,"").trim();
-  // Αν είναι πολύ μακρύ / περιέχει cdn, κράτα μόνο το πρώτο κομμάτι
-  if(s.length>40) s=s.slice(0,40).trim();
-  return s||"—";
-}
-function cleanText(s){
-  if(!s) return "";
-  return String(s).replace(/!\[IMAGE\s*\d+:\s*([^\]]+)\]\([^)]+\)/gi,"$1").replace(/\(https?:[^)]+\)/g,"").trim();
-}
-function scheduleDateForTime(timeText,today,state){
- const [h,mm]=timeText.split(":").map(Number),minutes=h*60+mm;
- if(state.lastMinutes!==null&&state.lastMinutes-minutes>360)state.dayOffset++;
- state.lastMinutes=minutes;
- const date=new Date(today);date.setDate(date.getDate()+state.dayOffset);date.setHours(h,mm,0,0);return date;
-}
-function parseAthletikoHTML(html){
- // Καθαρισμός HTML -> κείμενο, κράτα διαχωριστικά
- const tmp=new DOMParser().parseFromString(String(html),"text/html");
- tmp.querySelectorAll("script,style,noscript").forEach(n=>n.remove());
- let text=tmp.body.innerText||tmp.body.textContent||"";
- // Το Athletiko βγάζει επαναλαμβανόμενα blocks: Διοργάνωση \n Ώρα \n Αγώνας \n Κανάλι
- // Χρησιμοποιούμε regex πάνω στο raw HTML για τα alt / κείμενα των καναλιών όπου γίνεται
- // Fallback parser: ψάχνουμε γραμμές ώρας HH:MM
- const lines=text.split("\n").map(s=>s.trim()).filter(Boolean);
- const out=[]; const today=new Date();today.setHours(0,0,0,0);const dateState={dayOffset:0,lastMinutes:null};
+const $=id=>document.getElementById(id),LS=localStorage;
+try{LS.removeItem("sports_cache")}catch{}
+if("caches" in window)caches.keys().then(names=>Promise.all(names.map(async name=>{const cache=await caches.open(name);for(const req of await cache.keys())if(new URL(req.url).pathname.endsWith("/program.json"))await cache.delete(req)}))).catch(()=>{});
+const jget=(k,d)=>{try{return JSON.parse(LS.getItem(k))??d}catch{return d}},jset=(k,v)=>{try{LS.setItem(k,JSON.stringify(v))}catch{}};
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=d=>d.toLocaleTimeString("el-GR",{hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
+const norm=s=>String(s??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/ς/g,"σ").replace(/(.)\1+/g,"$1");
+// [άθλημα, regex, διάρκεια σε λεπτά] — η σειρά μετράει
+const SP=[["Στίβος",/μαραθ|δρόμου/,300],["Formula 1",/formula|γκραν πρι/,150],["Εκπομπή",/εκπομπή|athletiko fc/,90],["Τένις",/\batp\b|\bwta\b|τένις|tennis|roland|wimbledon/,150],["Χάντμπολ",/ehf|handball|χάντμπολ/,100],["Βόλεϊ",/volley|βόλεϊ/,120],["Μπάσκετ",/gbl|nba|basket|acb|μπάσκετ|euroleague/,120],["NFL",/nfl/,200],["Ποδόσφαιρο",/league|liga|serie|bundesliga|eredivisie|premier|copa|torneo|cup|champions|conference|europa|ποδόσφαιρο/,120]];
+const sportOf=(c,t)=>{const s=(c+" "+t).toLowerCase();return SP.find(x=>x[1].test(s))||["Άλλο",0,120]};
+let EV=[],SC=[],scErr="",SCM=new Map(),st={q:"",ch:"all",sp:"all",f:"all",hide:true,rem:15,fav:"Παναθηναϊκός",...jget("sports_state",{})};
+const save=()=>jset("sports_state",st);
+const setStatus=(c,t,d)=>{$("pill").className="pill "+c;$("pill").textContent=t;$("stxt").textContent=d||""};
+function setEvents(list){EV=list.map(e=>{const x=sportOf(e.c,e.t);return{start:new Date(e.s),end:new Date(e.s+x[2]*6e4),comp:e.c,title:e.t,channel:e.h||"—",sport:x[0]}}).sort((a,b)=>a.start-b.start);
+ const opt=(a,all,v)=>`<option value="all">${all}</option>`+[...new Set(a)].sort().map(x=>`<option value="${esc(x)}"${x===v?" selected":""}>${esc(x)}</option>`).join("");
+ $("chSel").innerHTML=opt(EV.map(e=>e.channel),"Όλα τα κανάλια",st.ch);$("spSel").innerHTML=opt(EV.map(e=>e.sport),"Όλα τα αθλήματα",st.sp);
+ if(![...$("chSel").options].some(o=>o.value===st.ch))st.ch="all";if(![...$("spSel").options].some(o=>o.value===st.sp))st.sp="all"}
+function parseAthletikoProgram(markdown){
+ const lines=String(markdown).split(/\r?\n/).map(x=>x.trim()).filter(Boolean),out=[],seen=new Set();
+ const today=new Date();today.setHours(0,0,0,0);let dayOffset=0,lastMinutes=null;
  for(let i=0;i<lines.length;i++){
-   if(/^([01]\d|2[0-3]):[0-5]\d$/.test(lines[i])){
-     let comp=lines[i-1]||"";
-     let title=lines[i+1]||"";
-     let channel=lines[i+2]||""; let logo=extractLogo(channel);
-     // Αν το επόμενο είναι πάλι διοργάνωση, το κανάλι χάθηκε στο parsing -> άγνωστο
-     if(!title||title.length<2) continue;
-     // channel καθαρισμός
-     channel=cleanChannel(channel); channel=cleanChannel(channel);
-     const dt=scheduleDateForTime(lines[i],today,dateState);
-     comp=cleanText(comp); title=cleanText(title); channel=cleanChannel(channel); const dur=durFor(comp,title);
-     out.push({start:dt,end:new Date(dt.getTime()+dur*60000),comp,title,channel:channel||"—",sport:sportFor(comp),dur,logo});
-   }
+  const tm=lines[i].match(/^([01]\d|2[0-3]):([0-5]\d)$/);if(!tm)continue;
+  const hour=Number(tm[1]),minute=Number(tm[2]),minutes=hour*60+minute;
+  if(lastMinutes!==null&&lastMinutes-minutes>360)dayOffset++;lastMinutes=minutes;
+  if(dayOffset>1)continue;
+  const clean=x=>String(x||"").replace(/!\[([^\]]*)\]\([^)]*\)/g,"$1").replace(/\[([^\]]+)\]\([^)]*\)/g,"$1").replace(/https?:\/\/\S+/g,"").trim();
+  const comp=clean(lines[i-1]),title=clean(lines[i+1]);if(title.length<2)continue;
+  const channelLine=lines[i+2]||"",alt=channelLine.match(/!\[Image\s*\d+:\s*([^\]]+)\]/i);
+  const channel=alt?alt[1].trim():clean(channelLine)||"—";
+  const start=new Date(today);start.setDate(start.getDate()+dayOffset);start.setHours(hour,minute,0,0);
+  const duration=sportOf(comp,title)[2]||120,end=new Date(start.getTime()+duration*60000);
+  if(end<=Date.now())continue;
+  const key=start.getTime()+"|"+title;if(seen.has(key))continue;seen.add(key);
+  out.push({s:start.toISOString(),c:comp||"Αθλητική μετάδοση",t:title,h:channel});
  }
- // Αφαίρεση διπλότυπων
- const seen=new Set(); return out.filter(e=>{const k=e.start.getTime()+"|"+e.title; if(seen.has(k)) return false; seen.add(k); return true;}).sort((a,b)=>a.start-b.start);
+ return out.sort((a,b)=>new Date(a.s)-new Date(b.s));
 }
-
-function parseAthletikoMarkdown(text){
-  // Jina format: γραμμές όπως "14:30 Leeds Tottenham" ή "Premier League" + επόμενη γραμμή ώρα
-  const lines=text.split("\n").map(s=>s.trim()).filter(Boolean);
-  const out=[]; const today=new Date();today.setHours(0,0,0,0);const dateState={dayOffset:0,lastMinutes:null};
-  const timeRe=/^([01]\d|2[0-3]):[0-5]\d\b/;
-  for(let i=0;i<lines.length;i++){
-    const m=lines[i].match(timeRe);
-    if(!m) continue;
-    const rest=lines[i].slice(m[0].length).trim().replace(/^[-–—\s]+/,"");
-    let comp=lines[i-1]||"";
-    let title=rest||lines[i+1]||"";
-    let channel=lines[i+2]||""; let logo=extractLogo(channel);
-    if(title.length<2) continue;
-    // αν το channel μοιάζει με διοργάνωση, αγνόησέ το
-    channel=cleanChannel(channel); channel=cleanChannel(channel);
-    const dt=scheduleDateForTime(m[0],today,dateState);
-    comp=cleanText(comp); title=cleanText(title); channel=cleanChannel(channel); const dur=durFor(comp,title);
-    out.push({start:dt,end:new Date(dt.getTime()+dur*60000),comp,title,channel:channel||"—",sport:sportFor(comp),dur,logo});
-  }
-  const seen=new Set(); return out.filter(e=>{const k=e.start.getTime()+"|"+e.title; if(seen.has(k)) return false; seen.add(k); return true;}).sort((a,b)=>a.start-b.start);
-}
-async function loadLive(manual){
- const pill=document.getElementById("statusPill"), txt=document.getElementById("statusText");
- pill.className="pill warn"; pill.textContent="ΦΟΡΤΩΣΗ…"; txt.textContent="Προσπάθεια live ανάγνωσης από Athletiko…";
- const url="https://www.athletiko.gr/tvprogram";
- const proxies=[
-   {u:"https://r.jina.ai/"+url, type:"text", name:"Jina"},
-   {u:"https://api.allorigins.win/get?url="+encodeURIComponent(url), type:"json", name:"AllOrigins JSON"},
-   {u:"https://api.allorigins.win/raw?url="+encodeURIComponent(url), type:"html", name:"AllOrigins RAW"},
-   {u:"https://corsproxy.io/?url="+encodeURIComponent(url), type:"html", name:"CorsProxy"},
-   {u:"https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(url), type:"html", name:"CodeTabs"}
- ];
- for(const pr of proxies){
-   try{
-     txt.textContent="Προσπάθεια μέσω: "+pr.name+" …";
-     const r=await fetch(pr.u,{signal:AbortSignal.timeout(12000)});
-     if(!r.ok) continue;
-     let html="";
-     if(pr.type==="json"){ const j=await r.json(); html=j.contents||""; }
-     else { html=await r.text(); }
-     if(html.length<1000) continue;
-     let parsed=parseAthletikoHTML(html);
-     if(parsed.length<10) parsed=parseAthletikoMarkdown(html);
-     const now=new Date(); const tomorrow=new Date(); tomorrow.setHours(0,0,0,0); tomorrow.setDate(tomorrow.getDate()+2);
-     parsed=parsed.filter(e=>e.end>now && e.start<tomorrow);
-     if(parsed.length>=5){
-       EVENTS=parsed; sourceLabel="live";
-       pill.className="pill ok"; pill.textContent="● ΠΡΟΓΡΑΜΜΑ ΕΝΗΜΕΡΩΘΗΚΕ";
-       txt.textContent="Επιτυχία! Διαβάστηκαν "+parsed.length+" προγραμματισμένες μεταδόσεις από athletiko.gr (μέσω "+pr.name+").";
-       buildFilters(); render(); return;
-     }
-   }catch(e){ console.log("proxy failed", pr.name, e); }
- }
- EVENTS=[]; sourceLabel="unavailable"; buildFilters(); render();
- pill.className="pill err"; pill.textContent="ΠΡΟΓΡΑΜΜΑ ΜΗ ΔΙΑΘΕΣΙΜΟ";
- txt.textContent="Δεν ήταν δυνατή η ζωντανή ανάκτηση προγράμματος από το Athletiko. Δεν εμφανίζουμε παλιά παιχνίδια. Πάτησε «Ανανέωση τώρα» για νέα προσπάθεια· τα live σκορ Sport24 συνεχίζουν να ενημερώνονται παρακάτω.";
-}
-function buildFilters(){
- const chSel=document.getElementById("channelFilter"); const spSel=document.getElementById("sportFilter");
- const chans=[...new Set(EVENTS.map(e=>e.channel))].sort();
- const sports=[...new Set(EVENTS.map(e=>e.sport))].sort();
- chSel.innerHTML='<option value="all">Όλα τα κανάλια</option>'+chans.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
- spSel.innerHTML='<option value="all">Όλες οι διοργανώσεις</option>'+sports.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join("");
-}
-function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function fmt(d){return d.toLocaleTimeString("el-GR",{hour:"2-digit",minute:"2-digit",hourCycle:"h23"})}
-function fmtFull(d){return d.toLocaleTimeString("el-GR",{hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"})}
-function dayLabel(d){const t=new Date(); t.setHours(0,0,0,0); const x=new Date(d); x.setHours(0,0,0,0); const diff=Math.round((x-t)/86400000); if(diff===0) return "Σήμερα"; if(diff===1) return "Αύριο"; return d.toLocaleDateString("el-GR",{weekday:"short",day:"numeric",month:"short"});}
-function normalizeTeamText(s){return String(s??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("el-GR").replace(/ς/g,"σ");}
-function isPanathinaikosTeam(team){const n=normalizeTeamText(team?.name||team||"");return n.includes("παναθην")||n.includes("panathinaikos");}
-function localISODate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
-function parseSport24Scores(markdown){
- const out=[];let competition="";
- for(const line of String(markdown).split("\n")){
-  const heading=line.match(/^###\s+(.+)/);if(heading){competition=heading[1].trim();continue;}
-  const re=/\[([^\]]+)\]\((https?:\/\/www\.sport24\.gr\/matchcenter\/[^)]+)\)/g;let hit;
-  while((hit=re.exec(line))){
-   let label=hit[1].replace(/\s+/g," ").trim(),status="",phase="";
-   let m=label.match(/^ΤΕΛ(?:\s*\([^)]*\))?\s+(.+)$/i);
-   if(m){status="finished";label=m[1];}
-   else if((m=label.match(/^((?:[1-4]\s*ΗΜ\s*[\d\s+'’]+)|(?:[1-4]η?\s*ΠΕΡ\s*[\d:\s+'’]+)|ΗΜΙΧΡΟΝΟ)\s+(.+)$/i))){status="live";phase=m[1].replace(/\s+/g," ").trim();label=m[2];}
-   else continue;
-   const score=label.match(/^(.+?)\s+(\d+)\s+(.+?)\s+(\d+)$/);
-   if(!score)continue;
-   out.push({id:hit[2],external_id:hit[2],status,match_status:status,phase:phase||"",home_score:Number(score[2]),away_score:Number(score[4]),home_team:{name:score[1].trim()},away_team:{name:score[3].trim()},competition:{name:competition||"Αγώνας"},start_time:new Date().toISOString(),url:hit[2]});
-  }
- }
- const unique=new Map();for(const match of out)unique.set(match.id,match);return [...unique.values()];
-}
-async function loadSport24Scores(manual=false){
- if(scoresLoading)return;
- scoresLoading=true;const button=document.getElementById("refreshScoresBtn");if(button){button.disabled=true;button.textContent="↻ Ενημέρωση…";}
+async function load(){setStatus("","ΦΟΡΤΩΣΗ…","Ανάκτηση του σημερινού προγράμματος από το Athletiko…");lastLoad=Date.now();
  try{
-  const r=await fetch(`https://r.jina.ai/http://www.sport24.gr/matchcenter/?_=${Date.now()}`,{headers:{"Accept":"text/plain"},signal:AbortSignal.timeout(20000),cache:"no-store"});
+  const url=`https://r.jina.ai/https://www.athletiko.gr/tvprogram?_=${Date.now()}`;
+  const r=await fetch(url,{headers:{"Accept":"text/plain"},cache:"no-store",signal:AbortSignal.timeout(25000)});
   if(!r.ok)throw new Error(`HTTP ${r.status}`);
-  const markdown=await r.text();if(markdown.length<1000)throw new Error("Κενή απάντηση");
-  const parsed=parseSport24Scores(markdown);if(!parsed.length)throw new Error("Δεν εντοπίστηκαν σκορ στην απάντηση");
-  SPORT24_SCORES=parsed;scoresError="";lastScoresSuccess=Date.now();
- }catch(e){scoresError="Δεν ήταν δυνατή η ανάκτηση σκορ από το Sport24 αυτή τη στιγμή.";if(!lastScoresSuccess||Date.now()-lastScoresSuccess>120000)SPORT24_SCORES=[];console.warn("Sport24 scores unavailable",e);}
- finally{scoresLoading=false;nextScoresRefresh=Date.now()+60000;if(button){button.disabled=false;button.textContent="↻ Ανανέωση";}}
- renderPanathinaikosScores(); renderLiveScores(); render(); updateScoreRefreshLabel();
-}
-function scoreStatus(m){return String(m.match_status||m.status||"").toLowerCase();}
-function isMatchLive(m){const s=scoreStatus(m);return /live|in.?progress|1st_half|2nd_half|first_half|second_half|period|quarter|overtime|set[0-9]?|break/.test(s)&&!/(not_started|scheduled)/.test(s);}
-function isMatchFinished(m){return !!m&&/(ended|closed|finished|final|full.?time|τελ)/i.test(scoreStatus(m));}
-function scoreText(m){return m.home_score!==null&&m.home_score!==undefined&&m.away_score!==null&&m.away_score!==undefined?`${m.home_score} – ${m.away_score}`:"—";}
-function latinizeTeam(s){return normalizeTeamText(s).replace(/γκ/g,"g").replace(/γγ/g,"ng").replace(/ου/g,"u").replace(/αι/g,"ai").replace(/ει|οι|υι/g,"i").replace(/μπ/g,"b").replace(/ντ/g,"d").replace(/τσ/g,"ts").replace(/τζ/g,"tz").replace(/θ/g,"th").replace(/χ/g,"ch").replace(/ψ/g,"ps").replace(/ξ/g,"x").replace(/[αά]/g,"a").replace(/[β]/g,"v").replace(/[γ]/g,"g").replace(/[δ]/g,"d").replace(/[εέ]/g,"e").replace(/[ζ]/g,"z").replace(/[ηή]/g,"i").replace(/[ιί]/g,"i").replace(/[κ]/g,"k").replace(/[λ]/g,"l").replace(/[μ]/g,"m").replace(/[ν]/g,"n").replace(/[οό]/g,"o").replace(/[π]/g,"p").replace(/[ρ]/g,"r").replace(/[σς]/g,"s").replace(/[τ]/g,"t").replace(/[υύ]/g,"i").replace(/[φ]/g,"f").replace(/[ωώ]/g,"o").replace(/c/g,"k").replace(/[^a-z0-9]/g,"");}
-function teamMatchesTitle(title,team){
- const a=normalizeTeamText(title), b=normalizeTeamText(team?.name||team||"");
- if(!a||!b)return false;
- if(a.includes(b)||b.includes(a))return true;
- const latinTitle=latinizeTeam(title), latinTeam=latinizeTeam(team?.name||team||"");
- if(latinTitle.includes(latinTeam)||latinTeam.includes(latinTitle))return latinTeam.length>=4;
- const latinTokens=latinTeam.match(/[a-z0-9]{4,}/g)||[];
- if(latinTokens.length&&latinTokens.filter(t=>latinTitle.includes(t)).length>=Math.min(2,latinTokens.length))return true;
- const tokens=b.split(/[^a-z0-9\u0370-\u03ff]+/i).filter(t=>t.length>=4);
- return tokens.length>0&&tokens.filter(t=>a.includes(t)).length>=Math.min(2,tokens.length);
-}
-function findScoreForEvent(ev){return SPORT24_SCORES.find(m=>teamMatchesTitle(ev.title,m.home_team)&&teamMatchesTitle(ev.title,m.away_team));}
-function renderLiveScores(){
- const box=document.getElementById("liveScoresBox"),list=document.getElementById("liveScoresList");if(!box||!list)return;
- const matches=SPORT24_SCORES.filter(isMatchLive).sort((a,b)=>(a.competition?.name||"").localeCompare(b.competition?.name||"","el"));box.style.display="block";
- const count=document.getElementById("liveScoreCount");if(count)count.textContent=String(matches.length);
- document.getElementById("liveScoresUpdated").textContent=lastScoresSuccess?`Ενημερώθηκε ${fmtFull(new Date(lastScoresSuccess))}${scoresError?" · η τελευταία ανανέωση απέτυχε":""} · επόμενη ενημέρωση σε 60″`:scoresLoading?"Συνδέεται με Sport24 για ζωντανά σκορ…":"Δεν έχει γίνει ακόμη ενημέρωση.";
- if(!matches.length){list.innerHTML=`<div class="empty">${scoresError?esc(scoresError):"Δεν υπάρχουν αγώνες LIVE αυτή τη στιγμή."}${SPORT24_SCORES.length?"":" Πατήστε ↻ για νέα προσπάθεια."}</div>`;return;}
- list.innerHTML=matches.map(m=>`<article class="score-match"><div class="score-match-top"><span class="score-league">${esc(m.competition?.name||m.sport?.name||"Αγώνας")}</span><span class="score-state"><i aria-hidden="true"></i>${esc(m.phase||"LIVE")}</span></div><div class="score-row"><div class="score-team home">${esc(m.home_team?.name||"—")}</div><div class="score-value">${esc(scoreText(m))}</div><div class="score-team away">${esc(m.away_team?.name||"—")}</div></div><a class="score-link" href="${esc(m.url||"https://www.sport24.gr/matchcenter/")}" target="_blank" rel="noopener">Matchcenter ↗</a></article>`).join("");
-}
-function updateScoreRefreshLabel(){const el=document.getElementById("liveScoresUpdated");if(!el||!lastScoresSuccess)return;const left=Math.max(0,Math.ceil((nextScoresRefresh-Date.now())/1000));el.textContent=`Ενημερώθηκε ${fmtFull(new Date(lastScoresSuccess))}${scoresError?" · η τελευταία ανανέωση απέτυχε":""} · επόμενη αυτόματη ενημέρωση σε ${left}″`;}
-function renderPanathinaikosScores(){
- const box=document.getElementById("scoreBox"), list=document.getElementById("scoreList");
- if(!box||!list)return;
- box.style.display=quick==="panathinaikos"?"block":"none";
- if(quick!=="panathinaikos")return;
- const matches=SPORT24_SCORES.filter(m=>isPanathinaikosTeam(m.home_team)||isPanathinaikosTeam(m.away_team));
- document.getElementById("scoreUpdated").textContent=matches.length?`• Ενημερώθηκε ${fmtFull(new Date())}`:"";
- if(scoresError){list.textContent=scoresError;return;}
- if(!matches.length){list.textContent="Δεν βρέθηκαν αγώνες Παναθηναϊκού για χθες ή σήμερα.";return;}
- list.innerHTML=matches.map(m=>{
-  const home=m.home_team?.name||"—", away=m.away_team?.name||"—";
-  const hasScore=m.home_score!==null&&m.home_score!==undefined&&m.away_score!==null&&m.away_score!==undefined;
-  const score=hasScore?`${m.home_score} – ${m.away_score}`:"—";
-  const status=scoreStatus(m);
-  const label=["ended","closed","finished"].includes(status)?"Τελικό":isMatchLive(m)?"LIVE":hasScore?"Σκορ":"Προσεχώς";
-  const date=new Date(m.start_time); const when=`${date.toLocaleDateString("el-GR",{weekday:"short",day:"numeric",month:"short"})} ${date.toLocaleTimeString("el-GR",{hour:"2-digit",minute:"2-digit",hourCycle:"h23",timeZone:"Europe/Athens"})}`;
-  return `<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;padding:8px 0;border-top:1px solid #333"><div><b>${esc(home)} – ${esc(away)}</b><div style="color:#999;font-size:12px">${esc(m.competition?.name||m.sport?.name||"")} • ${esc(when)}</div></div><div style="text-align:right;white-space:nowrap"><b>${esc(score)}</b><div style="font-size:11px;color:${label==="LIVE"?"#ff4757":"#aaa"}">${label}</div></div></div>`;
- }).join("");
-}
-function filtered(){
- const now=new Date(); const q=document.getElementById("search").value.toLowerCase().trim();
- const chF=document.getElementById("channelFilter").value; const spF=document.getElementById("sportFilter").value;
- return EVENTS.filter(ev=>{
-   if(ev.end < now) return false;
-   const hay=(ev.title+" "+ev.comp+" "+ev.sport+" "+ev.channel).toLowerCase();
-   if(q && !hay.includes(q)) return false;
-   if(chF!=="all" && ev.channel!==chF) return false;
-   if(spF!=="all" && ev.sport!==spF) return false;
-   if(quick==="live" && (!(ev.start<=now && now<=ev.end) || isMatchFinished(findScoreForEvent(ev)))) return false;
-   if(quick==="upcoming" && !(ev.start>now)) return false;
-   if(quick==="panathinaikos"){const t=normalizeTeamText(ev.title); if(!t.includes("παναθηναικ") && !t.includes("panathinaikos") && !/(^|\W)pao(\W|$)/i.test(ev.title)) return false;}
-   if(quick==="today" && dayLabel(ev.start)!=="Σήμερα") return false;
-   if(quick==="tomorrow" && dayLabel(ev.start)!=="Αύριο") return false;
-   return true;
- });
-}
-function render(){
- const now=new Date();
- const all=filtered();
- const live=all.filter(e=>e.start<=now && now<=e.end && !isMatchFinished(findScoreForEvent(e)));
- const up=all.filter(e=>e.start>now && e.start<=new Date(now.getTime()+6*3600*1000));
- document.getElementById("liveCount").textContent=live.length;
- document.getElementById("upCount").textContent=up.length;
- document.getElementById("allCount").textContent=all.length;
- document.getElementById("resultCount").textContent=sourceLabel==="live"?`${all.length} τρέχουσες/επερχόμενες μεταδόσεις • Athletiko LIVE`:"Πρόγραμμα μη διαθέσιμο — τα live σκορ φορτώνονται από Sport24";
- document.getElementById("updated").textContent=fmtFull(now);
- document.getElementById("untilLabel").textContent=fmt(new Date(now.getTime()+6*3600*1000));
- document.getElementById("liveList").innerHTML= live.length? live.map(cardHTML(true)).join("") : `<div class="empty">Δεν υπάρχουν μεταδόσεις προγραμματισμένες για τώρα με αυτά τα φίλτρα.<br>Οι εκτιμώμενες ώρες δεν επιβεβαιώνουν ότι ο αγώνας παίζεται.</div>`;
- document.getElementById("upList").innerHTML= up.length? up.map(cardHTML(false)).join("") : `<div class="empty">Καμία επόμενη μετάδοση στις επόμενες 6 ώρες με αυτά τα φίλτρα.</div>`;
- document.getElementById("allList").innerHTML= all.length? all.map(cardHTML(null)).join("") : `<div class="empty">${sourceLabel==="live"?"Δεν υπάρχουν τρέχουσες ή επερχόμενες μεταδόσεις.":"Το σημερινό πρόγραμμα δεν είναι διαθέσιμο αυτή τη στιγμή. Δεν εμφανίζονται παλιοί αγώνες. Δοκίμασε ξανά με «Ανανέωση τώρα»."}</div>`;
-}
-function cardHTML(mode){
- return ev=>{
-  const now=new Date(); const scheduledNow=ev.start<=now && now<=ev.end;
-  const matchScore=scheduledNow?findScoreForEvent(ev):null;
-  const confirmedLive=!!matchScore&&isMatchLive(matchScore);
-  const confirmedFinal=isMatchFinished(matchScore);
-  const cls=confirmedLive?"live":scheduledNow?"estimated":"upcoming";
-  let prog="",starts="";
-  if(scheduledNow){const pct=Math.max(2,Math.min(98,Math.round((now-ev.start)/(ev.end-ev.start)*100)));prog=`<div class="progress"><i style="width:${pct}%"></i></div>`;}
-  else {const diff=Math.round((ev.start-now)/60000);starts=diff<0?"":diff<60?`Ξεκινά σε ${diff}′`:`Ξεκινά σε ${Math.floor(diff/60)}ώ ${diff%60}′`;}
-  const remId=(ev.start.getTime()+"_"+ev.title).replace(/[^a-zA-Z0-9_]/g,"_");
-  const isRem=hasReminder(remId);
-  const stateBadge=confirmedLive?`<span class="badge live">● LIVE • SPORT24</span>`:confirmedFinal?`<span class="badge final">ΤΕΛΙΚΟ • SPORT24</span>`:scheduledNow?`<span class="badge estimate">ΩΡΑ ΠΡΟΓΡΑΜΜΑΤΟΣ*</span>`:`<span class="badge soon">${dayLabel(ev.start)} • ΣΕ ${fmt(ev.start)}</span>`;
-  const scoreBadge=scheduledNow?`<div class="desc" style="margin:4px 0 6px;color:${confirmedLive?"#2ed573":confirmedFinal?"#a9bac4":"#e0bd72"};font-weight:700">${matchScore?`⚽ Σκορ ${esc(scoreText(matchScore))} • ${confirmedLive?"LIVE":confirmedFinal?"ΤΕΛΙΚΟ":"Sport24"}`:"ℹ️ Η ώρα μετάδοσης έχει φτάσει· live αγώνας δεν έχει επιβεβαιωθεί από το Sport24."}</div>`:"";
-  const bellBtn=!scheduledNow?`<button onclick="event.stopPropagation();toggleReminder('${remId}', ${esc(JSON.stringify(ev.title))}, ${esc(JSON.stringify(ev.channel))}, ${ev.start.getTime()})" style="margin-left:auto;background:${isRem?"#2ed573":"#2a2a2a"};color:${isRem?"#06281a":"#e0e0e0"};border:1px solid #444;border-radius:999px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700">${isRem?"🔔 Ορίστηκε":"🔔 Ειδοποίηση"}</button>`:"";
-  const channelIcon=iconFor(ev.channel);
-  return `<article class="card ${cls}">${ev.logo?`<img src="${esc(ev.logo)}" alt="${esc(ev.channel)}" loading="lazy" style="width:52px;height:52px;object-fit:contain;background:#fff;border-radius:12px;padding:4px;flex-shrink:0" onerror="this.remove()">`:`<div class="icon" style="background:${channelIcon.bg};color:#fff;font-size:13px;font-weight:900;letter-spacing:.5px">${channelIcon.t}</div>`}<div class="main"><div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center"><span class="channel">${esc(ev.channel)}</span>${stateBadge}</div><div class="title">${esc(ev.title)}</div>${scoreBadge}<div class="desc">${esc(ev.comp)} • ${esc(ev.sport)}</div><div class="foot">${bellBtn}<span class="time">🕐 ${fmt(ev.start)} – ${fmt(ev.end)}</span><span class="tag">${esc(ev.sport)}</span><span class="starts">${scheduledNow?Math.max(0,Math.round((ev.end-now)/60000))+"′ απομένουν (εκτ.)":starts}</span></div>${prog}</div></article>`;
- }
-}
-
-// ---- ΕΙΔΟΠΟΙΗΣΕΙΣ ----
-function loadReminders(){ try{ return JSON.parse(localStorage.getItem("sports_reminders")||"[]"); }catch(e){ return []; } }
-function saveReminders(r){ try{localStorage.setItem("sports_reminders", JSON.stringify(r));}catch(e){console.warn("Δεν ήταν δυνατή η αποθήκευση υπενθυμίσεων",e);alert("Δεν ήταν δυνατή η αποθήκευση υπενθυμίσεων στη συσκευή.");} renderReminders(); }
-function renderReminders(){
-  const box=document.getElementById("remindersBox"); const list=document.getElementById("remindersList");
-  const rems=loadReminders().filter(r=>r.at>Date.now()).sort((a,b)=>a.at-b.at);
-  if(!rems.length){ box.style.display="none"; return; }
-  box.style.display="block";
-  list.innerHTML=rems.map(r=>`<div>🔔 <b>${esc(r.title)}</b> — ${esc(r.channel)} • ${new Date(r.start).toLocaleTimeString("el-GR",{hour:"2-digit",minute:"2-digit",hourCycle:"h23"})} • ειδοποίηση στις ${new Date(r.at).toLocaleTimeString("el-GR",{hour:"2-digit",minute:"2-digit",hourCycle:"h23"})}<button data-remove-id="${esc(r.id)}" style="margin-left:8px;background:#333;color:#e0e0e0;border:1px solid #444;border-radius:999px;padding:3px 9px;cursor:pointer;font-size:11px">✕</button></div>`).join("");
-}
-function removeReminder(id){ saveReminders(loadReminders().filter(r=>r.id!==id)); }
-function clearReminders(){ saveReminders([]); }
-document.getElementById("remindersList").addEventListener("click",e=>{const b=e.target.closest("[data-remove-id]");if(b) removeReminder(b.dataset.removeId);});
-async function enableNotifications(){
-  if(!("Notification" in window)){ alert("Ο browser σου δεν υποστηρίζει ειδοποιήσεις."); return; }
-  const perm=await Notification.requestPermission();
-  updateNotifBar();
-  if(perm==="granted"){ new Notification("✅ Ειδοποιήσεις ενεργές",{body:"Θα σου έρχεται υπενθύμιση 15′ πριν από κάθε ματς που επιλέγεις."}); }
-}
-function updateNotifBar(){
-  const bar=document.getElementById("notifBar");
-  if(!("Notification" in window)){ bar.style.display="none"; return; }
-  bar.style.display = (Notification.permission==="granted") ? "none" : "block";
-}
-function hasReminder(id){ return loadReminders().some(r=>r.id===id); }
-function toggleReminder(id, title, channel, startMs){
-  if(!("Notification" in window)){ alert("Ο browser σου δεν υποστηρίζει ειδοποιήσεις."); return; }
-  if(hasReminder(id)){ removeReminder(id); render(); return; }
-  if(Notification.permission!=="granted"){
-    Notification.requestPermission().then(perm=>{ updateNotifBar(); if(perm==="granted") toggleReminder(id,title,channel,startMs); });
-    return;
-  }
-  const at = startMs - 15*60*1000; // 15′ πριν
-  if(at < Date.now()){
-    // Αν είναι σε λιγότερο από 15′, ειδοποίηση στην έναρξη
-    saveReminders([...loadReminders(), {id,title,channel,start:startMs,at:startMs}]);
-  } else {
-    saveReminders([...loadReminders(), {id,title,channel,start:startMs,at}]);
-  }
-  new Notification("🔔 Υπενθύμιση ορίστηκε",{body: title+" — "+channel+" • "+new Date(startMs).toLocaleTimeString("el-GR",{hour:"2-digit",minute:"2-digit",hourCycle:"h23"})});
-  render();
-}
-function checkReminders(){
-  const now=Date.now(); let rems=loadReminders(); let changed=false;
-  rems=rems.filter(r=>{
-    if(r.at<=now && !r.fired){
-      try{ new Notification("⏰ Υπενθύμιση αγώνα: "+r.title,{body: r.channel+" • "+new Date(r.start).toLocaleTimeString("el-GR",{hour:"2-digit",minute:"2-digit",hourCycle:"h23"})+" • ώρα έναρξης "+new Date(r.start).toLocaleTimeString("el-GR",{hour:"2-digit",minute:"2-digit",hourCycle:"h23"})}); }catch(e){}
-      changed=true; return false;
-    }
-    return true;
-  });
-  if(changed) saveReminders(rems);
-}
-setInterval(checkReminders, 10000);
-document.addEventListener("visibilitychange",()=>{if(!document.hidden) checkReminders();});
-window.addEventListener("focus",checkReminders);
-
-function tick(){const now=new Date(); document.getElementById("clock").textContent=fmtFull(now); document.getElementById("dateLine").textContent=now.toLocaleDateString("el-GR",{weekday:"long",day:"numeric",month:"long",year:"numeric"});updateScoreRefreshLabel();}
-document.getElementById("search").addEventListener("input",render);
-document.getElementById("channelFilter").addEventListener("change",render);
-document.getElementById("sportFilter").addEventListener("change",render);
-document.querySelectorAll("#quick .chip").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll("#quick .chip").forEach(x=>x.classList.remove("active")); b.classList.add("active"); quick=b.dataset.f; renderPanathinaikosScores(); render();}));
-// Για quick live/upcoming: φιλτράρουμε οπτικά κρατώντας όλες τις ενότητες αλλά τονίζουμε
-tick(); renderReminders(); updateNotifBar(); buildFilters(); render(); loadLive(false); loadSport24Scores(); setInterval(()=>{if(!document.hidden)loadSport24Scores();},60000); document.addEventListener("visibilitychange",()=>{if(!document.hidden&&(!lastScoresSuccess||Date.now()-lastScoresSuccess>45000))loadSport24Scores();}); setInterval(()=>{tick();render();},30000); setInterval(tick,1000);
-</script>
-<div id="installBar" style="display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:50;background:#fff;color:#121212;border-radius:16px;padding:13px 14px;box-shadow:0 10px 30px rgba(0,0,0,.5)">
-<div style="display:flex;gap:10px;align-items:center"><span style="font-size:24px">📱</span><div style="flex:1"><b>Εγκατάσταση εφαρμογής</b><div style="font-size:12.5px;color:#444">Άνοιξέ την σαν κανονική εφαρμογή, χωρίς μπάρα browser.</div></div><button id="installBtn" style="background:#ff4757;color:#fff;border:0;padding:10px 14px;border-radius:999px;font-weight:800;cursor:pointer">Εγκατάσταση</button><button onclick="document.getElementById('installBar').style.display='none'" style="background:#eee;border:0;padding:8px 10px;border-radius:999px;cursor:pointer">✕</button></div>
-</div>
-<script>
-let deferredPrompt=null;
-window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt=e; document.getElementById('installBar').style.display='block'; });
-document.getElementById('installBtn')?.addEventListener('click', async ()=>{ if(!deferredPrompt) return; deferredPrompt.prompt(); const {outcome}=await deferredPrompt.userChoice; if(outcome==='accepted') document.getElementById('installBar').style.display='none'; deferredPrompt=null; });
-window.addEventListener('appinstalled', ()=>{ document.getElementById('installBar').style.display='none'; });
-if('serviceWorker' in navigator){ window.addEventListener('load', ()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }); }
-</script>
-</body></html>
+  const text=await r.text();if(text.length<1000)throw new Error("Κενή απάντηση");
+  const events=parseAthletikoProgram(text);if(events.length<5)throw new Error("Δεν βρέθηκαν αρκετές προγραμματισμένες μεταδόσεις");
+  setEvents(events);setStatus("ok","● ΠΡΟΓΡΑΜΜΑ ΕΝΗΜΕΡΩΘΗΚΕ",`${events.length} σημερινές/αυριανές μεταδόσεις · ενημερώθηκε ${new Date().toLocaleTimeString("el-GR")}`);
+ }catch(e){EV=[];setEvents([]);setStatus("err","ΠΡΟΓΡΑΜΜΑ ΜΗ ΔΙΑΘΕΣΙΜΟ","Δεν φορτώθηκε το σημερινό πρόγραμμα από το Athletiko. Δεν χρησιμοποιούνται παλιά δεδομένα ή cache. Θα γίνει νέα προσπάθεια αυτόματα.");$("dbg").textContent=String(e?.message||e)}
+ render()}
+async function loadScores(){const d=n=>{const x=new Date(Date.now()-n*864e5);return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0")};
+ try{const b=await Promise.all([1,0].map(n=>fetch("https://widgetapi.athletiko.gr/widget/matches/daily/"+d(n)).then(r=>r.json()).then(x=>Array.isArray(x)?x:[])));SC=b.flat();scErr=""}catch(e){scErr="Σκορ μη διαθέσιμα: "+e}
+ render()}
+const stat=m=>String(m.match_status||m.status||"").toLowerCase();
+const ended=m=>/ended|closed|finished/.test(stat(m)),livem=m=>/live|progress|half|period|quarter|overtime|set\d?|break/.test(stat(m))&&!/not_started|scheduled/.test(stat(m));
+function sc(ev){if(SCM.has(ev))return SCM.get(ev);const t=norm(ev.title);const m=SC.find(m=>{const h=norm(m.home_team?.name),a=norm(m.away_team?.name);return h.length>2&&a.length>2&&t.includes(h)&&t.includes(a)});SCM.set(ev,m);return m}
+function state(ev,now){const m=sc(ev);if(m&&ended(m))return"done";if(m&&livem(m))return"live";if(ev.start>now)return"up";return now<=ev.end?"scheduled":"done"}
+const rid=ev=>ev.start.getTime()+"_"+ev.title.replace(/\W/g,"");
+function dayLabel(d,now){const a=new Date(now).setHours(0,0,0,0),b=new Date(d).setHours(0,0,0,0),n=Math.round((b-a)/864e5);return n===0?"Σήμερα":n===1?"Αύριο":d.toLocaleDateString("el-GR",{weekday:"short",day:"numeric",month:"short"})}
+function filtered(now){const q=norm(st.q),favs=st.fav.split(",").map(norm).filter(Boolean);
+ return EV.filter(ev=>{const s=state(ev,now);
+  if(q&&!norm(ev.title+" "+ev.comp+" "+ev.channel).includes(q))return false;
+  if(st.ch!=="all"&&ev.channel!==st.ch)return false;if(st.sp!=="all"&&ev.sport!==st.sp)return false;
+  if(st.hide&&s==="done")return false;if(st.f==="live"&&s!=="live")return false;if(st.f==="up"&&s!=="up")return false;
+  if(st.f==="fav"&&!favs.some(f=>norm(ev.title).includes(f)))return false;
+  const dd=Math.round((new Date(ev.start).setHours(0,0,0,0)-new Date(now).setHours(0,0,0,0))/864e5);
+  return!(st.f==="today"&&dd!==0||st.f==="tomorrow"&&dd!==1)})}
+function card(ev,now,R){const s=state(ev,now),m=sc(ev),i=EV.indexOf(ev),on=R.has(rid(ev)),mins=Math.round((ev.start-now)/6e4);
+ const badge=s==="live"?'<span class="badge live">● LIVE • ATHLETIKO</span>':s==="up"?`<span class="badge">${dayLabel(ev.start,now)} ${fmt(ev.start)}</span>`:s==="scheduled"?'<span class="badge scheduled">ΩΡΑ ΠΡΟΓΡΑΜΜΑΤΟΣ*</span>':'<span class="badge" style="background:#555;color:#fff">ΤΕΛΕΙΩΣΕ</span>';
+ const score=m&&m.home_score!=null&&m.away_score!=null&&ev.start<=now?`<div style="margin:4px 0;color:#2ed573;font-weight:700">Σκορ ${esc(m.home_score)} – ${esc(m.away_score)}${ended(m)?" • Τελικό":livem(m)?" • LIVE":""}</div>`:"";
+ const info=s==="up"?(mins<60?`Ξεκινά σε ${mins}′`:`Ξεκινά σε ${Math.floor(mins/60)}ώ ${mins%60}′`):s==="live"?"Τρέχουσα κατάσταση από Athletiko":s==="scheduled"?"Δεν επιβεβαιώθηκε LIVE από το feed σκορ":"";
+ return `<article class="card ${s}"><span class="ch">${esc(ev.channel)}</span>${badge}<div class="title">${esc(ev.title)}</div>${score}<div class="dim">${esc(ev.comp)} • ${esc(ev.sport)}</div><div class="foot"><b>🕐 ${fmt(ev.start)}–${fmt(ev.end)}</b><span class="dim">${info}</span>${s==="up"?`<button data-a="rem" data-i="${i}">${on?"🔔 Ορίστηκε":"🔔 Ειδοποίηση"}</button>`:""}<button data-a="ics" data-i="${i}">📅 Ημερολόγιο</button></div></article>`}
+const rems=()=>jget("sports_rem",[]);
+function render(){const now=new Date();SCM.clear();const all=filtered(now),R=new Set(rems().map(r=>rid({start:new Date(r.start),title:r.title})));
+ const live=all.filter(e=>state(e,now)==="live"),scheduled=all.filter(e=>state(e,now)==="scheduled"),up=all.filter(e=>state(e,now)==="up"&&e.start<now.getTime()+6*36e5),box=(a,t)=>a.length?a.map(e=>card(e,now,R)).join(""):`<div class="empty">${t}</div>`;
+ $("liveCount").textContent=live.length;$("scheduledCount").textContent=scheduled.length;$("upCount").textContent=up.length;$("allCount").textContent=all.length;
+ $("liveList").innerHTML=box(live,"Δεν βρέθηκε επιβεβαιωμένος live αγώνας.");$("scheduledList").innerHTML=box(scheduled,"Δεν υπάρχουν μεταδόσεις εντός προγράμματος αυτή τη στιγμή.");$("upList").innerHTML=box(up,"Καμία μετάδοση στις επόμενες 6 ώρες.");$("allList").innerHTML=box(all,"Δεν βρέθηκαν μεταδόσεις.");
+ $("rbox").hidden=!rems().length;$("rcount").textContent=rems().length;$("dbg").textContent=location.search.includes("debug")?scErr:"";
+ document.querySelectorAll("#quick [data-f]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.f===st.f));$("hide").setAttribute("aria-pressed",st.hide)}
+async function notify(t,b){try{const r=await navigator.serviceWorker?.getRegistration();if(r){await r.showNotification(t,{body:b});return}}catch{}try{new Notification(t,{body:b})}catch{}}
+function toggleRem(ev){const id=rid(ev),L=rems();if(L.some(r=>rid({start:new Date(r.start),title:r.title})===id)){jset("sports_rem",L.filter(r=>rid({start:new Date(r.start),title:r.title})!==id));render();return}
+ if(!("Notification" in window)){alert("Ο browser δεν υποστηρίζει ειδοποιήσεις. Χρησιμοποίησε το 📅 Ημερολόγιο.");return}
+ const go=()=>{jset("sports_rem",[...rems(),{title:ev.title,channel:ev.channel,start:ev.start.getTime(),at:Math.max(Date.now(),ev.start.getTime()-st.rem*6e4)}]);notify("🔔 Υπενθύμιση ορίστηκε",ev.title);render()};
+ Notification.permission==="granted"?go():Notification.requestPermission().then(p=>{updNotif();if(p==="granted")go()})}
+function checkRem(){const n=Date.now(),L=rems(),due=L.filter(r=>r.at<=n);if(!due.length)return;due.forEach(r=>notify("⏰ "+r.title,r.channel+" • "+fmt(new Date(r.start))));jset("sports_rem",L.filter(r=>r.at>n));render()}
+const updNotif=()=>{$("notifBar").style.display="Notification" in window&&Notification.permission==="default"?"block":"none"};
+function ics(ev){const z=d=>d.toISOString().replace(/[-:]|\.\d{3}/g,""),t=ev.title.replace(/[,;]/g," ");
+ const f=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Sports Live//EL","BEGIN:VEVENT","UID:"+rid(ev)+"@sports-live","DTSTAMP:"+z(new Date()),"DTSTART:"+z(ev.start),"DTEND:"+z(ev.end),"SUMMARY:"+t,"DESCRIPTION:"+ev.channel,"BEGIN:VALARM","TRIGGER:-PT"+st.rem+"M","ACTION:DISPLAY","DESCRIPTION:"+t,"END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n");
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([f],{type:"text/calendar"}));a.download="match.ics";a.click()}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b)return;const ev=EV[+b.dataset.i];if(ev)b.dataset.a==="rem"?toggleRem(ev):ics(ev)});
+$("search").value=st.q;$("remSel").value=st.rem;
+$("search").oninput=e=>{st.q=e.target.value;save();render()};$("chSel").onchange=e=>{st.ch=e.target.value;save();render()};$("spSel").onchange=e=>{st.sp=e.target.value;save();render()};
+$("remSel").onchange=e=>{st.rem=+e.target.value;save()};
+document.querySelectorAll("#quick [data-f]").forEach(b=>b.onclick=()=>{st.f=b.dataset.f;save();render()});
+$("hide").onclick=()=>{st.hide=!st.hide;save();render()};
+$("favEdit").onclick=()=>{const v=prompt("Αγαπημένες ομάδες (χωρισμένες με κόμμα):",st.fav);if(v!==null){st.fav=v;save();render()}};
+$("refresh").onclick=()=>{load();loadScores()};$("rclear").onclick=()=>{jset("sports_rem",[]);render()};
+$("notifBtn").onclick=async()=>{if("Notification" in window){await Notification.requestPermission();updNotif()}};
+const tick=()=>{const n=new Date();$("clock").textContent=n.toLocaleTimeString("el-GR",{hourCycle:"h23"});$("dateLine").textContent=n.toLocaleDateString("el-GR",{weekday:"long",day:"numeric",month:"long",year:"numeric"})};
+let lastLoad=Date.now();
+const auto=()=>{if(Date.now()-lastLoad>30*6e4){lastLoad=Date.now();load()}loadScores();checkRem()};
+tick();updNotif();load();loadScores();setInterval(tick,1000);setInterval(()=>{checkRem();render()},30000);setInterval(()=>{if(!document.hidden)auto()},60000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)auto()});
+let dp=null;addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;$("installBar").style.display="block"});
+$("installBtn").onclick=async()=>{if(dp){dp.prompt();await dp.userChoice;$("installBar").style.display="none";dp=null}};$("installX").onclick=()=>$("installBar").style.display="none";
+if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+</script></body></html>
