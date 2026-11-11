@@ -1,7 +1,0 @@
-# Local IPTV Player state
-settings.json
-recordings.json
-epg.xml
-history.json
-cookies.txt
-__pycache__/

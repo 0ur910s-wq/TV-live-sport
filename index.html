@@ -1,2364 +1,441 @@
 <!DOCTYPE html>
-<html lang="el">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IPTV Player Pro V2.9</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%F0%9F%93%BA</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/4.7.4/dash.all.min.js"></script>
-<style>
-:root {
-    --bg-primary: #06080d;
-    --bg-secondary: #0c1017;
-    --bg-card: #131926;
-    --bg-card-hover: #171e2d;
-    --accent: #00e5ff;
-    --accent-dim: #0891a8;
-    --accent-glow: rgba(0, 229, 255, 0.16);
-    --text-main: #eef2f7;
-    --text-muted: #667589;
-    --danger: #ff3b5c;
-    --green: #4fd695;
-    --warn: #f5c04a;
-    --border: #1c2431;
-    --border-soft: rgba(255, 255, 255, 0.06);
-    --radius: 10px;
-    --radius-sm: 7px;
-    --shadow-card: 0 1px 2px rgba(0,0,0,0.3);
-    --shadow-lift: 0 8px 24px rgba(0,0,0,0.45);
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-h3 { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.2px; }
-body { font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-primary); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; letter-spacing: 0.1px; }
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--bg-primary); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-header { background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-secondary) 100%); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); z-index: 10; gap: 10px; flex-wrap: wrap; }
-.logo-title { font-size: 1.2rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px; letter-spacing: -0.2px; }
-.logo-title span { color: var(--accent); }
-.header-right { display: flex; align-items: center; gap: 10px; }
-.epg-badge-status { font-size: 0.75rem; color: var(--text-muted); background: var(--bg-card); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); }
-
-button { background-color: var(--bg-card); color: var(--text-main); border: 1px solid var(--border); padding: 7px 13px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; font-size: 0.82rem; font-family: inherit; transition: border-color 0.15s, color 0.15s, box-shadow 0.15s, transform 0.1s; }
-button:hover { border-color: var(--accent-dim); color: var(--accent); }
-button:active { transform: translateY(1px); }
-button.primary { background-color: var(--accent); color: #04222a; border: none; font-weight: 700; }
-button.primary:hover { color: #04222a; box-shadow: 0 0 0 3px var(--accent-glow); }
-button.danger { background-color: rgba(255, 59, 92, 0.12); color: var(--danger); border-color: rgba(255, 59, 92, 0.4); }
-button.danger:hover { background-color: var(--danger); color: #fff; border-color: var(--danger); }
-
-input[type="text"], input[type="datetime-local"], input[type="number"], select { background-color: var(--bg-primary); color: var(--text-main); border: 1px solid var(--border); padding: 8px 12px; border-radius: var(--radius-sm); outline: none; font-family: inherit; }
-input[type="text"]:focus, input[type="datetime-local"]:focus, input[type="number"]:focus, select:focus { border-color: var(--accent-dim); }
-
-.layout { display: grid; grid-template-columns: 200px 480px 1fr; flex: 1; overflow: hidden; }
-.sidebar { background-color: var(--bg-secondary); border-right: 1px solid var(--border); overflow-y: auto; padding: 10px 0; }
-.category-item { padding: 10px 16px; cursor: pointer; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; border-left: 3px solid transparent; transition: background 0.15s, color 0.15s; }
-.category-item:hover { color: var(--text-main); background: rgba(255,255,255,0.03); }
-.category-item.active { background-color: var(--bg-card); color: var(--accent); border-left-color: var(--accent); }
-
-.channels-panel { background-color: var(--bg-primary); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
-.search-bar { padding: 10px; border-bottom: 1px solid var(--border); background: var(--bg-secondary); display: flex; gap: 6px; }
-.search-bar input { width: 100%; }
-.fav-toggle { flex-shrink: 0; padding: 6px 10px; }
-.fav-toggle.active { color: var(--warn); border-color: var(--warn); }
-.channel-list { flex: 1; overflow-y: auto; padding: 6px; }
-
-.channel-card { display: flex; align-items: center; padding: 9px 10px; gap: 9px; border-radius: var(--radius-sm); margin-bottom: 3px; border: 1px solid transparent; cursor: pointer; background: var(--bg-secondary); transition: background 0.15s, border-color 0.15s, transform 0.12s; }
-.channel-card:hover { background-color: var(--bg-card-hover); border-color: var(--border); transform: translateX(1px); }
-.channel-card.active { background-color: var(--bg-card); border-color: var(--accent-dim); }
-.channel-card.active .channel-name { color: var(--accent); }
-.channel-card.selected-for-move { border-color: var(--accent); background: var(--accent-glow); }
-
-.channel-card img { width: 38px; height: 38px; object-fit: contain; background: #000; border-radius: var(--radius-sm); border: 1px solid var(--border); }
-.channel-info { flex: 1; overflow: hidden; }
-.channel-name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.epg-line { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.epg-line .now-time { color: var(--green); font-weight: 700; margin-right: 4px; }
-.epg-bar { height: 3px; background: var(--border); border-radius: 999px; overflow: hidden; margin-top: 5px; }
-.epg-bar .fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--accent)); border-radius: 999px; }
-
-.btn-icon-epg { background: transparent; border: 1px solid var(--border); color: var(--accent); padding: 4px 6px; font-size: 0.75rem; border-radius: var(--radius); }
-.btn-icon-epg:hover { background: var(--accent); color: #000; }
-.btn-fav { background: transparent; border: none; font-size: 1rem; padding: 2px 4px; color: var(--text-muted); cursor: pointer; }
-.btn-fav.active { color: var(--warn); }
-
-.player-container { display: flex; flex-direction: column; background: #000; overflow: hidden; height: 100%; }
-.video-wrapper { flex: 0 1 380px; max-height: 380px; position: relative; display: flex; align-items: center; justify-content: center; background: #000; }
-video { width: 100%; height: 100%; object-fit: contain; }
-
-.player-error-banner { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(255, 59, 92, 0.92); color: #fff; padding: 8px 14px; font-size: 0.82rem; display: none; align-items: center; justify-content: space-between; gap: 10px; }
-.player-error-banner button { background: #fff; color: var(--danger); border: none; }
-
-.player-controls-bar { background-color: var(--bg-secondary); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); gap: 10px; flex-wrap: wrap; }
-.current-title { font-size: 0.98rem; font-weight: 800; color: #fff; letter-spacing: -0.1px; }
-
-.epg-below-container { flex: 1; background: var(--bg-card); padding: 12px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-
-.now-epg-box { background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%); padding: 14px 16px; border-radius: var(--radius); border: 1px solid var(--border); border-left: 3px solid var(--accent); box-shadow: var(--shadow-card); }
-.now-epg-box .epg-title { font-weight: 700; color: var(--accent); margin-bottom: 5px; font-size: 0.96rem; letter-spacing: -0.1px; }
-.now-epg-box .epg-desc { color: var(--text-muted); font-size: 0.8rem; line-height: 1.5; max-height: 90px; overflow-y: auto; }
-.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--danger); box-shadow: 0 0 0 0 rgba(255,59,92,0.6); animation: live-pulse 1.8s infinite; flex-shrink: 0; }
-@keyframes live-pulse {
-    0% { box-shadow: 0 0 0 0 rgba(255,59,92,0.55); }
-    70% { box-shadow: 0 0 0 6px rgba(255,59,92,0); }
-    100% { box-shadow: 0 0 0 0 rgba(255,59,92,0); }
-}
-
-.daily-schedule-box { display: none; background: var(--bg-secondary); padding: 12px; border-radius: var(--radius); border: 1px solid var(--border); flex: 1; overflow-y: auto; }
-.daily-schedule-title { font-size: 0.88rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-
-.schedule-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
-.schedule-item:last-child { border-bottom: none; }
-.schedule-item.current { background: rgba(0, 229, 255, 0.07); border-left: 3px solid var(--accent); }
-.schedule-time { color: var(--green); font-weight: 600; width: 90px; flex-shrink: 0; }
-.schedule-name { flex: 1; color: var(--text-main); margin: 0 8px; }
-
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; }
-.modal-card { background: var(--bg-secondary); padding: 22px; border-radius: var(--radius); width: 380px; max-width: 92vw; display: flex; flex-direction: column; gap: 14px; border: 1px solid var(--border); max-height: 82vh; overflow-y: auto; box-shadow: var(--shadow-lift); }
-
-.rec-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.8rem; gap: 8px; flex-wrap: wrap; }
-.rec-info { flex: 1; overflow: hidden; }
-.rec-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rec-meta { color: var(--text-muted); font-size: 0.72rem; }
-.rec-status { font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.3px; }
-.rec-status.scheduled { background: rgba(0,229,255,0.15); color: var(--accent); }
-.rec-status.recording { background: rgba(255,59,92,0.15); color: var(--danger); }
-.rec-status.completed { background: rgba(107,207,143,0.15); color: var(--green); }
-.rec-status.cancelled, .rec-status.missed, .rec-status.interrupted { background: rgba(98,114,132,0.2); color: var(--text-muted); }
-.rec-status.failed { background: rgba(245,192,74,0.15); color: var(--warn); }
-.rec-actions { display: flex; gap: 4px; flex-shrink: 0; }
-.rec-section-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-top: 4px; }
-
-@keyframes blink-rec {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.35; }
-}
-.rec-live { animation: blink-rec 1.1s ease-in-out infinite; background-color: var(--danger) !important; color: #fff !important; border-color: var(--danger) !important; }
-.channel-card.recording-now { border-color: var(--danger); box-shadow: 0 0 0 1px rgba(255,59,92,0.4) inset; }
-
-.rec-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 9px; background: var(--danger); color: #fff; font-size: 0.65rem; font-weight: 700; margin-left: 4px; animation: blink-rec 1.1s ease-in-out infinite; }
-
-.playlist-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.78rem; gap: 8px; }
-.playlist-info { flex: 1; overflow: hidden; }
-.playlist-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.playlist-meta { color: var(--text-muted); font-size: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-/* --- Responsive: κάτω από 900px, στοίβαξε τα panels κάθετα --- */
-@media (max-width: 900px) {
-    .layout { grid-template-columns: 1fr; grid-template-rows: auto auto minmax(0, 1fr); }
-    .player-container { order: 1; height: auto; }
-    .epg-below-container { max-height: 42vh; }
-    .sidebar { order: 2; display: flex; align-items: center; overflow-x: auto; overflow-y: hidden; border-right: none; border-bottom: 1px solid var(--border); padding: 6px; white-space: nowrap; }
-    #categoryItems { display: none; } /* σε mobile αντικαθίσταται από το #categorySelectMobile — τα εμφωλευμένα παρακλάδια δεν βγάζουν νόημα σε οριζόντια κύλιση */
-    .mobile-only-select { display: block !important; width: 100%; flex-shrink: 0; }
-    .sidebar > div:last-child { border-top: none; margin-top: 0; padding: 0 0 0 8px; flex-shrink: 0; }
-    .sidebar > div:last-child button { width: auto; white-space: nowrap; }
-    .category-item { border-left: none; border-bottom: 3px solid transparent; flex-shrink: 0; }
-    .category-item.active { border-left-color: transparent; border-bottom-color: var(--accent); }
-    .channels-panel { order: 3; border-right: none; border-bottom: 1px solid var(--border); }
-    .video-wrapper { flex-basis: 220px; max-height: 220px; }
-    .channel-card { flex-wrap: wrap; }
-}
-.mobile-only-select { display: none; }
+<html lang="el"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sports Live • Athletiko.gr</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{background:#121212;color:#e0e0e0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding-bottom:40px}
+header{position:sticky;top:0;z-index:10;background:rgba(18,18,18,.94);backdrop-filter:blur(10px);padding:14px 16px 12px;border-bottom:1px solid #2c2c2c}
+.top{max-width:980px;margin:0 auto;display:flex;justify-content:space-between;gap:12px;align-items:center}
+.logo{font-size:22px;font-weight:900}.logo span{color:#ff4757}.sub{color:#9a9a9a;font-size:12.5px;margin-top:3px}
+#clock{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}#dateLine{font-size:12px;color:#9a9a9a;text-align:right}
+.wrap{max-width:980px;margin:0 auto;padding:14px 16px}
+.src{background:#1e1e1e;border:1px solid #333;border-radius:14px;padding:12px 13px;font-size:13px;line-height:1.5;margin-bottom:12px}
+.src b{color:#fff}.pill{display:inline-block;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:800;margin-left:6px}.ok{background:#2ed573;color:#06281a}.warn{background:#ffa502;color:#2a1800}.err{background:#ff4757;color:#fff}
+.controls{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+input,select{width:100%;background:#1e1e1e;border:1px solid #333;color:#e0e0e0;padding:12px 13px;border-radius:13px;font-size:14.5px;outline:none}
+.row{display:flex;gap:8px;flex-wrap:wrap}.chip{border:1px solid #333;background:#1e1e1e;color:#e0e0e0;padding:9px 13px;border-radius:999px;font-size:13px;cursor:pointer}.chip.active{background:#fff;color:#121212;font-weight:700}.chip:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #7ab8ff;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+.btn{background:#ff4757;color:#fff;border:0;padding:11px 16px;border-radius:12px;font-weight:800;cursor:pointer;font-size:14px}.btn2{background:#2a2a2a;color:#e0e0e0;border:1px solid #333}
+.meta{display:flex;justify-content:space-between;color:#9a9a9a;font-size:12.5px;margin:6px 2px 10px}.meta b{color:#e0e0e0}
+h2{font-size:18px;margin:20px 0 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}.count{background:#2a2a2a;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:700}h2 small{font-size:12px;color:#9a9a9a;font-weight:400;margin-left:auto}
+.grid{display:flex;flex-direction:column;gap:11px}.card{background:#1e1e1e;border:1px solid #262626;border-radius:16px;padding:13px;display:flex;gap:12px}.card.live{border-left:4px solid #ff4757}.card.upcoming{border-left:4px solid #2ed573}
+.icon{width:52px;height:52px;border-radius:12px;background:#2b2b2b;display:grid;place-items:center;font-size:13px;font-weight:900;flex-shrink:0;text-align:center;line-height:1.1;padding:4px}.main{flex:1;min-width:0}.channel{font-size:11.5px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:#bbb}
+.badge{font-size:11px;font-weight:900;padding:4px 7px;border-radius:999px}.badge.live{background:#ff4757;color:#fff;animation:blink 1.1s infinite}@keyframes blink{50%{opacity:.55}}.badge.soon{background:#2ed573;color:#06281a}
+.title{font-size:16px;font-weight:800;margin:5px 0 3px;line-height:1.25}.desc{font-size:13px;color:#bdbdbd}.foot{display:flex;gap:9px;flex-wrap:wrap;margin-top:9px;align-items:center}.time{font-weight:800;font-size:14px}.tag{background:#2e2e2e;padding:4px 8px;border-radius:999px;font-size:11px}.starts{font-size:12px;color:#9a9a9a}.progress{height:5px;background:#333;border-radius:999px;overflow:hidden;margin-top:10px}.progress i{display:block;height:100%;background:#ff4757}
+.empty{background:#1a1a1a;border:1px dashed #333;border-radius:16px;padding:22px;text-align:center;color:#9a9a9a;line-height:1.5}.footer{margin-top:24px;text-align:center;color:#777;font-size:12px;line-height:1.6}
+@media(min-width:700px){.controls{flex-direction:row}.controls>*{flex:1}.grid{display:grid;grid-template-columns:1fr 1fr}}
 </style>
-</head>
-<body>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#121212">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sports Live">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+</head><body>
+<header><div class="top"><div><div class="logo">SPORTS <span>LIVE</span> 🇬🇷</div><div class="sub">Πηγή: athletiko.gr/tvprogram • Live parsing</div></div><div><div id="clock">--:--:--</div><div id="dateLine"></div></div></div></header>
+<div class="wrap">
+<div class="src"><b>Πηγή:</b> <a href="https://www.athletiko.gr/tvprogram" target="_blank" rel="noopener" style="color:#7ab8ff">athletiko.gr/tvprogram</a>
+<span id="statusPill" class="pill warn" role="status" aria-live="polite">ΦΟΡΤΩΣΗ…</span>
+<div id="statusText" style="margin-top:6px;color:#bbb">Προσπάθεια live ανάγνωσης από το Athletiko…</div>
+<div style="margin-top:9px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="loadLive(true)">🔄 Ανανέωση τώρα</button><button class="btn btn2" onclick="useFallback()">Χρήση αποθηκευμένου προγράμματος 7-8/11</button></div>
+<div style="margin-top:8px;color:#888">Γιατί proxy; Το athletiko.gr δεν στέλνει CORS headers, οπότε ο browser μπλοκάρει το απευθείας fetch. Η εφαρμογή δοκιμάζει 5 δημόσια proxies (Jina Reader πρώτα) με τη σειρά. Αν κοπούν όλα, δείχνει το τελευταίο επιβεβαιωμένο πρόγραμμα (7-8/11) που είναι αποθηκευμένο μέσα στο αρχείο.</div></div>
 
-<header>
-    <div class="logo-title"><span>📺 IPTV Player Pro (Server Mode)</span></div>
-    <div class="header-right">
-        <button onclick="openRecordingsModal()">📼 Εγγραφές<span id="recCountBadge" class="rec-badge" style="display:none;"></span></button>
-        <button onclick="openSettingsModal()" title="Ρυθμίσεις">⚙ Ρυθμίσεις</button>
-        <div class="epg-badge-status" id="epgStatus" title="Κλικ για χειροκίνητη επανάληψη" onclick="retryEpgNow()" style="cursor:pointer;">EPG: Φόρτωση…</div>
-        <div class="epg-badge-status" id="diskStatus" title="Ελεύθερος χώρος δίσκου (φάκελος εγγραφών)" style="display:none;"></div>
-    </div>
-</header>
+<div class="controls"><input id="search" aria-label="Αναζήτηση αγώνων" autocomplete="off" placeholder="Αναζήτηση: ομάδα, διοργάνωση ή κανάλι… π.χ. Ολυμπιακός, Super League, Novasports">
+<div class="row"><select id="channelFilter" aria-label="Φίλτρο καναλιού"><option value="all">Όλα τα κανάλια</option></select><select id="sportFilter" aria-label="Φίλτρο αθλήματος"><option value="all">Όλες οι διοργανώσεις</option></select></div></div>
+<div class="row" id="quick"><button class="chip active" data-f="all">Όλα</button><button class="chip" data-f="live">🔴 Μόνο Live</button><button class="chip" data-f="upcoming">⏭️ Μόνο Επόμενα</button><button class="chip" data-f="panathinaikos">☘️ Παναθηναϊκός</button><button class="chip" data-f="today">📅 Σήμερα</button><button class="chip" data-f="tomorrow">📅 Αύριο</button></div>
+<div id="scoreBox" class="src" style="display:none;margin-top:12px"><b>Σκορ Παναθηναϊκού</b> <span id="scoreUpdated" style="color:#999;font-size:12px"></span><div id="scoreList" style="margin-top:8px"></div><div style="margin-top:8px;color:#888;font-size:12px">Δεδομένα σκορ: <a href="https://www.sport24.gr/matchcenter/" target="_blank" rel="noopener" style="color:#7ab8ff">Sport24 Matchcenter</a></div></div>
 
-<div class="layout">
-    <div class="sidebar" id="categorySidebar">
-        <select id="categorySelectMobile" class="mobile-only-select" onchange="onMobileCategoryChange(this.value)"></select>
-        <div id="categoryItems"></div>
-        <div style="padding: 10px 16px; border-top: 1px solid var(--border); margin-top: 6px;">
-            <button style="width:100%;" onclick="openAddPlaylistModal()">➕ Λίστα M3U</button>
-        </div>
-    </div>
-
-    <div class="channels-panel">
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Αναζήτηση καναλιού..." oninput="renderChannels()">
-            <button class="fav-toggle" id="favToggleBtn" title="Μόνο αγαπημένα" onclick="toggleFavOnlyFilter()">⭐</button>
-            <button class="fav-toggle" id="bulkMoveToggleBtn" title="Μετακίνηση καναλιών σε κατηγορία" onclick="toggleBulkMoveMode()">🗂️</button>
-        </div>
-        <div id="bulkMoveBar" style="display:none; padding:8px 10px; background:var(--bg-card); border-bottom:1px solid var(--border); align-items:center; gap:8px; flex-wrap:wrap;">
-            <span id="bulkMoveCount" style="font-size:0.8rem; color:var(--text-muted); flex-shrink:0;">0 επιλεγμένα</span>
-            <select id="bulkMoveCategorySelect" style="flex:1; min-width:140px;"></select>
-            <button class="primary" onclick="confirmBulkCategoryMove()">Μετακίνηση</button>
-            <button onclick="toggleBulkMoveMode()">Άκυρο</button>
-        </div>
-        <div class="channel-list" id="channelList"></div>
-    </div>
-
-    <div class="player-container">
-        <div class="video-wrapper" id="videoWrapper">
-            <video id="mainVideo" controls autoplay muted></video>
-            <div class="player-error-banner" id="playerErrorBanner">
-                <span id="playerErrorText">Σφάλμα αναπαραγωγής.</span>
-                <button onclick="retryCurrentChannel()">Δοκιμή ξανά</button>
-            </div>
-        </div>
-
-        <div class="player-controls-bar">
-            <div>
-                <div id="currentName" class="current-title">Επιλέξτε Κανάλι</div>
-                <div id="currentGroup" style="font-size:0.75rem; color:var(--text-muted);"></div>
-            </div>
-            <div style="display:flex; gap:8px; flex-wrap: wrap; align-items:center;">
-                <button title="Πλήρης οθόνη (f)" onclick="toggleFullscreen()">⛶ Πλήρης Οθόνη</button>
-                <button title="Λήψη στιγμιότυπου τρέχοντος καρέ" onclick="captureScreenshot()">📸 Στιγμιότυπο</button>
-                <select id="quickRecDuration" title="Διάρκεια άμεσης εγγραφής" style="padding:6px 8px;">
-                    <option value="30">30 λεπτά</option>
-                    <option value="60" selected>60 λεπτά</option>
-                    <option value="120">120 λεπτά</option>
-                    <option value="180">180 λεπτά</option>
-                    <option value="max">Έως ακύρωση</option>
-                </select>
-                <button class="danger" id="quickRecBtn" onclick="quickRecordCurrent()">🔴 Άμεση Εγγραφή (Server)</button>
-                <button class="primary" onclick="openScheduleModal()">📅 Προγραμματισμός Εγγραφής</button>
-            </div>
-        </div>
-
-        <div class="epg-below-container">
-            <div class="now-epg-box" id="nowEpgBox" style="display:none;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                    <span style="display:flex; align-items:center; gap:6px;">
-                        <span class="live-dot"></span>
-                        <span id="epgNowTime" style="color:var(--green); font-weight:700;"></span>
-                    </span>
-                    <span id="epgNextTime" style="color:var(--text-muted); font-size:0.75rem;"></span>
-                </div>
-                <div class="epg-title" id="epgNowTitle"></div>
-                <div class="epg-desc" id="epgNowDesc"></div>
-            </div>
-
-            <div class="daily-schedule-box" id="dailyScheduleBox">
-                <div class="daily-schedule-title">
-                    <span id="dailyScheduleHeader">📋 Πρόγραμμα Ημέρας</span>
-                    <button style="padding:2px 6px; font-size:0.7rem;" onclick="closeDailySchedule()">✕ Κλείσιμο</button>
-                </div>
-                <div id="dailyScheduleList"></div>
-            </div>
-        </div>
-    </div>
+<div id="remindersBox" style="background:#1e1e1e;border:1px solid #333;border-radius:14px;padding:12px 13px;margin-bottom:12px;display:none">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b>🔔 Οι ειδοποιήσεις μου</b><button class="btn btn2" style="padding:7px 11px;font-size:12px" onclick="clearReminders()">Καθαρισμός</button></div>
+<div id="remindersList" style="margin-top:8px;font-size:13px;line-height:1.6;color:#bbb"></div>
+<div style="margin-top:6px;font-size:12px;color:#888">Η υπενθύμιση προγραμματίζεται για 15′ πριν την έναρξη. Η παράδοσή της εξαρτάται από τον browser/λειτουργικό και μπορεί να καθυστερήσει αν η καρτέλα είναι στο παρασκήνιο ή κλειστή.</div>
 </div>
-
-<div class="modal-overlay" id="scheduleModal">
-    <div class="modal-card">
-        <h3>Προγραμματισμός Εγγραφής (Server)</h3>
-        <div>
-            <label style="font-size:0.8rem; color:var(--text-muted);">Ημερομηνία & Ώρα Έναρξης:</label>
-            <input type="datetime-local" id="schedStartTime" style="width:100%; margin-top:6px;">
-        </div>
-        <div>
-            <label style="font-size:0.8rem; color:var(--text-muted);">Διάρκεια (σε λεπτά):</label>
-            <input type="number" id="schedDuration" value="60" min="1" max="360" style="width:100%; margin-top:6px;">
-        </div>
-        <div>
-            <label style="font-size:0.8rem; color:var(--text-muted);">Τίτλος εκπομπής (προαιρετικό, για το όνομα αρχείου):</label>
-            <input type="text" id="schedProgramTitle" placeholder="π.χ. Δελτίο Ειδήσεων" style="width:100%; margin-top:6px;">
-        </div>
-        <div>
-            <label style="font-size:0.8rem; color:var(--text-muted);">Επανάληψη:</label>
-            <select id="schedRecurrence" style="width:100%; margin-top:6px;">
-                <option value="none">Καμία (μία φορά)</option>
-                <option value="daily">Καθημερινά</option>
-                <option value="weekly">Εβδομαδιαία (ίδια ημέρα)</option>
-                <option value="weekdays">Δευτέρα - Παρασκευή</option>
-                <option value="weekend">Σάββατο - Κυριακή</option>
-            </select>
-        </div>
-        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
-            <button onclick="closeScheduleModal()">Ακύρωση</button>
-            <button class="primary" onclick="submitSchedule()">Επιβεβαίωση</button>
-        </div>
-    </div>
+<div id="notifBar" style="background:#2a1a1a;border:1px solid #ff4757;border-radius:14px;padding:11px 13px;margin-bottom:12px;display:none;font-size:13px;line-height:1.5">
+🔔 Οι ειδοποιήσεις είναι κλειστές. Πάτα για να τις ενεργοποιήσεις και να σου έρχεται υπενθύμιση πριν από κάθε ματς που θα επιλέξεις.
+<button class="btn" style="margin-left:8px;padding:8px 12px;font-size:13px" onclick="enableNotifications()">Ενεργοποίηση ειδοποιήσεων</button>
 </div>
+<div class="meta"><span>Τελευταία ενημέρωση: <b id="updated">—</b></span><span id="resultCount"></span></div>
 
-<div class="modal-overlay" id="folderBrowserModal">
-    <div class="modal-card" style="width:420px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3>📁 Επιλογή Φακέλου (στον server)</h3>
-            <button style="padding:2px 8px;" onclick="closeFolderBrowser()">✕</button>
-        </div>
-        <div id="folderBrowserPath" style="font-size:0.78rem; color:var(--text-muted); word-break:break-all;"></div>
-        <div id="folderBrowserList" style="display:flex; flex-direction:column; gap:2px; max-height:280px; overflow-y:auto; margin-top:6px;"></div>
-        <button class="primary" style="margin-top:10px;" onclick="confirmFolderSelection()">Επιλογή αυτού του φακέλου</button>
-    </div>
-</div>
-
-<div class="modal-overlay" id="epgMappingModal">
-    <div class="modal-card" style="width:420px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3>🔗 Αντιστοίχιση EPG</h3>
-            <button style="padding:2px 8px;" onclick="closeEpgMappingModal()">✕</button>
-        </div>
-        <div style="font-size:0.8rem; color:var(--text-muted);" id="epgMappingChannelName"></div>
-        <input type="text" id="epgMappingSearch" placeholder="Αναζήτηση καναλιού EPG..." style="width:100%;" oninput="renderEpgMappingResults()">
-        <div id="epgMappingCurrent" style="font-size:0.8rem;"></div>
-        <div id="epgMappingResults" style="display:flex; flex-direction:column; gap:4px; max-height:280px; overflow-y:auto;"></div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="recordingsModal">
-    <div class="modal-card" style="width:460px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3>📼 Οι Εγγραφές μου</h3>
-            <button style="padding:2px 8px;" onclick="closeRecordingsModal()">✕</button>
-        </div>
-        <div id="recBulkBar" style="display:none; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--border); margin-bottom:6px; font-size:0.8rem;">
-            <span id="recBulkCount">0 επιλεγμένα</span>
-            <button style="padding:3px 8px; font-size:0.75rem;" onclick="bulkDownloadRecordings()">⬇ Λήψη (.zip)</button>
-            <button class="danger" style="padding:3px 8px; font-size:0.75rem;" onclick="bulkDeleteRecordings()">🗑 Διαγραφή</button>
-            <button style="padding:3px 8px; font-size:0.75rem; margin-left:auto;" onclick="clearRecordingSelection()">Άκυρο</button>
-        </div>
-        <div id="recordingsList" style="display:flex; flex-direction:column; gap:8px;"></div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="addPlaylistModal">
-    <div class="modal-card" style="width:440px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3>➕ Λίστα M3U</h3>
-            <button style="padding:2px 8px;" onclick="closeAddPlaylistModal()">✕</button>
-        </div>
-
-        <div>
-            <label style="font-size:0.8rem; color:var(--text-muted);">Όνομα λίστας (γίνεται branch στο sidebar· τα δικά της group-title, αν υπάρχουν, γίνονται παρακλάδια μέσα σε αυτήν):</label>
-            <input type="text" id="playlistCategoryInput" placeholder="π.χ. hacker" style="width:100%; margin-top:6px;">
-        </div>
-
-        <div>
-            <label style="font-size:0.8rem; color:var(--text-muted);">URL λίστας M3U:</label>
-            <input type="text" id="playlistUrlInput" placeholder="https://example.com/list.m3u" style="width:100%; margin-top:6px;">
-        </div>
-
-        <div style="text-align:center; color:var(--text-muted); font-size:0.75rem;">— ή —</div>
-
-        <div>
-            <label style="font-size:0.8rem; color:var(--text-muted);">Αρχείο M3U από τον υπολογιστή:</label>
-            <input type="file" id="playlistFileInput" accept=".m3u,.m3u8,text/plain" style="width:100%; margin-top:6px;" onchange="handlePlaylistFileSelect(event)">
-            <div id="playlistFileName" style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;"></div>
-        </div>
-
-        <div style="text-align:center; color:var(--text-muted); font-size:0.75rem;">— ή —</div>
-
-        <div>
-            <label style="font-size:0.8rem; color:var(--text-muted);">Επικόλληση περιεχομένου M3U:</label>
-            <textarea id="playlistTextInput" rows="4" placeholder="#EXTM3U&#10;#EXTINF:-1 tvg-logo=&quot;...&quot; group-title=&quot;...&quot;,Channel Name&#10;http://..." style="width:100%; margin-top:6px; background-color: var(--bg-primary); color: var(--text-main); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; font-family: monospace; font-size: 0.78rem; resize: vertical;"></textarea>
-        </div>
-
-        <label style="display:flex; align-items:center; gap:8px; font-size:0.78rem; color:var(--text-muted); cursor:pointer;">
-            <input type="checkbox" id="forceDuplicatesCheckbox" style="width:16px; height:16px; accent-color:var(--accent);">
-            Προσθήκη ακόμα κι αν το ίδιο ακριβώς stream URL υπάρχει ήδη σε άλλο κανάλι (δεν θα κρυφτεί ως διπλότυπο)
-        </label>
-
-        <div style="display:flex; justify-content:flex-end; gap:10px;">
-            <button class="primary" onclick="submitAddPlaylist()">Προσθήκη</button>
-        </div>
-
-        <div style="border-top: 1px solid var(--border); padding-top: 10px;">
-            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">Οι λίστες μου:</div>
-            <div id="playlistsList" style="display:flex; flex-direction:column; gap:6px;"></div>
-        </div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="settingsModal">
-    <div class="modal-card" style="width:460px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3>⚙ Ρυθμίσεις</h3>
-            <button style="padding:2px 8px;" onclick="closeSettingsModal()">✕</button>
-        </div>
-
-        <div id="serverStatusBox" style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; font-size: 0.78rem; color: var(--text-muted); line-height:1.6;">
-            Φόρτωση κατάστασης server…
-        </div>
-
-        <div style="border-top: 1px solid var(--border); padding-top: 10px; font-size:0.85rem; font-weight:700; color: var(--accent);">Χρονισμός &amp; Εγγραφές</div>
-
-        <div>
-            <label style="font-size:0.8rem; color:var(--text-muted);">Ζώνη ώρας:</label>
-            <input type="text" id="setTimezone" placeholder="Europe/Athens" style="width:100%; margin-top:6px;">
-        </div>
-        <div style="display:flex; gap:10px;">
-            <div style="flex:1;">
-                <label style="font-size:0.8rem; color:var(--text-muted);">Padding πριν (λεπτά):</label>
-                <input type="number" id="setPrePad" min="0" max="120" style="width:100%; margin-top:6px;">
-            </div>
-            <div style="flex:1;">
-                <label style="font-size:0.8rem; color:var(--text-muted);">Padding μετά (λεπτά):</label>
-                <input type="number" id="setPostPad" min="0" max="120" style="width:100%; margin-top:6px;">
-            </div>
-        </div>
-        <div style="display:flex; gap:10px;">
-            <div style="flex:1;">
-                <label style="font-size:0.8rem; color:var(--text-muted);">Μέγιστη διάρκεια εγγραφής (ώρες):</label>
-                <input type="number" id="setMaxDuration" min="1" max="24" style="width:100%; margin-top:6px;">
-            </div>
-            <div style="flex:1;">
-                <label style="font-size:0.8rem; color:var(--text-muted);">Auto-cleanup μετά από (ημέρες, 0=ανενεργό):</label>
-                <input type="number" id="setCleanupDays" min="0" max="365" style="width:100%; margin-top:6px;">
-            </div>
-        </div>
-
-        <div style="border-top: 1px solid var(--border); padding-top: 10px; font-size:0.85rem; font-weight:700; color: var(--accent);">EPG</div>
-        <div>
-            <label style="font-size:0.8rem; color:var(--text-muted);">URL EPG (XMLTV):</label>
-            <input type="text" id="setEpgUrl" placeholder="https://.../epg.xml" style="width:100%; margin-top:6px;">
-        </div>
-        <div>
-            <label style="font-size:0.8rem; color:var(--text-muted);">Ανανέωση EPG κάθε (ώρες):</label>
-            <input type="number" id="setEpgRefreshHours" min="1" max="48" style="width:100%; margin-top:6px;">
-        </div>
-        <div>
-            <label style="font-size:0.8rem; color:var(--text-muted);">
-                Επιπλέον/συμπληρωματικά EPG sources (ένα URL ανά γραμμή — π.χ. Pluto TV, Plex FAST κανάλια· συγχωνεύονται με το κύριο· .xml ή .xml.gz):
-            </label>
-            <textarea id="setEpgExtraUrls" rows="3" placeholder="https://i.mjh.nz/PlutoTV/us.xml&#10;https://raw.githubusercontent.com/matthuisman/i.mjh.nz/master/Plex/all.xml.gz" style="width:100%; margin-top:6px; background-color: var(--bg-primary); color: var(--text-main); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; font-family: monospace; font-size: 0.75rem; resize: vertical;"></textarea>
-        </div>
-
-        <div style="border-top: 1px solid var(--border); padding-top: 10px; font-size:0.85rem; font-weight:700; color: var(--accent);">Φάκελος Εγγραφών</div>
-        <div style="font-size:0.78rem; color:var(--text-muted);">Ισχύει μόνο για ΝΕΕΣ εγγραφές — οι υπάρχουσες δεν μετακινούνται αυτόματα.</div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <input type="text" id="setRecordingsDir" placeholder="π.χ. recordings ή /home/user/tv-recordings" style="flex:1; min-width:160px;">
-            <button onclick="openFolderBrowser()">📁 Αναζήτηση</button>
-        </div>
-
-        <div style="border-top: 1px solid var(--border); padding-top: 10px; font-size:0.85rem; font-weight:700; color: var(--accent);">Ασφάλεια</div>
-        <div style="display:flex; align-items:center; gap:8px;">
-            <input type="checkbox" id="setAuthEnabled" style="width:auto;">
-            <label for="setAuthEnabled" style="font-size:0.82rem;">Απαίτηση σύνδεσης (authentication) για εγγραφές/λήψεις</label>
-        </div>
-        <div style="display:flex; align-items:center; gap:8px;">
-            <input type="checkbox" id="setProtectAll" style="width:auto;">
-            <label for="setProtectAll" style="font-size:0.82rem;">Απαίτηση σύνδεσης ΠΑΝΤΟΥ (και για προβολή καναλιών/EPG)</label>
-        </div>
-
-        <div style="border-top: 1px solid var(--border); padding-top: 10px; font-size:0.85rem; font-weight:700; color: var(--accent);">Γονικός Έλεγχος</div>
-        <div style="font-size:0.78rem; color:var(--text-muted);">Όρισε PIN και επίλεξε ποιες κατηγορίες καναλιών θα το ζητούν πριν παίξουν.</div>
-        <div style="display:flex; gap:10px; align-items:flex-end;">
-            <div style="flex:1;">
-                <label style="font-size:0.8rem; color:var(--text-muted);">PIN (4-8 ψηφία, κενό = απενεργοποίηση):</label>
-                <input type="text" id="setParentalPin" placeholder="π.χ. 1234" style="width:100%; margin-top:6px;">
-            </div>
-            <button style="padding:8px 10px;" onclick="saveParentalPin()">Αποθήκευση PIN</button>
-        </div>
-        <div id="lockedCategoriesBox" style="display:flex; flex-wrap:wrap; gap:6px 14px; font-size:0.8rem;"></div>
-
-        <div style="border-top: 1px solid var(--border); padding-top: 10px; font-size:0.85rem; font-weight:700; color: var(--accent);">Υγεία Καναλιών</div>
-        <div style="display:flex; align-items:center; gap:10px;">
-            <button onclick="startChannelHealthCheck()">🩺 Έλεγχος όλων των καναλιών</button>
-            <span id="healthCheckStatus" style="font-size:0.78rem; color:var(--text-muted);"></span>
-        </div>
-
-        <div style="border-top: 1px solid var(--border); padding-top: 10px; font-size:0.85rem; font-weight:700; color: var(--accent);">Backup / Επαναφορά</div>
-        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-            <button onclick="window.open('/api/backup/export', '_blank')">⬇ Λήψη Backup (.zip)</button>
-            <input type="file" id="backupImportFile" accept=".zip" style="max-width:180px;">
-            <button onclick="importBackup()">⬆ Επαναφορά</button>
-        </div>
-        <div id="backupImportStatus" style="font-size:0.78rem; color:var(--text-muted);"></div>
-        <div style="display:flex; gap:10px;">
-            <div style="flex:1;">
-                <label style="font-size:0.8rem; color:var(--text-muted);">Νέο username (προαιρετικό):</label>
-                <input type="text" id="setNewUsername" placeholder="αφήστε κενό αν δεν αλλάζει" style="width:100%; margin-top:6px;">
-            </div>
-            <div style="flex:1;">
-                <label style="font-size:0.8rem; color:var(--text-muted);">Νέος κωδικός (προαιρετικό):</label>
-                <input type="text" id="setNewPassword" placeholder="αφήστε κενό αν δεν αλλάζει" style="width:100%; margin-top:6px;">
-            </div>
-        </div>
-
-        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:6px;">
-            <button class="primary" onclick="submitSettings()">Αποθήκευση Ρυθμίσεων</button>
-        </div>
-    </div>
-</div>
-
+<h2>🔴 Αθλητικά Live Τώρα <span class="count" id="liveCount">0</span><small>Έναρξη ≤ Τώρα ≤ Λήξη (εκτίμηση διάρκειας)</small></h2><div class="grid" id="liveList"></div>
+<div id="liveScoresBox" class="src" style="margin-top:12px"><b>⚽ Ζωντανά σκορ από Sport24</b> <span id="liveScoresUpdated" style="color:#999;font-size:12px"></span><div id="liveScoresList" style="margin-top:8px">Φόρτωση σκορ…</div><div style="margin-top:8px;color:#888;font-size:12px">Πηγή: <a href="https://www.sport24.gr/matchcenter/" target="_blank" rel="noopener" style="color:#7ab8ff">Sport24 Matchcenter</a></div></div>
+<h2>⏭️ Επόμενες Μεταδόσεις (6 Ώρες) <span class="count" id="upCount">0</span><small>Έως <span id="untilLabel"></span></small></h2><div class="grid" id="upList"></div>
+<h2>📅 Όλο το Πρόγραμμα <span class="count" id="allCount">0</span><small>Σήμερα + Αύριο από Athletiko</small></h2><div class="grid" id="allList"></div>
+<div class="footer">Διάρκειες: Ποδόσφαιρο 120′, Μπάσκετ/Βόλεϊ 120′, F1 150′, Τένις 150′, Μαραθώνιος 300′, Εκπομπή 90′ — εκτίμηση, γιατί το Athletiko δίνει μόνο ώρα έναρξης.<br>Η Live ένδειξη είναι εκτίμηση βάσει ώρας έναρξης + διάρκειας. Για 100% επιβεβαίωση δες το κανάλι.</div></div>
 <script>
-// ---------------------------------------------------------------------
-// Κατάσταση εφαρμογής
-// ---------------------------------------------------------------------
-let CHANNELS = [];
-let EPG_MAP = {};
-let EPG_OVERRIDES = {};   // channel key -> epg id (χειροκίνητο mapping)
-let CATEGORY_OVERRIDES = {};   // channel key -> όνομα κατηγορίας (χειροκίνητη μετακίνηση)
-let bulkMoveMode = false;
-let selectedForMove = new Set();   // channel keys επιλεγμένα για μετακίνηση κατηγορίας
-let EPG_CHANNELS_LIST = []; // [{id, name}] απ' όλα τα <channel> του epg.xml
-let selectedCategory = { type: 'all' };
-let expandedLists = new Set(); // ποιες "λίστες" (playlists) είναι ανοιγμένες στο sidebar
-let currentChannelIndex = null;
-let currentChannelKey = null;
-let activeScheduleChannelIndex = null;
-let hlsInstance = null;
-let dashPlayer = null;
-let EPG_DATA = null;
-let favOnly = false;
-let activeRecordingChannelIds = new Set();
-let recordingsCache = [];
-let epgRetryCount = 0;
-let epgRetryTimer = null;
-let APP_SETTINGS = { rec_pre_pad_min: 10, rec_post_pad_min: 25, max_duration_hours: 6 };
-// Το padding πλέον έρχεται από το /api/settings (APP_SETTINGS) — άλλαξέ το από ⚙ Ρυθμίσεις,
-// όχι εδώ. Οι τιμές παρακάτω είναι απλώς το fallback μέχρι να φτάσει η απάντηση του server.
-
-const FAV_KEY = 'iptv_favorites';
-const LAST_CHANNEL_KEY = 'iptv_last_channel';
-const VOLUME_KEY = 'iptv_volume';
-
-function getFavorites() {
-    try { return new Set(JSON.parse(localStorage.getItem(FAV_KEY) || '[]')); }
-    catch (e) { return new Set(); }
+const FALLBACK = [[0, "14:30", "Premier League", "Λιντς - Τότεναμ", "Novasports Premier League"], [0, "14:30", "Sky Bet EFL Championship", "Ρέξαμ - Γουλβς", "MAGENTA SPORT 7"], [0, "14:45", "Superbet League 2", "Απόλλων 1926 - Πανσερραϊκός", "ΕΡΤ 2"], [0, "15:00", "La Liga", "Μάλαγα - Ρασίνγκ Σανταντέρ", "MAGENTA SPORT 3 LEAGUE"], [0, "15:00", "Stoiximan GBL", "Δόξα Λευκάδας - Άρης", "ΣΠΟΡ FM 1"], [0, "16:00", "Serie A", "Κάλιαρι - Φροζινόνε", "MAGENTA SPORT 3"], [0, "16:00", "Serie A", "Τορίνο - Λέτσε", "MAGENTA SPORT 2"], [0, "16:00", "Stoiximan GBL", "Κολοσσός Ρόδου - Περιστέρι", "ΣΠΟΡ FM 2"], [0, "16:30", "Bundesliga", "Πάντερμπορν - Άιντραχτ Φρανκφούρτης", "Novasports 6 HD"], [0, "16:30", "Bundesliga", "Ντόρτμουντ - Έλβερσμπεργκ", "Novasports 4HD"], [0, "16:30", "Bundesliga", "Μάιντς - Μπάγερν Μονάχου", "Novasports 3HD"], [0, "17:00", "Premier League", "Άρσεναλ - Χαλ", "Novasports Premier League"], [0, "17:00", "Premier League", "Φούλαμ - Νιούκαστλ", "Novasports Start"], [0, "17:00", "Stoiximan Super League", "Βόλος - Κηφισιά", "MAGENTA SPORT 2 LEAGUE"], [0, "17:00", "Sky Bet EFL Championship", "Μπέρμιγχαμ - Σουόνσι", "MAGENTA SPORT 7"], [0, "17:00", "Α1 Γυναικών Volley League", "ΑΕΚ - Α.Ο. Θήρας", "ΕΡΤ 2"], [0, "17:00", "Stoiximan GBL", "Ηρακλής - Μύκονος", "ΣΠΟΡ FM 3"], [0, "17:00", "Stoiximan GBL", "Προμηθέας Πάτρας - Καρδίτσα", "ΣΠΟΡ FM 4"], [0, "17:30", "Stoiximan GBL", "ΠΑΟΚ - Βίκος Ιωαννίνων", "ΣΚΑΪ"], [0, "19:00", "Serie A", "Πάρμα - Μπολόνια", "MAGENTA SPORT 2"], [0, "19:30", "Premier League", "Νότιγχαμ Φόρεστ - Μάντσεστερ Σίτι", "Novasports Premier League"], [0, "19:30", "Bundesliga", "Στουτγκάρδη - Βέρντερ Βρέμης", "Novasports Prime"], [0, "19:30", "La Liga", "Οσασούνα - Μπιλμπάο", "MAGENTA SPORT 3 LEAGUE"], [0, "19:30", "Turkish Basketball Super League", "Μπούρσασπορ - Φενέρμπαχτσε", "MAGENTA SPORT 4"], [0, "19:30", "Volley League Ανδρών", "Ολυμπιακός - Φλοίσβος", "ΕΡΤ 2"], [0, "19:30", "Stoiximan Super League", "Άρης - Παναιτωλικός", "Novasports 1HD"], [0, "21:30", "Bundesliga 2", "Χέρτα Βερολίνου - Βόλφσμπουργκ", "Novasports Start"], [0, "21:45", "Serie A", "Ρόμα - Σασουόλο", "MAGENTA SPORT 2"], [0, "22:00", "La Liga", "Βαλένθια - Ρεάλ Μαδρίτης", "MAGENTA SPORT 3 LEAGUE"], [0, "22:30", "Liga Portugal", "Σπόρτινγκ Λισαβόνας - Μορεϊρένσε", "MAGENTA SPORT 3"], [0, "22:30", "Torneo Clausura", "Μπόκα Τζούνιορς - Ντιφένσα Τζουστίσια", "ACTION 24"], [0, "23:00", "Copa do Brasil 2026", "Ατλέτικο Μινέιρο - Γκρέμιο", "Novasports 2HD"], [1, "08:30", "Αγώνας Δρόμου", "43ος Μαραθώνιος Αθήνας", "ΕΡΤ 1"], [1, "12:30", "Superbet League 2", "Ολυμπιακός Β - Ελλάς Σύρου", "ΕΡΤ 2"], [1, "13:00", "ACB Liga Endesa", "Μπαρτσελόνα - Μπρέογκαν", "MAGENTA SPORT 4"], [1, "13:00", "Stoiximan GBL", "ΑΕΚ - Παναθηναϊκός AKTOR", "ΣΚΑΪ"], [1, "13:15", "Eredivisie", "Χέρενφεν - Φέγενορντ", "Novasports Prime"], [1, "13:30", "Serie A", "Νάπολι - Λάτσιο", "MAGENTA SPORT 1"], [1, "14:30", "Turkish Basketball Super League", "Αναντολού Εφές - Τόφας", "MAGENTA SPORT 7"], [1, "14:30", "Bundesliga 2", "Χάιντενχαϊμ - Ανόβερο", "Novasports 3HD"], [1, "14:45", "Superbet League 2", "Athens Kallithea - Πανιώνιος", "ΕΡΤ 2"], [1, "15:00", "La Liga", "Έλτσε - Μπέτις", "MAGENTA SPORT 3 LEAGUE"], [1, "15:30", "Eredivisie", "Τβέντε - Άγιαξ", "Novasports 1HD"], [1, "16:00", "Cyprus League", "Ανόρθωση - Ομόνοια", "MAGENTA SPORT 3"], [1, "16:00", "Serie A", "Τζένοα - Μίλαν", "MAGENTA SPORT 1"], [1, "16:00", "Serie A", "Μόντσα - Αταλάντα", "MAGENTA SPORT 2"], [1, "16:00", "Premier League", "Κρίσταλ Πάλας - Λίβερπουλ", "Novasports Premier League"], [1, "16:00", "Premier League", "Μπράιτον - Μπρέντφορντ", "Novasports Prime"], [1, "16:00", "Premier League", "Ίπσουιτς - Μπόρνμουθ", "Novasports 6 HD"], [1, "16:30", "Bundesliga", "Κολωνία - Λεβερκούζεν", "Novasports Start"], [1, "17:00", "Stoiximan Super League", "ΑΕΚ - Λεβαδειακός", "MAGENTA SPORT 1"], [1, "17:00", "EHF Euro 2028 - Προκριματικά Ανδρών", "Ελλάδα - Βόρεια Μακεδονία", "ΕΡΤ 2"], [1, "17:00", "Premier League", "Σάντερλαντ - Τσέλσι", "Novasports 4HD"], [1, "17:15", "La Liga", "Ρεάλ Σοσιεδάδ - Ράγιο Βαγιεκάνο", "MAGENTA SPORT 3 LEAGUE"], [1, "17:15", "Stoiximan GBL", "Μαρούσι - Ολυμπιακός", "ΣΠΟΡ FM 2"], [1, "17:30", "Stoiximan Super League", "Ηρακλής - Παναθηναϊκός", "ΣΚΑΪ"], [1, "17:45", "Eredivisie", "Καμπούρ - PSV Αϊντχόφεν", "Novasports 2HD"], [1, "17:45", "Eredivisie", "Άλκμααρ - Γκρόνινγκεν", "Novasports 1HD"], [1, "18:30", "Stoiximan Super League", "ΟΦΗ - Ατρόμητος", "MAGENTA SPORT 2 LEAGUE"], [1, "18:30", "Premier League", "Μάντσεστερ Γιουνάιτεντ - Άστον Βίλα", "Novasports Prime"], [1, "18:30", "Bundesliga", "Φράιμπουργκ - Ουνιόν Βερολίνου", "Novasports 3HD"], [1, "18:45", "Formula 1 2026", "Γκραν Πρι Σάο Πάουλο", "ANT1"], [1, "19:00", "Cyprus League", "ΑΠΟΕΛ - Άρης Λεμεσού", "MAGENTA SPORT 3"], [1, "19:00", "Serie A", "Ίντερ - Κόμο", "MAGENTA SPORT 1"], [1, "19:30", "La Liga", "Θέλτα - Λεβάντε", "MAGENTA SPORT 4 LEAGUE"], [1, "19:30", "La Liga", "Βιγιαρεάλ - Χετάφε", "MAGENTA SPORT 3 LEAGUE"], [1, "20:00", "ACB Liga Endesa", "Ρεάλ Μαδρίτης - Μούρθια", "MAGENTA SPORT 4"], [1, "20:00", "Liga Portugal", "Βιτόρια Γκιμαράες - Πόρτο", "MAGENTA SPORT 2"], [1, "20:00", "NFL", "Νιου Γιορκ Τζετς – Κάνσας Σίτι Τσιφς", "ΕΡΤ 2"], [1, "21:00", "Stoiximan Super League", "Ολυμπιακός - ΠΑΟΚ", "MAGENTA SPORT 1"], [1, "21:45", "Serie A", "Φιορεντίνα - Γιουβέντους", "MAGENTA SPORT 1"], [1, "22:00", "Copa do Brasil 2026", "Βάσκο ντα Γκάμα - Παλμέιρας", "Novasports 2HD"], [1, "22:00", "LaLiga", "Ατλέτικο Μαδρίτης - Μπαρτσελόνα", "MAGENTA SPORT 3 LEAGUE"], [1, "22:30", "Εκπομπή", "Athletiko FC", "ACTION 24"], [1, "22:30", "ΝΒΑ", "Σικάγο Μπουλς - Φιλαδέλφεια 76ερς", "MAGENTA SPORT 4"], [1, "22:30", "Liga Portugal", "Εστρέλα - Μπενφίκα", "MAGENTA SPORT 2"]];
+let EVENTS=[]; let quick="all"; let sourceLabel="fallback";
+let SPORT24_SCORES=[]; let scoresError="";
+function durFor(comp,title){
+ const c=(comp+" "+title).toLowerCase();
+ if(c.includes("μαραθώνιος")) return 300;
+ if(c.includes("formula")||c.includes("γκραν πρι")) return 150;
+ if(c.includes("εκπομπή")||c.includes("athletiko fc")) return 90;
+ if(c.includes("nba")||c.includes("gbl")||c.includes("volley")||c.includes("μπάσκετ")||c.includes("basket")) return 120;
+ return 120;
 }
-function saveFavorites(set) {
-    localStorage.setItem(FAV_KEY, JSON.stringify([...set]));
+function sportFor(comp){
+ const c=comp.toLowerCase();
+ if(c.includes("gbl")||c.includes("nba")||c.includes("basket")||c.includes("acb")) return "Μπάσκετ";
+ if(c.includes("volley")) return "Βόλεϊ";
+ if(c.includes("formula")||c.includes("γκραν πρι")) return "Formula 1";
+ if(c.includes("εκπομπή")) return "Εκπομπή";
+ if(c.includes("δρόμου")||c.includes("μαραθώνιος")) return "Στίβος";
+ if(c.includes("nfl")) return "NFL";
+ return "Ποδόσφαιρο";
 }
-function toggleFavorite(id) {
-    const favs = getFavorites();
-    if (favs.has(id)) favs.delete(id); else favs.add(id);
-    saveFavorites(favs);
-    renderChannels();
+function iconFor(ch){
+  const c=(ch||"").toUpperCase();
+  if(c.includes("MAGENTA")) return {t:"MAG", bg:"#c2185b"};
+  if(c.includes("NOVASPORTS")) return {t:"NOVA", bg:"#6a1b9a"};
+  if(c.includes("ΕΡΤ")||c.includes("ERT")) return {t:"ΕΡΤ", bg:"#1b7a4d"};
+  if(c.includes("ΣΠΟΡ FM")) return {t:"SFM", bg:"#b45309"};
+  if(c.includes("ΣΚΑΪ")||c.includes("SKAI")) return {t:"ΣΚΑΪ", bg:"#1d4ed8"};
+  if(c.includes("ANT1")) return {t:"ANT1", bg:"#dc2626"};
+  if(c.includes("ACTION")) return {t:"ACT", bg:"#ea580c"};
+  return {t:"TV", bg:"#444"};
 }
-function toggleFavOnlyFilter() {
-    favOnly = !favOnly;
-    document.getElementById('favToggleBtn').classList.toggle('active', favOnly);
-    renderChannels();
+// Μετατροπή fallback (d=0 σήμερα, d=1 αύριο) σε Events με πραγματικές ημερομηνίες
+function fallbackToEvents(){
+ const base=new Date(2026,10,7); base.setHours(0,0,0,0);
+ return FALLBACK.map(f=>{
+   const d=new Date(base); d.setDate(d.getDate()+f[0]);
+   const [h,m]=f[1].split(":").map(Number); d.setHours(h,m,0,0);
+   const dur=durFor(f[2],f[3]);
+   return {start:d,end:new Date(d.getTime()+dur*60000),comp:f[2],title:f[3],channel:f[4],sport:sportFor(f[2]),dur};
+ }).sort((a,b)=>a.start-b.start);
 }
 
-// Σταθερό αναγνωριστικό καναλιού, βασισμένο στο URL (και όχι στη θέση του μέσα
-// στον πίνακα CHANNELS). Το ch._id είναι απλώς η θέση φόρτωσης — αλλάζει αν
-// προστεθεί/αφαιρεθεί/ξαναταξινομηθεί ένα custom playlist, οπότε ΔΕΝ πρέπει να
-// χρησιμοποιείται για οτιδήποτε αποθηκεύεται μόνιμα (αγαπημένα, τελευταίο
-// κανάλι, channel_id σε προγραμματισμένη εγγραφή). Το ch.key παραμένει σταθερό
-// όσο το URL του καναλιού δεν αλλάζει.
-function stableChannelKey(ch) {
-    let str = (ch && (ch.url || ch.name)) || '';
-    if (ch && ch.force_duplicate) {
-        // Σκόπιμο διπλότυπο URL (βλ. "force_duplicates") — το ίδιο URL μπορεί να
-        // υπάρχει σε πάνω από ένα κανάλια, οπότε προσθέτουμε name/list/group στο hash
-        // ώστε να έχουν ΔΙΑΦΟΡΕΤΙΚΟ key μεταξύ τους (αγαπημένα/εγγραφή/τελευταίο
-        // κανάλι δεν μπερδεύονται). Τα κανονικά κανάλια ΔΕΝ επηρεάζονται καθόλου.
-        str += '|' + (ch.list || '') + '|' + (ch.group || '') + '|' + (ch.name || '');
+
+function extractLogo(s){
+  if(!s) return "";
+  const m=String(s).match(/\((https?:\/\/[^)]+)\)/);
+  if(m) return m[1];
+  const m2=String(s).match(/https?:\/\/\S+\.(?:png|jpg|jpeg|webp|svg)[^)\s]*/i);
+  return m2?m2[0]:"";
+}
+function cleanChannel(s){
+  if(!s) return "—";
+  s=String(s).trim();
+  // Jina markdown: ![IMAGE 21: MAGENTA SPORT 2](https://cdn...)
+  const m=s.match(/!\[IMAGE\s*\d+:\s*([^\]]+)\]/i);
+  if(m) return m[1].trim();
+  // Αν έμεινε URL, κόψτο
+  s=s.replace(/\(https?:[^)]+\)/g,"").replace(/https?:\S+/g,"").replace(/!\[IMAGE[^\]]*\]/gi,"").trim();
+  // Αν είναι πολύ μακρύ / περιέχει cdn, κράτα μόνο το πρώτο κομμάτι
+  if(s.length>40) s=s.slice(0,40).trim();
+  return s||"—";
+}
+function cleanText(s){
+  if(!s) return "";
+  return String(s).replace(/!\[IMAGE\s*\d+:\s*([^\]]+)\]\([^)]+\)/gi,"$1").replace(/\(https?:[^)]+\)/g,"").trim();
+}
+function parseAthletikoHTML(html){
+ // Καθαρισμός HTML -> κείμενο, κράτα διαχωριστικά
+ const tmp=new DOMParser().parseFromString(String(html),"text/html");
+ tmp.querySelectorAll("script,style,noscript").forEach(n=>n.remove());
+ let text=tmp.body.innerText||tmp.body.textContent||"";
+ // Το Athletiko βγάζει επαναλαμβανόμενα blocks: Διοργάνωση \n Ώρα \n Αγώνας \n Κανάλι
+ // Χρησιμοποιούμε regex πάνω στο raw HTML για τα alt / κείμενα των καναλιών όπου γίνεται
+ // Fallback parser: ψάχνουμε γραμμές ώρας HH:MM
+ const lines=text.split("\n").map(s=>s.trim()).filter(Boolean);
+ const out=[]; let dayOffset=0; let seenMarathon=false;
+ for(let i=0;i<lines.length;i++){
+   if(/^([01]\d|2[0-3]):[0-5]\d$/.test(lines[i])){
+     let comp=lines[i-1]||"";
+     let title=lines[i+1]||"";
+     let channel=lines[i+2]||""; let logo=extractLogo(channel);
+     // Αν το επόμενο είναι πάλι διοργάνωση, το κανάλι χάθηκε στο parsing -> άγνωστο
+     if(!title||title.length<2) continue;
+     if(title.includes("Μαραθώνιος")) dayOffset=1;
+     // Το Athletiko δεν έχει ξεκάθαρο διαχωριστικό ημέρας στο text, κρατάμε σειρά: μετά τον Μαραθώνιο θεωρούμε αύριο
+     // Για σήμερα όμως ο Μαραθώνιος είναι αύριο, οπότε όλα πριν από αυτόν είναι σήμερα
+     const isTomorrow = dayOffset===1 && !title.includes("Μαραθώνιος") ? 1 : (title.includes("Μαραθώνιος")?1:0);
+     // Διόρθωση: αν είμαστε ακόμα πριν τον Μαραθώνιο, isTomorrow=0
+     const d = seenMarathon ? 1 : (title.includes("Μαραθώνιος") ? 1 : 0);
+     if(title.includes("Μαραθώνιος")) seenMarathon=true;
+     // channel καθαρισμός
+     channel=cleanChannel(channel); channel=cleanChannel(channel);
+     const today=new Date(); today.setHours(0,0,0,0);
+     const dt=new Date(today); dt.setDate(dt.getDate()+d);
+     const [h,m]=lines[i].split(":").map(Number); dt.setHours(h,m,0,0);
+     comp=cleanText(comp); title=cleanText(title); channel=cleanChannel(channel); const dur=durFor(comp,title);
+     out.push({start:dt,end:new Date(dt.getTime()+dur*60000),comp,title,channel:channel||"—",sport:sportFor(comp),dur,logo});
+   }
+ }
+ // Αφαίρεση διπλότυπων
+ const seen=new Set(); return out.filter(e=>{const k=e.start.getTime()+"|"+e.title; if(seen.has(k)) return false; seen.add(k); return true;}).sort((a,b)=>a.start-b.start);
+}
+
+function parseAthletikoMarkdown(text){
+  // Jina format: γραμμές όπως "14:30 Leeds Tottenham" ή "Premier League" + επόμενη γραμμή ώρα
+  const lines=text.split("\n").map(s=>s.trim()).filter(Boolean);
+  const out=[]; let seenMarathon=false;
+  const timeRe=/^([01]\d|2[0-3]):[0-5]\d\b/;
+  for(let i=0;i<lines.length;i++){
+    const m=lines[i].match(timeRe);
+    if(!m) continue;
+    const rest=lines[i].slice(m[0].length).trim().replace(/^[-–—\s]+/,"");
+    let comp=lines[i-1]||"";
+    let title=rest||lines[i+1]||"";
+    let channel=lines[i+2]||""; let logo=extractLogo(channel);
+    if(title.length<2) continue;
+    if(title.includes("Μαραθώνιος")) seenMarathon=true;
+    const d=seenMarathon && !title.includes("Μαραθώνιος") ? 1 : (title.includes("Μαραθώνιος")?1:0);
+    // αν το channel μοιάζει με διοργάνωση, αγνόησέ το
+    channel=cleanChannel(channel); channel=cleanChannel(channel);
+    const today=new Date(); today.setHours(0,0,0,0);
+    const dt=new Date(today); dt.setDate(dt.getDate()+d);
+    const [h,mm]=m[0].split(":").map(Number); dt.setHours(h,mm,0,0);
+    comp=cleanText(comp); title=cleanText(title); channel=cleanChannel(channel); const dur=durFor(comp,title);
+    out.push({start:dt,end:new Date(dt.getTime()+dur*60000),comp,title,channel:channel||"—",sport:sportFor(comp),dur,logo});
+  }
+  const seen=new Set(); return out.filter(e=>{const k=e.start.getTime()+"|"+e.title; if(seen.has(k)) return false; seen.add(k); return true;}).sort((a,b)=>a.start-b.start);
+}
+async function loadLive(manual){
+ const pill=document.getElementById("statusPill"), txt=document.getElementById("statusText");
+ pill.className="pill warn"; pill.textContent="ΦΟΡΤΩΣΗ…"; txt.textContent="Προσπάθεια live ανάγνωσης από Athletiko…";
+ const url="https://www.athletiko.gr/tvprogram";
+ const proxies=[
+   {u:"https://r.jina.ai/"+url, type:"text", name:"Jina"},
+   {u:"https://api.allorigins.win/get?url="+encodeURIComponent(url), type:"json", name:"AllOrigins JSON"},
+   {u:"https://api.allorigins.win/raw?url="+encodeURIComponent(url), type:"html", name:"AllOrigins RAW"},
+   {u:"https://corsproxy.io/?url="+encodeURIComponent(url), type:"html", name:"CorsProxy"},
+   {u:"https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(url), type:"html", name:"CodeTabs"}
+ ];
+ for(const pr of proxies){
+   try{
+     txt.textContent="Προσπάθεια μέσω: "+pr.name+" …";
+     const r=await fetch(pr.u,{signal:AbortSignal.timeout(12000)});
+     if(!r.ok) continue;
+     let html="";
+     if(pr.type==="json"){ const j=await r.json(); html=j.contents||""; }
+     else { html=await r.text(); }
+     if(html.length<1000) continue;
+     let parsed=parseAthletikoHTML(html);
+     if(parsed.length<10) parsed=parseAthletikoMarkdown(html);
+     if(parsed.length>=10){
+       EVENTS=parsed; sourceLabel="live";
+       pill.className="pill ok"; pill.textContent="● LIVE ΑΠΟ ATHLETIKO";
+       txt.textContent="Επιτυχία! Διαβάστηκαν "+parsed.length+" μεταδόσεις live από athletiko.gr (μέσω "+pr.name+").";
+       buildFilters(); render(); return;
+     }
+   }catch(e){ console.log("proxy failed", pr.name, e); }
+ }
+ useFallback();
+ pill.className="pill err"; pill.textContent="OFFLINE / FALLBACK";
+ txt.textContent="Τα proxies μπλοκαρίστηκαν. Δείχνεται το αποθηκευμένο επιβεβαιωμένο πρόγραμμα 7-8/11. Πάτα «Ανανέωση τώρα» αργότερα.";
+}
+function useFallback(){
+ EVENTS=fallbackToEvents(); sourceLabel="fallback";
+ buildFilters(); render();
+}
+function buildFilters(){
+ const chSel=document.getElementById("channelFilter"); const spSel=document.getElementById("sportFilter");
+ const chans=[...new Set(EVENTS.map(e=>e.channel))].sort();
+ const sports=[...new Set(EVENTS.map(e=>e.sport))].sort();
+ chSel.innerHTML='<option value="all">Όλα τα κανάλια</option>'+chans.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
+ spSel.innerHTML='<option value="all">Όλες οι διοργανώσεις</option>'+sports.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join("");
+}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function fmt(d){return d.toLocaleTimeString("el-GR",{hour:"2-digit",minute:"2-digit",hourCycle:"h23"})}
+function fmtFull(d){return d.toLocaleTimeString("el-GR",{hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"})}
+function dayLabel(d){const t=new Date(); t.setHours(0,0,0,0); const x=new Date(d); x.setHours(0,0,0,0); const diff=Math.round((x-t)/86400000); if(diff===0) return "Σήμερα"; if(diff===1) return "Αύριο"; return d.toLocaleDateString("el-GR",{weekday:"short",day:"numeric",month:"short"});}
+function normalizeTeamText(s){return String(s??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("el-GR").replace(/ς/g,"σ");}
+function isPanathinaikosTeam(team){const n=normalizeTeamText(team?.name||team||"");return n.includes("παναθην")||n.includes("panathinaikos");}
+function localISODate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
+function parseSport24Scores(markdown){
+ const out=[];let competition="";
+ for(const line of String(markdown).split("\n")){
+  const heading=line.match(/^###\s+(.+)/);if(heading){competition=heading[1].trim();continue;}
+  const re=/\[([^\]]+)\]\((https?:\/\/www\.sport24\.gr\/matchcenter\/[^)]+)\)/g;let hit;
+  while((hit=re.exec(line))){
+   let label=hit[1].replace(/\s+/g," ").trim(),status="";
+   let m=label.match(/^ΤΕΛ(?:\s*\([^)]*\))?\s+(.+)$/i);
+   if(m){status="finished";label=m[1];}
+   else if((m=label.match(/^((?:[1-4]\s*ΗΜ\s*[\d\s+'’]+)|(?:[1-4]η?\s*ΠΕΡ\s*[\d:\s+'’]+)|ΗΜΙΧΡΟΝΟ)\s+(.+)$/i))){status="live";label=m[2];}
+   else continue;
+   const score=label.match(/^(.+?)\s+(\d+)\s+(.+?)\s+(\d+)$/);
+   if(!score)continue;
+   out.push({id:hit[2],external_id:hit[2],status,match_status:status,home_score:Number(score[2]),away_score:Number(score[4]),home_team:{name:score[1].trim()},away_team:{name:score[3].trim()},competition:{name:competition||"Αγώνας"},start_time:new Date().toISOString(),url:hit[2]});
+  }
+ }
+ const unique=new Map();for(const match of out)unique.set(match.id,match);return [...unique.values()];
+}
+async function loadSport24Scores(){
+ try{
+  const r=await fetch("https://r.jina.ai/http://www.sport24.gr/matchcenter/",{headers:{"Accept":"text/plain"},signal:AbortSignal.timeout(20000)});
+  if(!r.ok)throw new Error(`HTTP ${r.status}`);
+  const markdown=await r.text();if(markdown.length<1000)throw new Error("Κενή απάντηση");
+  const parsed=parseSport24Scores(markdown);if(!parsed.length)throw new Error("Δεν εντοπίστηκαν σκορ στην απάντηση");
+  SPORT24_SCORES=parsed;scoresError="";
+ }catch(e){scoresError="Δεν ήταν δυνατή η ανάκτηση σκορ από το Sport24 αυτή τη στιγμή.";console.warn("Sport24 scores unavailable",e);}
+ renderPanathinaikosScores(); renderLiveScores(); render();
+}
+function scoreStatus(m){return String(m.match_status||m.status||"").toLowerCase();}
+function isMatchLive(m){const s=scoreStatus(m);return /live|in.?progress|1st_half|2nd_half|first_half|second_half|period|quarter|overtime|set[0-9]?|break/.test(s)&&!/(not_started|scheduled)/.test(s);}
+function scoreText(m){return m.home_score!==null&&m.home_score!==undefined&&m.away_score!==null&&m.away_score!==undefined?`${m.home_score} – ${m.away_score}`:"—";}
+function latinizeTeam(s){return normalizeTeamText(s).replace(/γκ/g,"g").replace(/γγ/g,"ng").replace(/ου/g,"u").replace(/αι/g,"ai").replace(/ει|οι|υι/g,"i").replace(/μπ/g,"b").replace(/ντ/g,"d").replace(/τσ/g,"ts").replace(/τζ/g,"tz").replace(/θ/g,"th").replace(/χ/g,"ch").replace(/ψ/g,"ps").replace(/ξ/g,"x").replace(/[αά]/g,"a").replace(/[β]/g,"v").replace(/[γ]/g,"g").replace(/[δ]/g,"d").replace(/[εέ]/g,"e").replace(/[ζ]/g,"z").replace(/[ηή]/g,"i").replace(/[ιί]/g,"i").replace(/[κ]/g,"k").replace(/[λ]/g,"l").replace(/[μ]/g,"m").replace(/[ν]/g,"n").replace(/[οό]/g,"o").replace(/[π]/g,"p").replace(/[ρ]/g,"r").replace(/[σς]/g,"s").replace(/[τ]/g,"t").replace(/[υύ]/g,"i").replace(/[φ]/g,"f").replace(/[ωώ]/g,"o").replace(/c/g,"k").replace(/[^a-z0-9]/g,"");}
+function teamMatchesTitle(title,team){
+ const a=normalizeTeamText(title), b=normalizeTeamText(team?.name||team||"");
+ if(!a||!b)return false;
+ if(a.includes(b)||b.includes(a))return true;
+ const latinTitle=latinizeTeam(title), latinTeam=latinizeTeam(team?.name||team||"");
+ if(latinTitle.includes(latinTeam)||latinTeam.includes(latinTitle))return latinTeam.length>=4;
+ const latinTokens=latinTeam.match(/[a-z0-9]{4,}/g)||[];
+ if(latinTokens.length&&latinTokens.filter(t=>latinTitle.includes(t)).length>=Math.min(2,latinTokens.length))return true;
+ const tokens=b.split(/[^a-z0-9\u0370-\u03ff]+/i).filter(t=>t.length>=4);
+ return tokens.length>0&&tokens.filter(t=>a.includes(t)).length>=Math.min(2,tokens.length);
+}
+function findScoreForEvent(ev){return SPORT24_SCORES.find(m=>teamMatchesTitle(ev.title,m.home_team)&&teamMatchesTitle(ev.title,m.away_team));}
+function renderLiveScores(){
+ const box=document.getElementById("liveScoresBox"),list=document.getElementById("liveScoresList");if(!box||!list)return;
+ const matches=SPORT24_SCORES.filter(isMatchLive);box.style.display="block";
+ document.getElementById("liveScoresUpdated").textContent=SPORT24_SCORES.length?`• Ενημερώθηκε ${fmtFull(new Date())}`:"";
+ if(scoresError){list.textContent=scoresError;return;}
+ if(!matches.length){list.textContent="Το Athletiko δεν αναφέρει αυτή τη στιγμή αγώνες σε εξέλιξη.";return;}
+ list.innerHTML=matches.map(m=>`<article class="card live" style="margin-top:9px"><div class="main"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><div class="title" style="margin:0">${esc(m.home_team?.name||"—")} – ${esc(m.away_team?.name||"—")}</div><span class="badge live">${esc(scoreText(m))}</span></div><div class="desc" style="margin-top:5px">${esc(m.competition?.name||m.sport?.name||"")} • ΣΚΟΡ LIVE</div></div></article>`).join("");
+}
+function renderPanathinaikosScores(){
+ const box=document.getElementById("scoreBox"), list=document.getElementById("scoreList");
+ if(!box||!list)return;
+ box.style.display=quick==="panathinaikos"?"block":"none";
+ if(quick!=="panathinaikos")return;
+ const matches=SPORT24_SCORES.filter(m=>isPanathinaikosTeam(m.home_team)||isPanathinaikosTeam(m.away_team));
+ document.getElementById("scoreUpdated").textContent=matches.length?`• Ενημερώθηκε ${fmtFull(new Date())}`:"";
+ if(scoresError){list.textContent=scoresError;return;}
+ if(!matches.length){list.textContent="Δεν βρέθηκαν αγώνες Παναθηναϊκού για χθες ή σήμερα.";return;}
+ list.innerHTML=matches.map(m=>{
+  const home=m.home_team?.name||"—", away=m.away_team?.name||"—";
+  const hasScore=m.home_score!==null&&m.home_score!==undefined&&m.away_score!==null&&m.away_score!==undefined;
+  const score=hasScore?`${m.home_score} – ${m.away_score}`:"—";
+  const status=scoreStatus(m);
+  const label=["ended","closed","finished"].includes(status)?"Τελικό":isMatchLive(m)?"LIVE":hasScore?"Σκορ":"Προσεχώς";
+  const date=new Date(m.start_time); const when=`${date.toLocaleDateString("el-GR",{weekday:"short",day:"numeric",month:"short"})} ${date.toLocaleTimeString("el-GR",{hour:"2-digit",minute:"2-digit",hourCycle:"h23",timeZone:"Europe/Athens"})}`;
+  return `<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;padding:8px 0;border-top:1px solid #333"><div><b>${esc(home)} – ${esc(away)}</b><div style="color:#999;font-size:12px">${esc(m.competition?.name||m.sport?.name||"")} • ${esc(when)}</div></div><div style="text-align:right;white-space:nowrap"><b>${esc(score)}</b><div style="font-size:11px;color:${label==="LIVE"?"#ff4757":"#aaa"}">${label}</div></div></div>`;
+ }).join("");
+}
+function filtered(){
+ const now=new Date(); const q=document.getElementById("search").value.toLowerCase().trim();
+ const chF=document.getElementById("channelFilter").value; const spF=document.getElementById("sportFilter").value;
+ return EVENTS.filter(ev=>{
+   const hay=(ev.title+" "+ev.comp+" "+ev.sport+" "+ev.channel).toLowerCase();
+   if(q && !hay.includes(q)) return false;
+   if(chF!=="all" && ev.channel!==chF) return false;
+   if(spF!=="all" && ev.sport!==spF) return false;
+   if(quick==="live" && !(ev.start<=now && now<=ev.end)) return false;
+   if(quick==="upcoming" && !(ev.start>now)) return false;
+   if(quick==="panathinaikos"){const t=normalizeTeamText(ev.title); if(!t.includes("παναθηναικ") && !t.includes("panathinaikos") && !/(^|\W)pao(\W|$)/i.test(ev.title)) return false;}
+   if(quick==="today" && dayLabel(ev.start)!=="Σήμερα") return false;
+   if(quick==="tomorrow" && dayLabel(ev.start)!=="Αύριο") return false;
+   return true;
+ });
+}
+function render(){
+ const now=new Date();
+ const all=filtered();
+ const live=all.filter(e=>e.start<=now && now<=e.end);
+ const up=all.filter(e=>e.start>now && e.start<=new Date(now.getTime()+6*3600*1000));
+ document.getElementById("liveCount").textContent=live.length;
+ document.getElementById("upCount").textContent=up.length;
+ document.getElementById("allCount").textContent=all.length;
+ document.getElementById("resultCount").textContent=`${all.length} μεταδόσεις • πηγή: ${sourceLabel==="live"?"Athletiko LIVE":"Athletiko fallback 7-8/11"}`;
+ document.getElementById("updated").textContent=fmtFull(now);
+ document.getElementById("untilLabel").textContent=fmt(new Date(now.getTime()+6*3600*1000));
+ document.getElementById("liveList").innerHTML= live.length? live.map(cardHTML(true)).join("") : `<div class="empty">Δεν υπάρχει Live αυτή τη στιγμή με αυτά τα φίλτρα.<br>Δες τις επόμενες παρακάτω.</div>`;
+ document.getElementById("upList").innerHTML= up.length? up.map(cardHTML(false)).join("") : `<div class="empty">Καμία επόμενη μετάδοση στις επόμενες 6 ώρες με αυτά τα φίλτρα.</div>`;
+ document.getElementById("allList").innerHTML= all.length? all.map(cardHTML(null)).join("") : `<div class="empty">Δεν βρέθηκαν μεταδόσεις.</div>`;
+}
+function cardHTML(mode){
+ return ev=>{
+  const now=new Date(); const isLive=ev.start<=now && now<=ev.end;
+  const cls=isLive?"live":"upcoming";
+  let prog="",starts="";
+  if(isLive){const pct=Math.max(2,Math.min(98,Math.round((now-ev.start)/(ev.end-ev.start)*100))); prog=`<div class="progress"><i style="width:${pct}%"></i></div>`;}
+  else {const diff=Math.round((ev.start-now)/60000); starts= diff<0? "" : diff<60? `Ξεκινά σε ${diff}′` : `Ξεκινά σε ${Math.floor(diff/60)}ώ ${diff%60}′`;}
+  const remId = (ev.start.getTime()+"_"+ev.title).replace(/[^a-zA-Z0-9_]/g,"_");
+  const isRem = hasReminder(remId);
+  const matchScore=isLive?findScoreForEvent(ev):null;
+  const matchScoreLabel=matchScore?(isMatchLive(matchScore)?"LIVE":["ended","closed","finished"].includes(scoreStatus(matchScore))?"ΤΕΛΙΚΟ":"ΣΚΟΡ"):"ΜΗ ΔΙΑΘΕΣΙΜΟ";
+  const scoreBadge=isLive?`<div class="desc" style="margin:4px 0 6px;color:${matchScore?"#2ed573":"#aaa"};font-weight:700">⚽ ${matchScore?`Σκορ ${esc(scoreText(matchScore))} • ${matchScoreLabel}`:"Δεν βρέθηκε σκορ για αυτόν τον αγώνα στο Sport24"}</div>`:"";
+  const bellBtn = !isLive ? `<button onclick="event.stopPropagation();toggleReminder('${remId}', ${esc(JSON.stringify(ev.title))}, ${esc(JSON.stringify(ev.channel))}, ${ev.start.getTime()})" style="margin-left:auto;background:${isRem?"#2ed573":"#2a2a2a"};color:${isRem?"#06281a":"#e0e0e0"};border:1px solid #444;border-radius:999px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700">${isRem?"🔔 Ορίστηκε":"🔔 Ειδοποίηση"}</button>` : "";
+  return `<article class="card ${cls}">${ev.logo ? `<img src="${esc(ev.logo)}" alt="${esc(ev.channel)}" loading="lazy" style="width:52px;height:52px;object-fit:contain;background:#fff;border-radius:12px;padding:4px;flex-shrink:0" onerror="this.remove()">` : `<div class="icon" style="background:${iconFor(ev.channel).bg};color:#fff;font-size:13px;font-weight:900;letter-spacing:.5px">${iconFor(ev.channel).t}</div>`}<div class="main"><div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center"><span class="channel">${esc(ev.channel)}</span>${isLive?`<span class="badge live">● LIVE</span>`:`<span class="badge soon">${dayLabel(ev.start)} • ΣΕ ${fmt(ev.start)}</span>`}</div><div class="title">${esc(ev.title)}</div>${scoreBadge}<div class="desc">${esc(ev.comp)} • ${esc(ev.sport)}</div><div class="foot">${bellBtn}<span class="time">🕐 ${fmt(ev.start)} – ${fmt(ev.end)}</span><span class="tag">${esc(ev.sport)}</span><span class="starts">${isLive? Math.round((ev.end-now)/60000)+"′ απομένουν (εκτ.)" : starts}</span></div>${prog}</div></article>`;
+ }
+}
+
+// ---- ΕΙΔΟΠΟΙΗΣΕΙΣ ----
+function loadReminders(){ try{ return JSON.parse(localStorage.getItem("sports_reminders")||"[]"); }catch(e){ return []; } }
+function saveReminders(r){ try{localStorage.setItem("sports_reminders", JSON.stringify(r));}catch(e){console.warn("Δεν ήταν δυνατή η αποθήκευση υπενθυμίσεων",e);alert("Δεν ήταν δυνατή η αποθήκευση υπενθυμίσεων στη συσκευή.");} renderReminders(); }
+function renderReminders(){
+  const box=document.getElementById("remindersBox"); const list=document.getElementById("remindersList");
+  const rems=loadReminders().filter(r=>r.at>Date.now()).sort((a,b)=>a.at-b.at);
+  if(!rems.length){ box.style.display="none"; return; }
+  box.style.display="block";
+  list.innerHTML=rems.map(r=>`<div>🔔 <b>${esc(r.title)}</b> — ${esc(r.channel)} • ${new Date(r.start).toLocaleTimeString("el-GR",{hour:"2-digit",minute:"2-digit",hourCycle:"h23"})} • ειδοποίηση στις ${new Date(r.at).toLocaleTimeString("el-GR",{hour:"2-digit",minute:"2-digit",hourCycle:"h23"})}<button data-remove-id="${esc(r.id)}" style="margin-left:8px;background:#333;color:#e0e0e0;border:1px solid #444;border-radius:999px;padding:3px 9px;cursor:pointer;font-size:11px">✕</button></div>`).join("");
+}
+function removeReminder(id){ saveReminders(loadReminders().filter(r=>r.id!==id)); }
+function clearReminders(){ saveReminders([]); }
+document.getElementById("remindersList").addEventListener("click",e=>{const b=e.target.closest("[data-remove-id]");if(b) removeReminder(b.dataset.removeId);});
+async function enableNotifications(){
+  if(!("Notification" in window)){ alert("Ο browser σου δεν υποστηρίζει ειδοποιήσεις."); return; }
+  const perm=await Notification.requestPermission();
+  updateNotifBar();
+  if(perm==="granted"){ new Notification("✅ Ειδοποιήσεις ενεργές",{body:"Θα σου έρχεται υπενθύμιση 15′ πριν από κάθε ματς που επιλέγεις."}); }
+}
+function updateNotifBar(){
+  const bar=document.getElementById("notifBar");
+  if(!("Notification" in window)){ bar.style.display="none"; return; }
+  bar.style.display = (Notification.permission==="granted") ? "none" : "block";
+}
+function hasReminder(id){ return loadReminders().some(r=>r.id===id); }
+function toggleReminder(id, title, channel, startMs){
+  if(!("Notification" in window)){ alert("Ο browser σου δεν υποστηρίζει ειδοποιήσεις."); return; }
+  if(hasReminder(id)){ removeReminder(id); render(); return; }
+  if(Notification.permission!=="granted"){
+    Notification.requestPermission().then(perm=>{ updateNotifBar(); if(perm==="granted") toggleReminder(id,title,channel,startMs); });
+    return;
+  }
+  const at = startMs - 15*60*1000; // 15′ πριν
+  if(at < Date.now()){
+    // Αν είναι σε λιγότερο από 15′, ειδοποίηση στην έναρξη
+    saveReminders([...loadReminders(), {id,title,channel,start:startMs,at:startMs}]);
+  } else {
+    saveReminders([...loadReminders(), {id,title,channel,start:startMs,at}]);
+  }
+  new Notification("🔔 Υπενθύμιση ορίστηκε",{body: title+" — "+channel+" • "+new Date(startMs).toLocaleTimeString("el-GR",{hour:"2-digit",minute:"2-digit",hourCycle:"h23"})});
+  render();
+}
+function checkReminders(){
+  const now=Date.now(); let rems=loadReminders(); let changed=false;
+  rems=rems.filter(r=>{
+    if(r.at<=now && !r.fired){
+      try{ new Notification("⏰ Υπενθύμιση αγώνα: "+r.title,{body: r.channel+" • "+new Date(r.start).toLocaleTimeString("el-GR",{hour:"2-digit",minute:"2-digit",hourCycle:"h23"})+" • ώρα έναρξης "+new Date(r.start).toLocaleTimeString("el-GR",{hour:"2-digit",minute:"2-digit",hourCycle:"h23"})}); }catch(e){}
+      changed=true; return false;
     }
-    let hash = 0x811c9dc5; // FNV-1a
-    for (let i = 0; i < str.length; i++) {
-        hash ^= str.charCodeAt(i);
-        hash = Math.imul(hash, 0x01000193);
-    }
-    return (hash >>> 0).toString(16);
-}
-
-// Απλό escaping ώστε δεδομένα (ονόματα, τίτλοι EPG) να μην ερμηνεύονται ως HTML.
-// Μικρό "toast" ειδοποίησης που εξαφανίζεται μόνο του — αντικαθιστά το alert() που
-// μπλόκαρε την οθόνη και ζητούσε "OK" σε κάθε ενέργεια (π.χ. κάθε φορά που ξεκινούσε
-// μια εγγραφή). Πολλαπλά toast στοιβάζονται το ένα κάτω από το άλλο.
-function showToast(message, duration = 4000) {
-    let container = document.getElementById('toastContainer');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toastContainer';
-        container.style.cssText = 'position:fixed; top:16px; right:16px; z-index:9999; display:flex; flex-direction:column; gap:8px; max-width:360px;';
-        document.body.appendChild(container);
-    }
-    const toast = document.createElement('div');
-    toast.style.cssText = 'background:var(--bg-card); color:var(--text-main); border:1px solid var(--border); border-radius:var(--radius); padding:10px 14px; font-size:0.82rem; box-shadow:0 4px 16px rgba(0,0,0,0.5); opacity:0; transition:opacity 0.2s;';
-    toast.textContent = message;
-    container.appendChild(toast);
-    requestAnimationFrame(() => { toast.style.opacity = '1'; });
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 250);
-    }, duration);
-}
-
-function esc(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-    loadChannels(true);
-    loadAppSettings();
-    fetch('/api/epg/overrides').then(r => r.json()).then(o => { EPG_OVERRIDES = o || {}; renderChannels(); }).catch(() => {});
-
-    const video = document.getElementById('mainVideo');
-    const savedVolume = parseFloat(localStorage.getItem(VOLUME_KEY));
-    if (!isNaN(savedVolume)) video.volume = savedVolume;
-    video.addEventListener('volumechange', () => {
-        localStorage.setItem(VOLUME_KEY, String(video.volume));
-    });
-    video.addEventListener('error', () => showPlayerError('Σφάλμα αναπαραγωγής βίντεο.'));
-
-    document.addEventListener('keydown', handleKeyboardShortcut);
-
-    fetchRecordings();
-    setInterval(fetchRecordings, 5000);
-
-    refreshDiskStatus();
-    setInterval(refreshDiskStatus, 5 * 60 * 1000); // κάθε 5 λεπτά
-
-    // Ξαναδές τι παίζει τώρα/μετά ανά λίγο, ώστε η μπάρα "τώρα/επόμενο" να
-    // ανανεώνεται μόνη της όταν αλλάζει το πρόγραμμα, χωρίς να χρειάζεται ο
-    // χρήστης να ξαναδιαλέξει το κανάλι.
-    setInterval(() => { if (currentChannelIndex !== null) updateEpgForCurrent(); }, 30000);
-});
-
-function formatBytes(bytes) {
-    if (bytes === null || bytes === undefined) return '?';
-    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-    let i = 0;
-    let n = bytes;
-    while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
-    return `${n.toFixed(n >= 10 || i === 0 ? 0 : 1)} ${units[i]}`;
-}
-
-function refreshDiskStatus() {
-    fetch('/api/status')
-        .then(r => r.json())
-        .then(s => {
-            const el = document.getElementById('diskStatus');
-            if (!el || s.disk_free_bytes === null || s.disk_free_bytes === undefined) return;
-            el.style.display = '';
-            const freeGb = s.disk_free_bytes / (1024 ** 3);
-            el.textContent = `💾 ${formatBytes(s.disk_free_bytes)} ελεύθερα`;
-            // Κάτω από 5GB ελεύθερο χώρο: προειδοποίηση (κόκκινο). Κάτω από 20GB: προσοχή (κίτρινο).
-            el.style.color = freeGb < 5 ? 'var(--danger)' : (freeGb < 20 ? 'var(--warn)' : '');
-            el.title = freeGb < 5
-                ? 'Πολύ λίγος ελεύθερος χώρος! Οι εγγραφές μπορεί να αποτύχουν.'
-                : 'Ελεύθερος χώρος δίσκου (φάκελος εγγραφών)';
-        })
-        .catch(() => {});
-}
-
-function loadAppSettings() {
-    fetch('/api/settings')
-        .then(r => r.json())
-        .then(s => {
-            APP_SETTINGS = s;
-            const durationInput = document.getElementById('schedDuration');
-            if (durationInput) durationInput.max = String((s.max_duration_hours || 6) * 60);
-        })
-        .catch(() => { /* κρατάμε τα fallback defaults */ });
-}
-
-function loadChannels(isInitialLoad) {
-    return Promise.all([
-        fetch('/api/channels').then(r => r.json()),
-        fetch('/api/category_overrides').then(r => r.json()).catch(() => ({}))
-    ])
-        .then(([data, catOverrides]) => {
-            CHANNELS = data.channels || [];
-            EPG_MAP = data.epgMap || {};
-            CATEGORY_OVERRIDES = catOverrides || {};
-            CHANNELS.forEach((c, idx) => {
-                c._id = idx;
-                c.key = stableChannelKey(c);
-                if (CATEGORY_OVERRIDES[c.key]) {
-                    // Χειροκίνητη κατηγορία: υπερισχύει, γίνεται επίπεδη (top-level)
-                    // κατηγορία — το κανάλι φεύγει από όποιο playlist-branch ανήκε.
-                    c.list = null;
-                    c.group = CATEGORY_OVERRIDES[c.key];
-                    c.__manualCategory = true;
-                }
-            });
-
-            setupCategories();
-            renderChannels();
-
-            if (isInitialLoad) {
-                fetchServerEPG();
-                restoreLastChannel();
-            } else if (currentChannelIndex !== null) {
-                updateEpgForCurrent();
-            }
-        })
-        .catch(err => {
-            console.error('Αποτυχία φόρτωσης καναλιών:', err);
-            document.getElementById('channelList').innerHTML =
-                '<div style="padding:12px; color:var(--text-muted);">Αποτυχία φόρτωσης λίστας καναλιών από τον server.</div>';
-        });
-}
-
-function restoreLastChannel() {
-    const savedKey = localStorage.getItem(LAST_CHANNEL_KEY);
-    if (!savedKey) return;
-    const ch = CHANNELS.find(c => c.key === savedKey);
-    if (ch) playChannel(ch._id);
-}
-
-function handleKeyboardShortcut(e) {
-    const tag = (e.target.tagName || '').toLowerCase();
-    if (tag === 'input' || tag === 'textarea') return;
-
-    const video = document.getElementById('mainVideo');
-    if (e.key === ' ') {
-        e.preventDefault();
-        video.paused ? video.play().catch(()=>{}) : video.pause();
-    } else if (e.key === 'f' || e.key === 'F') {
-        toggleFullscreen();
-    } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-        e.preventDefault();
-        navigateChannel(e.key === 'ArrowDown' ? 1 : -1);
-    }
-}
-
-function navigateChannel(delta) {
-    const list = getFilteredChannels();
-    if (list.length === 0) return;
-    let idx = list.findIndex(c => c._id === currentChannelIndex);
-    idx = idx === -1 ? 0 : (idx + delta + list.length) % list.length;
-    playChannel(list[idx]._id);
-}
-
-function toggleFullscreen() {
-    const wrapper = document.getElementById('videoWrapper');
-    if (!document.fullscreenElement) {
-        wrapper.requestFullscreen?.().catch(() => {});
-    } else {
-        document.exitFullscreen?.();
-    }
-}
-
-function captureScreenshot() {
-    const video = document.getElementById('mainVideo');
-    if (!video.videoWidth || !video.videoHeight) {
-        showToast('Δεν παίζει τίποτα αυτή τη στιγμή για λήψη στιγμιότυπου.');
-        return;
-    }
-    let dataUrl;
-    try {
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-        dataUrl = canvas.toDataURL('image/png');
-    } catch (e) {
-        showToast('Δεν ήταν δυνατή η λήψη στιγμιότυπου για αυτό το κανάλι (περιορισμός από τον πάροχο ροής). Χρησιμοποίησε στιγμιότυπο οθόνης (π.χ. Win+Shift+S).');
-        return;
-    }
-
-    const chName = document.getElementById('currentName')?.textContent || 'Κανάλι';
-
-    fetch('/api/screenshot', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: dataUrl, channel: chName })
-    })
-    .then(async r => {
-        if (r.status === 404) {
-            showToast('Ο server τρέχει παλιά έκδοση κώδικα (δεν έχει γίνει restart μετά την ενημέρωση του server.py).');
-            return;
-        }
-        const data = await r.json();
-        if (data.success) {
-            showToast('Το στιγμιότυπο αποθηκεύτηκε στον φάκελο εγγραφών.');
-        } else {
-            showToast('Σφάλμα αποθήκευσης: ' + (data.error || 'άγνωστο σφάλμα'));
-        }
-    })
-    .catch(() => showToast('Αποτυχία σύνδεσης με τον server για την αποθήκευση.'));
-}
-
-function buildCategoryTree() {
-    // Κανάλια χωρίς ch.list (βασικά κανάλια, χωρίς playlist) -> επίπεδες κατηγορίες,
-    // όπως πάντα. Κανάλια ΜΕ ch.list (προστέθηκαν από playlist) -> ομαδοποιούνται
-    // κάτω από το όνομα της λίστας τους, με τα δικά τους group-title (αν διαφέρουν
-    // από το όνομα της λίστας) σαν παρακλάδια μέσα σε αυτήν.
-    const flatSet = new Set();
-    const listMap = new Map(); // listName -> Set(subgroup names)
-    CHANNELS.forEach(c => {
-        if (c.list) {
-            if (!listMap.has(c.list)) listMap.set(c.list, new Set());
-            if (c.group && c.group !== c.list) listMap.get(c.list).add(c.group);
-        } else {
-            flatSet.add(c.group || 'Γενικά');
-        }
-    });
-    return { flatCats: Array.from(flatSet), listMap };
-}
-
-function selectCategory(target) {
-    selectedCategory = target;
-    setupCategories();
-    renderChannels();
-}
-
-function setupCategories() {
-    const sidebar = document.getElementById('categoryItems');
-    const { flatCats, listMap } = buildCategoryTree();
-    sidebar.innerHTML = '';
-    renderMobileCategorySelect(flatCats, listMap);
-
-    const allDiv = document.createElement('div');
-    allDiv.className = `category-item ${selectedCategory.type === 'all' ? 'active' : ''}`;
-    allDiv.innerText = 'ΟΛΑ ΤΑ ΚΑΝΑΛΙΑ';
-    allDiv.onclick = () => selectCategory({ type: 'all' });
-    sidebar.appendChild(allDiv);
-
-    flatCats.forEach(name => {
-        const locked = isCategoryLocked(name);
-        const div = document.createElement('div');
-        div.className = `category-item ${selectedCategory.type === 'flat' && selectedCategory.name === name ? 'active' : ''}`;
-        div.innerText = name + (locked ? ' 🔒' : '');
-        div.onclick = () => {
-            const target = { type: 'flat', name };
-            if (locked) requestCategoryUnlock(name, () => selectCategory(target));
-            else selectCategory(target);
-        };
-        sidebar.appendChild(div);
-    });
-
-    Array.from(listMap.keys()).sort().forEach(listName => {
-        const subgroups = Array.from(listMap.get(listName)).sort();
-        const hasChildren = subgroups.length > 0;
-        const isExpanded = expandedLists.has(listName);
-
-        const row = document.createElement('div');
-        row.className = `category-item ${selectedCategory.type === 'list' && selectedCategory.list === listName ? 'active' : ''}`;
-        row.style.display = 'flex';
-        row.style.alignItems = 'center';
-        row.style.gap = '4px';
-
-        if (hasChildren) {
-            const arrow = document.createElement('span');
-            arrow.textContent = isExpanded ? '▾' : '▸';
-            arrow.style.cursor = 'pointer';
-            arrow.onclick = (e) => {
-                e.stopPropagation();
-                if (isExpanded) expandedLists.delete(listName); else expandedLists.add(listName);
-                setupCategories();
-            };
-            row.appendChild(arrow);
-        }
-
-        const label = document.createElement('span');
-        label.textContent = listName;
-        label.style.flex = '1';
-        row.appendChild(label);
-        row.onclick = () => selectCategory({ type: 'list', list: listName });
-        sidebar.appendChild(row);
-
-        if (hasChildren && isExpanded) {
-            subgroups.forEach(sub => {
-                const locked = isCategoryLocked(sub);
-                const childDiv = document.createElement('div');
-                childDiv.className = `category-item ${selectedCategory.type === 'listsub' && selectedCategory.list === listName && selectedCategory.group === sub ? 'active' : ''}`;
-                childDiv.style.paddingLeft = '22px';
-                childDiv.innerText = sub + (locked ? ' 🔒' : '');
-                childDiv.onclick = () => {
-                    const target = { type: 'listsub', list: listName, group: sub };
-                    if (locked) requestCategoryUnlock(sub, () => selectCategory(target));
-                    else selectCategory(target);
-                };
-                sidebar.appendChild(childDiv);
-            });
-        }
-    });
-}
-
-// Το ίδιο δέντρο κατηγοριών όπως το sidebar, αλλά σαν <select> — σε mobile το
-// οριζόντιο scroll-strip με εμφωλευμένα παρακλάδια δεν είναι πρακτικό, οπότε εδώ
-// τα παρακλάδια φαίνονται με εσοχή (indentation) μέσα στη λίστα του dropdown, ώστε
-// να είναι όλα προσβάσιμα με μία κίνηση αντί για expand/collapse με το δάχτυλο.
-function renderMobileCategorySelect(flatCats, listMap) {
-    const select = document.getElementById('categorySelectMobile');
-    if (!select) return;
-    let html = `<option value="all">ΟΛΑ ΤΑ ΚΑΝΑΛΙΑ</option>`;
-    flatCats.forEach(name => {
-        html += `<option value="flat:${esc(name)}">${esc(name)}${isCategoryLocked(name) ? ' 🔒' : ''}</option>`;
-    });
-    Array.from(listMap.keys()).sort().forEach(listName => {
-        const subgroups = Array.from(listMap.get(listName)).sort();
-        html += `<option value="list:${esc(listName)}">▸ ${esc(listName)}</option>`;
-        subgroups.forEach(sub => {
-            html += `<option value="listsub:${esc(listName)}|${esc(sub)}">&nbsp;&nbsp;&nbsp;&nbsp;${esc(sub)}${isCategoryLocked(sub) ? ' 🔒' : ''}</option>`;
-        });
-    });
-    select.innerHTML = html;
-
-    // Συγχρόνισε την επιλεγμένη τιμή με το τρέχον selectedCategory (π.χ. αν άλλαξε
-    // από το desktop sidebar ή προγραμματιστικά).
-    if (selectedCategory.type === 'all') select.value = 'all';
-    else if (selectedCategory.type === 'flat') select.value = `flat:${selectedCategory.name}`;
-    else if (selectedCategory.type === 'list') select.value = `list:${selectedCategory.list}`;
-    else if (selectedCategory.type === 'listsub') select.value = `listsub:${selectedCategory.list}|${selectedCategory.group}`;
-}
-
-function onMobileCategoryChange(value) {
-    let target;
-    let lockKey = null;
-    if (value === 'all') {
-        target = { type: 'all' };
-    } else if (value.startsWith('flat:')) {
-        const name = value.slice(5);
-        target = { type: 'flat', name };
-        lockKey = name;
-    } else if (value.startsWith('list:')) {
-        target = { type: 'list', list: value.slice(5) };
-    } else if (value.startsWith('listsub:')) {
-        const [list, group] = value.slice(8).split('|');
-        target = { type: 'listsub', list, group };
-        lockKey = group;
-    } else {
-        return;
-    }
-
-    if (lockKey && isCategoryLocked(lockKey)) {
-        requestCategoryUnlock(lockKey, () => selectCategory(target));
-    } else {
-        selectCategory(target);
-    }
-}
-
-function channelHasProgramMatch(ch, query) {
-
-    // Αναζήτηση σε τίτλους εκπομπών (όχι μόνο σε ονόματα καναλιών) — π.χ. γράφοντας
-    // "Big Brother" εμφανίζονται όλα τα κανάλια που έχουν τέτοιο πρόγραμμα στο EPG,
-    // ανεξάρτητα από το πόσες μέρες καλύπτει το epg.xml σου.
-    if (!query || !EPG_DATA) return false;
-    const epgId = getEpgIdForChannel(ch._id);
-    if (!epgId || !EPG_DATA[epgId]) return false;
-    return EPG_DATA[epgId].some(p => p.title && p.title.toLowerCase().includes(query));
-}
-
-function getFilteredChannels() {
-    const query = document.getElementById('searchInput').value.toLowerCase();
-    const favs = getFavorites();
-    return CHANNELS.filter(ch => {
-        let matchesCategory;
-        if (selectedCategory.type === 'all') matchesCategory = true;
-        else if (selectedCategory.type === 'flat') matchesCategory = !ch.list && (ch.group || 'Γενικά') === selectedCategory.name;
-        else if (selectedCategory.type === 'list') matchesCategory = ch.list === selectedCategory.list;
-        else if (selectedCategory.type === 'listsub') matchesCategory = ch.list === selectedCategory.list && ch.group === selectedCategory.group;
-        else matchesCategory = true;
-
-        const matchesSearch = !query || ch.name.toLowerCase().includes(query)
-            || (ch.group && ch.group.toLowerCase().includes(query))
-            || (ch.list && ch.list.toLowerCase().includes(query))
-            || channelHasProgramMatch(ch, query);
-        const matchesFav = !favOnly || favs.has(ch.key);
-        return matchesCategory && matchesSearch && matchesFav;
-    });
-}
-
-// Fallback λογότυπο καναλιού χωρίς εξωτερική εξάρτηση: παλιότερα το fallback ήταν
-// URL σε via.placeholder.com — αν η συσκευή δεν έχει πρόσβαση σε αυτή την υπηρεσία
-// (αργό δίκτυο, μπλοκαρισμένο domain κ.λπ.), τότε ΟΥΤΕ το πραγματικό λογότυπο ΟΥΤΕ
-// το fallback φόρτωναν, αφήνοντας άδειο τετράγωνο. Το inline SVG data URI παρακάτω
-// δεν χρειάζεται καθόλου δίκτυο, άρα δουλεύει πάντα.
-function escapeSvgText(s) {
-    return String(s || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-}
-function makeLogoPlaceholder(name) {
-    const letters = escapeSvgText((name || '?').trim().slice(0, 2).toUpperCase());
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42">`
-        + `<rect width="100%" height="100%" fill="#0b0e14"/>`
-        + `<text x="50%" y="52%" fill="#ffffff" font-size="16" font-family="sans-serif" `
-        + `text-anchor="middle" dominant-baseline="middle">${letters}</text></svg>`;
-    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
-}
-function handleLogoError(imgEl) {
-    imgEl.onerror = null; // αποφυγή βρόχου αν αποτύχει και το ίδιο το data URI (δεν πρέπει)
-    imgEl.src = makeLogoPlaceholder(imgEl.dataset.fallbackName);
-}
-
-function toggleBulkMoveMode() {
-    if (bulkMoveMode) {
-        bulkMoveMode = false;
-        selectedForMove.clear();
-        document.getElementById('bulkMoveToggleBtn').classList.remove('active');
-        document.getElementById('bulkMoveBar').style.display = 'none';
-        renderChannels();
-        return;
-    }
-    bulkMoveMode = true;
-    selectedForMove.clear();
-    document.getElementById('bulkMoveToggleBtn').classList.add('active');
-    document.getElementById('bulkMoveBar').style.display = 'flex';
-    populateBulkMoveCategorySelect();
-    updateBulkMoveCount();
-    renderChannels();
-}
-
-function populateBulkMoveCategorySelect() {
-    const sel = document.getElementById('bulkMoveCategorySelect');
-    const { flatCats } = buildCategoryTree();
-    sel.innerHTML = '';
-    const resetOpt = document.createElement('option');
-    resetOpt.value = '__reset__';
-    resetOpt.textContent = '↩ Επαναφορά αρχικής κατηγορίας';
-    sel.appendChild(resetOpt);
-    const newOpt = document.createElement('option');
-    newOpt.value = '__new__';
-    newOpt.textContent = '+ Νέα κατηγορία…';
-    sel.appendChild(newOpt);
-    flatCats.sort((a, b) => a.localeCompare(b, 'el')).forEach(name => {
-        const opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = name;
-        sel.appendChild(opt);
-    });
-}
-
-function toggleMoveSelection(key) {
-    if (selectedForMove.has(key)) selectedForMove.delete(key);
-    else selectedForMove.add(key);
-    updateBulkMoveCount();
-    renderChannels();
-}
-
-function updateBulkMoveCount() {
-    const el = document.getElementById('bulkMoveCount');
-    if (el) el.textContent = `${selectedForMove.size} επιλεγμένα`;
-}
-
-function confirmBulkCategoryMove() {
-    if (selectedForMove.size === 0) {
-        showToast('Δεν έχεις επιλέξει κανάλια — πάτα πάνω τους για να τα τσεκάρεις.');
-        return;
-    }
-    const sel = document.getElementById('bulkMoveCategorySelect');
-    let category = sel.value;
-    if (category === '__new__') {
-        const name = prompt('Όνομα νέας κατηγορίας:');
-        if (!name || !name.trim()) return;
-        category = name.trim();
-    } else if (category === '__reset__') {
-        category = '';
-    }
-    const keys = Array.from(selectedForMove);
-    fetch('/api/category_overrides', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ channel_keys: keys, category })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.status === 'success') {
-            showToast(category
-                ? `Μετακινήθηκαν ${keys.length} κανάλια στην κατηγορία "${category}".`
-                : `Έγινε επαναφορά της αρχικής κατηγορίας για ${keys.length} κανάλια.`);
-            bulkMoveMode = false;
-            selectedForMove.clear();
-            document.getElementById('bulkMoveToggleBtn').classList.remove('active');
-            document.getElementById('bulkMoveBar').style.display = 'none';
-            loadChannels(false);
-        } else {
-            showToast('Σφάλμα: ' + (data.message || 'άγνωστο σφάλμα'));
-        }
-    })
-    .catch(() => showToast('Αποτυχία σύνδεσης με τον server.'));
-}
-
-function renderChannels() {
-    const container = document.getElementById('channelList');
-    container.innerHTML = '';
-    const favs = getFavorites();
-
-    const filtered = getFilteredChannels();
-
-    if (filtered.length === 0) {
-        container.innerHTML = '<div style="padding:12px; color:var(--text-muted); font-size:0.82rem;">Δεν βρέθηκαν κανάλια.</div>';
-        return;
-    }
-
-    filtered.forEach(ch => {
-        const isFav = favs.has(ch.key);
-        const isRecording = activeRecordingChannelIds.has(ch.key);
-        const health = CHANNEL_HEALTH_RESULTS[(ch.url || '').trim()];
-        const isDead = health && health.ok === false;
-        const isSelectedForMove = selectedForMove.has(ch.key);
-        const logoSrc = ch.logo ? `/api/logo?url=${encodeURIComponent(ch.logo)}` : makeLogoPlaceholder(ch.name);
-        const card = document.createElement('div');
-        card.className = `channel-card ${currentChannelIndex === ch._id ? 'active' : ''} ${isRecording ? 'recording-now' : ''} ${isSelectedForMove ? 'selected-for-move' : ''}`;
-        if (isDead) card.style.opacity = '0.5';
-        const checkboxHtml = bulkMoveMode
-            ? `<input type="checkbox" onclick="event.stopPropagation(); toggleMoveSelection('${ch.key}')" ${isSelectedForMove ? 'checked' : ''} style="width:18px; height:18px; flex-shrink:0; accent-color:var(--accent);">`
-            : '';
-        const nameClick = bulkMoveMode ? `toggleMoveSelection('${ch.key}')` : `playChannel(${ch._id})`;
-        card.innerHTML = `
-            ${checkboxHtml}
-            <img src="${logoSrc}" data-fallback-name="${esc(ch.name)}" onerror="handleLogoError(this)">
-            <div class="channel-info" onclick="${nameClick}">
-                <div class="channel-name">${esc(ch.name)}${ch.__manualCategory ? ' <span title="Χειροκίνητη κατηγορία" style="color:var(--accent);">🗂️</span>' : ''}${isDead ? ' <span style="color:var(--danger); font-size:0.7rem;" title="' + esc(health.error || '') + '">⚠️ εκτός λειτουργίας</span>' : ''}</div>
-                ${epgBadgeHtml(ch._id)}
-            </div>
-            <button class="btn-fav ${isFav ? 'active' : ''}" title="Αγαπημένο" onclick="event.stopPropagation(); toggleFavorite('${ch.key}')">★</button>
-            <button class="btn-icon-epg" title="Πρόγραμμα Ημέρας" onclick="event.stopPropagation(); showDailySchedule(${ch._id})">
-                📅 EPG
-            </button>
-            <button class="btn-icon-epg" title="Χειροκίνητη αντιστοίχιση EPG" onclick="event.stopPropagation(); openEpgMappingModal('${ch.key}', ${ch._id})">🔗</button>
-            <button class="danger ${isRecording ? 'rec-live' : ''}" style="padding:4px 6px; font-size:0.75rem;" title="${isRecording ? 'Γίνεται εγγραφή τώρα' : 'Άμεση Εγγραφή (Server)'}" onclick="event.stopPropagation(); quickRecord(${ch._id})">
-                🔴 REC
-            </button>
-        `;
-        container.appendChild(card);
-    });
-}
-
-function hidePlayerError() {
-    document.getElementById('playerErrorBanner').style.display = 'none';
-}
-
-function showPlayerError(message) {
-    document.getElementById('playerErrorText').innerText = message;
-    document.getElementById('playerErrorBanner').style.display = 'flex';
-}
-
-function retryCurrentChannel() {
-    if (currentChannelIndex !== null) playChannel(currentChannelIndex);
-}
-
-function playChannel(id) {
-    const ch = CHANNELS.find(c => c._id === id);
-    if (!ch) return;
-
-    if (isCategoryLocked(ch.group || 'Γενικά')) {
-        requestCategoryUnlock(ch.group || 'Γενικά', () => playChannel(id));
-        return;
-    }
-
-    hidePlayerError();
-    currentChannelIndex = id;
-    currentChannelKey = ch.key;
-    localStorage.setItem(LAST_CHANNEL_KEY, ch.key);
-    document.getElementById('currentName').innerText = ch.name;
-    document.getElementById('currentGroup').innerText = ch.group || '';
-
-    const video = document.getElementById('mainVideo');
-
-    if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
-    if (dashPlayer) { dashPlayer.reset(); dashPlayer = null; }
-
-    video.pause();
-    video.src = '';
-    video.load();
-
-    const isDash = ch.url.toLowerCase().includes('.mpd');
-
-    if (isDash && typeof dashjs !== 'undefined') {
-        dashPlayer = dashjs.MediaPlayer().create();
-        dashPlayer.initialize(video, ch.url, true);
-        dashPlayer.on(dashjs.MediaPlayer.events.ERROR, (e) => {
-            console.log('DASH error:', e);
-            showPlayerError('Το stream (DASH) δεν είναι διαθέσιμο αυτή τη στιγμή.');
-        });
-    } else if (Hls.isSupported() && ch.url.includes('.m3u8')) {
-        hlsInstance = new Hls({ enableWorker: true });
-        hlsInstance.loadSource(ch.url);
-        hlsInstance.attachMedia(video);
-        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-            video.play().catch(e => console.log("Autoplay:", e));
-        });
-        hlsInstance.on(Hls.Events.ERROR, (event, data) => {
-            if (data.fatal) {
-                console.log('HLS fatal error:', data);
-                showPlayerError('Το stream δεν είναι διαθέσιμο αυτή τη στιγμή.');
-            }
-        });
-    } else {
-        video.src = ch.url;
-        video.play().catch(e => console.log("Playback error:", e));
-    }
-
-    updateEpgForCurrent();
-    updateQuickRecButton();
-    renderChannels();
-    showDailySchedule(id);  // αυτόματο άνοιγμα του «Πρόγραμμα Ημέρας» στην επιλογή καναλιού
-}
-
-function showDailySchedule(channelIndex) {
-    activeScheduleChannelIndex = channelIndex;
-    const ch = CHANNELS.find(c => c._id === channelIndex);
-    if (!ch) return;
-
-    const box = document.getElementById('dailyScheduleBox');
-    const listEl = document.getElementById('dailyScheduleList');
-    const headerEl = document.getElementById('dailyScheduleHeader');
-
-    headerEl.innerText = `📋 Πρόγραμμα Ημέρας: ${ch.name}`;
-    listEl.innerHTML = '';
-
-    if (!EPG_DATA) {
-        listEl.innerHTML = '<div style="color:var(--text-muted); padding:10px;">To EPG φορτώνει ακόμα από τον server... Παρακαλώ περιμένετε λίγα δευτερόλεπτα.</div>';
-        box.style.display = 'block';
-        return;
-    }
-
-    const epgId = getEpgIdForChannel(channelIndex);
-
-    if (!epgId || !EPG_DATA[epgId] || EPG_DATA[epgId].length === 0) {
-        listEl.innerHTML = '<div style="color:var(--text-muted); padding:10px;">Δεν υπάρχει διαθέσιμο πρόγραμμα EPG για αυτό το κανάλι.</div>';
-        box.style.display = 'block';
-        return;
-    }
-
-    const list = EPG_DATA[epgId];
-    const now = new Date();
-
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-
-    const todayList = list.filter(p => p.stop >= startOfDay && p.start <= endOfDay);
-
-    if (todayList.length === 0) {
-        listEl.innerHTML = '<div style="color:var(--text-muted); padding:10px;">Δεν βρέθηκαν εκπομπές για σήμερα.</div>';
-    } else {
-        todayList.forEach(p => {
-            const isCurrent = p.start <= now && now < p.stop;
-            const item = document.createElement('div');
-            item.className = `schedule-item ${isCurrent ? 'current' : ''}`;
-            item.style.display = 'block'; // παρακάμπτει το flex-row του .schedule-item — εδώ στοιβάζουμε κάθετα header/περιγραφή/ενέργειες
-            const formattedTime = `${fmtTime(p.start)} - ${fmtTime(p.stop)}`;
-
-            // Padding: η πραγματική εγγραφή ξεκινά rec_pre_pad_min λεπτά πριν και
-            // σταματά rec_post_pad_min λεπτά μετά το τέλος της εκπομπής (ασφάλεια χρονισμού EPG).
-            const prePad = APP_SETTINGS.rec_pre_pad_min ?? 10;
-            const postPad = APP_SETTINGS.rec_post_pad_min ?? 25;
-            const paddedStart = new Date(p.start.getTime() - prePad * 60000);
-            const paddedStop = new Date(p.stop.getTime() + postPad * 60000);
-            const startTimeStr = formatDateTimeForSchedule(paddedStart);
-            const paddedDurationSec = Math.round((paddedStop - paddedStart) / 1000);
-
-            // ΠΡΟΣΟΧΗ: το p.title/ch.name έρχονται από εξωτερική, μη έμπιστη πηγή
-            // (EPG feed / M3U playlist). Παλιότερα το κουμπί χτιζόταν με
-            // onclick='...${JSON.stringify(p.title)}...' μέσα σε innerHTML — αν ο
-            // τίτλος περιείχε μια απλή απόστροφο (π.χ. "Grey's Anatomy"), το
-            // JSON.stringify() δεν την "έσπαγε" και έσπαγε το attribute,
-            // επιτρέποντας HTML/JS injection. Εδώ χτίζουμε το κουμπί σαν στοιχείο
-            // DOM και περνάμε τις τιμές ως πραγματικά JS values μέσω closure —
-            // δεν υπάρχει καμία μετατροπή σε HTML string, άρα καμία έγχυση.
-            const headerRow = document.createElement('div');
-            headerRow.style.cursor = 'pointer';
-            headerRow.style.display = 'flex';
-            headerRow.style.alignItems = 'center';
-            headerRow.innerHTML = `
-                <div class="schedule-time">${esc(formattedTime)}</div>
-                <div class="schedule-name"><strong>${esc(p.title)}</strong></div>
-            `;
-            item.appendChild(headerRow);
-
-            // Περιγραφή (κρυφή μέχρι να πατηθεί η γραμμή) — έτσι μπορείς να δεις την
-            // "ανάλυση" ΟΠΟΙΑΣΔΗΠΟΤΕ εκπομπής της λίστας, όχι μόνο του "τώρα".
-            const descBox = document.createElement('div');
-            descBox.style.display = 'none';
-            descBox.style.fontSize = '0.78rem';
-            descBox.style.color = 'var(--text-muted)';
-            descBox.style.margin = '4px 0 6px';
-            descBox.textContent = p.desc || 'Δεν υπάρχει διαθέσιμη περιγραφή.';
-            headerRow.addEventListener('click', () => {
-                descBox.style.display = descBox.style.display === 'none' ? 'block' : 'none';
-            });
-            item.appendChild(descBox);
-
-            const actionsRow = document.createElement('div');
-            actionsRow.style.display = 'flex';
-            actionsRow.style.gap = '6px';
-            actionsRow.style.alignItems = 'center';
-            actionsRow.style.flexWrap = 'wrap';
-
-            const recurrenceSelect = document.createElement('select');
-            recurrenceSelect.style.fontSize = '0.72rem';
-            recurrenceSelect.style.padding = '2px 4px';
-            recurrenceSelect.title = 'Επανάληψη εγγραφής';
-            recurrenceSelect.innerHTML = `
-                <option value="none">Μία φορά</option>
-                <option value="daily">Καθημερινά</option>
-                <option value="weekly">Εβδομαδιαία</option>
-                <option value="weekdays">Δευτ-Παρ</option>
-                <option value="weekend">Σαβ-Κυρ</option>
-            `;
-            recurrenceSelect.addEventListener('click', (e) => e.stopPropagation());
-            actionsRow.appendChild(recurrenceSelect);
-
-            const recBtn = document.createElement('button');
-            recBtn.className = 'primary';
-            recBtn.style.padding = '2px 6px';
-            recBtn.style.fontSize = '0.7rem';
-            recBtn.title = `Εγγραφή (${prePad}λ πριν - ${postPad}λ μετά)`;
-            recBtn.textContent = '🔴 REC';
-            recBtn.addEventListener('click', () => {
-                scheduleDirectFromEpg(ch.url, ch.name, startTimeStr, paddedDurationSec, ch.key, p.title, recurrenceSelect.value, prePad * 60, postPad * 60);
-            });
-            actionsRow.appendChild(recBtn);
-
-            const seriesBtn = document.createElement('button');
-            seriesBtn.style.padding = '2px 6px';
-            seriesBtn.style.fontSize = '0.7rem';
-            seriesBtn.title = 'Προγραμματισμός όλων των μελλοντικών επεισοδίων με αυτόν τον τίτλο που βρίσκονται ήδη στο τρέχον EPG';
-            seriesBtn.textContent = '🔁 Σειρά';
-            seriesBtn.addEventListener('click', () => scheduleSeriesFromEpg(ch, p.title));
-            actionsRow.appendChild(seriesBtn);
-
-            item.appendChild(actionsRow);
-            listEl.appendChild(item);
-        });
-    }
-
-    box.style.display = 'block';
-
-    // Ο χρήστης θέλει να βλέπει αμέσως τι παίζει ΤΩΡΑ, χωρίς να χρειάζεται να κάνει
-    // scroll μέσα στη λίστα. Το box μόλις έγινε display:block (πριν ήταν 'none'),
-    // οπότε το layout πρέπει πρώτα να υπολογιστεί — το scrollIntoView μπαίνει σε
-    // επόμενο animation frame ώστε να έχει ήδη σωστό ύψος/θέση.
-    requestAnimationFrame(() => {
-        const currentEl = listEl.querySelector('.schedule-item.current');
-        if (currentEl) currentEl.scrollIntoView({ block: 'start' });
-    });
-}
-
-function closeDailySchedule() {
-    document.getElementById('dailyScheduleBox').style.display = 'none';
-    activeScheduleChannelIndex = null;
-}
-
-function formatDateTimeForSchedule(d) {
-    // Ο server τρέχει με ελληνική ώρα, οπότε το string που του στέλνουμε πρέπει να
-    // αντιστοιχεί σε ώρα Ελλάδας — όχι στη ζώνη ώρας της συσκευής του θεατή (π.χ. αν
-    // κάποιος ανοίγει την εφαρμογή από άλλη χώρα, τα getHours()/getDate() θα έδιναν
-    // τη δική του τοπική ώρα, προγραμματίζοντας την εγγραφή τη λάθος στιγμή).
-    const parts = new Intl.DateTimeFormat('en-GB', {
-        timeZone: 'Europe/Athens',
-        year: 'numeric', month: '2-digit', day: '2-digit',
-        hour: '2-digit', minute: '2-digit', hour12: false
-    }).formatToParts(d);
-    const get = (type) => parts.find(p => p.type === type).value;
-    return `${get('year')}-${get('month')}-${get('day')} ${get('hour')}:${get('minute')}`;
-}
-
-function scheduleDirectFromEpg(url, name, startTimeStr, durationSec, channelId, programTitle, recurrence, prePadSec, postPadSec) {
-    fetch('/api/schedule', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            url: url,
-            name: name,
-            start_time: startTimeStr,
-            duration: durationSec,
-            channel_id: channelId,
-            program: programTitle,
-            recurrence: recurrence || 'none',
-            pre_pad_sec: prePadSec || 0,
-            post_pad_sec: postPadSec || 0,
-        })
-    })
-    .then(r => r.json())
-    .then(res => { showToast(`[Server FFmpeg] ${res.message}`); fetchRecordings(); });
-}
-
-function scheduleSeriesFromEpg(ch, title) {
-    // "Σειρά": αντί για επαναλαμβανόμενο πρόγραμμα σε σταθερή ώρα/μέρα (βλ. recurrence
-    // πιο πάνω), αυτό βρίσκει ΟΛΑ τα μελλοντικά επεισόδια με ΑΚΡΙΒΩΣ τον ίδιο τίτλο
-    // που υπάρχουν ΗΔΗ μέσα στο τρέχον EPG (όσες μέρες κι αν καλύπτει το epg.xml σου)
-    // και τα προγραμματίζει όλα μαζί — χρήσιμο για σειρές που δεν έχουν σταθερή μέρα/ώρα.
-    const epgId = getEpgIdForChannel(ch._id);
-    if (!epgId || !EPG_DATA[epgId]) return;
-    const now = new Date();
-    const matches = EPG_DATA[epgId].filter(p => p.title === title && p.start > now);
-    if (matches.length === 0) {
-        showToast('Δεν βρέθηκαν άλλα μελλοντικά επεισόδια με αυτόν τον τίτλο στο τρέχον EPG (ίσως το epg.xml σου καλύπτει μόνο σήμερα).');
-        return;
-    }
-    if (!confirm(`Βρέθηκαν ${matches.length} μελλοντικά επεισόδια «${title}». Προγραμματισμός όλων;`)) return;
-
-    const prePad = APP_SETTINGS.rec_pre_pad_min ?? 10;
-    const postPad = APP_SETTINGS.rec_post_pad_min ?? 25;
-
-    const requests = matches.map(p => {
-        const paddedStart = new Date(p.start.getTime() - prePad * 60000);
-        const paddedStop = new Date(p.stop.getTime() + postPad * 60000);
-        return fetch('/api/schedule', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                url: ch.url,
-                name: ch.name,
-                start_time: formatDateTimeForSchedule(paddedStart),
-                duration: Math.round((paddedStop - paddedStart) / 1000),
-                channel_id: ch.key,
-                program: p.title,
-                recurrence: 'none',
-                pre_pad_sec: prePad * 60,
-                post_pad_sec: postPad * 60,
-            }),
-        }).then(r => r.json());
-    });
-
-    Promise.allSettled(requests).then(results => {
-        const ok = results.filter(r => r.status === 'fulfilled' && r.value.status === 'success').length;
-        const failed = results.length - ok;
-        showToast(`Προγραμματίστηκαν ${ok} από ${results.length} επεισόδια.` + (failed ? ` ${failed} απέτυχαν (πιθανόν ήδη υπήρχαν ή επικαλύπτονταν).` : ''));
-        fetchRecordings();
-    });
-}
-
-function getCurrentProgramTitle(channelIndex) {
-    if (!EPG_DATA) return null;
-    const epgId = getEpgIdForChannel(channelIndex);
-    if (!epgId || !EPG_DATA[epgId]) return null;
-    const now = new Date();
-    const curr = EPG_DATA[epgId].find(p => p.start <= now && now < p.stop);
-    return curr ? curr.title : null;
-}
-
-function quickRecord(id, durationSec) {
-    const ch = CHANNELS.find(c => c._id === id);
-    if (!ch) return;
-
-    const now = new Date();
-    const formattedNow = formatDateTimeForSchedule(now);
-    const programTitle = getCurrentProgramTitle(id);
-    const finalDuration = durationSec || 3600;
-
-    fetch('/api/schedule', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            url: ch.url,
-            name: ch.name,
-            start_time: formattedNow,
-            duration: finalDuration,
-            channel_id: ch.key,
-            program: programTitle
-        })
-    })
-    .then(r => r.json())
-    .then(res => { showToast(`[Server FFmpeg] ${ch.name}: ${res.message}`); fetchRecordings(); });
-}
-
-function quickRecordCurrent() {
-    if (currentChannelIndex === null) return showToast("Επιλέξτε πρώτα ένα κανάλι!");
-    const selected = document.getElementById('quickRecDuration').value;
-    const maxSec = (APP_SETTINGS.max_duration_hours || 6) * 3600;
-    const durationSec = selected === 'max' ? maxSec : parseInt(selected, 10) * 60;
-    quickRecord(currentChannelIndex, durationSec);
-}
-
-function fetchServerEPG() {
-    clearTimeout(epgRetryTimer);
-    fetch('/epg.xml?t=' + new Date().getTime(), { cache: 'no-store' })
-        .then(r => {
-            if(!r.ok) throw new Error('Not ready');
-            return r.text();
-        })
-        .then(text => {
-            const doc = new DOMParser().parseFromString(text, 'application/xml');
-            const data = {};
-            const progs = doc.getElementsByTagName('programme');
-            for (let i = 0; i < progs.length; i++) {
-                try {
-                    const p = progs[i];
-                    const chId = p.getAttribute('channel');
-                    const start = parseXmlTime(p.getAttribute('start'));
-                    const stop = parseXmlTime(p.getAttribute('stop'));
-                    if (!chId || !start || !stop) continue;
-                    const titleEl = p.getElementsByTagName('title')[0];
-                    const descEl = p.getElementsByTagName('desc')[0];
-                    const entry = { start, stop, title: titleEl ? titleEl.textContent : '', desc: descEl ? descEl.textContent : '' };
-                    if (!data[chId]) data[chId] = [];
-                    data[chId].push(entry);
-                } catch (entryErr) {
-                    // Παράλειψε μεμονωμένη κατεστραμμένη εγγραφή EPG, χωρίς να ρίξει όλο το parsing.
-                    console.warn('Παράλειψη κατεστραμμένης εγγραφής EPG:', entryErr);
-                }
-            }
-
-            // Λίστα διαθέσιμων EPG channel ids + display-names, για το χειροκίνητο
-            // mapping (βλ. openEpgMappingModal) — δεν χρειαζόταν πριν, αφού το ταίριασμα
-            // γινόταν μόνο αυτόματα (epgMap θέσης ή fuzzy όνομα).
-            const chanEls = doc.getElementsByTagName('channel');
-            const chanList = [];
-            for (let i = 0; i < chanEls.length; i++) {
-                const id = chanEls[i].getAttribute('id');
-                const dn = chanEls[i].getElementsByTagName('display-name')[0];
-                if (id) chanList.push({ id, name: dn ? dn.textContent : id });
-            }
-            EPG_CHANNELS_LIST = chanList;
-
-            // Μηδενισμός του retry counter ΜΟΝΟ αφού όλο το parsing ολοκληρωθεί χωρίς σφάλμα —
-            // διαφορετικά ένα exception εδώ μέσα θα γύριζε πάντα σε "νέα προσπάθεια σε 5s".
-            epgRetryCount = 0;
-            EPG_DATA = data;
-            const badge = document.getElementById('epgStatus');
-            badge.innerText = 'EPG: Ενημερωμένο (Server)';
-            badge.style.color = 'var(--green)';
-            renderChannels();
-            if(currentChannelIndex !== null) updateEpgForCurrent();
-            if(activeScheduleChannelIndex !== null) showDailySchedule(activeScheduleChannelIndex);
-        })
-        .catch((err) => {
-            console.warn('Αποτυχία φόρτωσης/ανάλυσης EPG:', err);
-            // Exponential backoff (5s, 10s, 20s, 40s, ... μέχρι 2 λεπτά) αντί για
-            // ατέρμονο retry κάθε 5s — απόφυγε να "χτυπάς" τον server/το εξωτερικό EPG.
-            epgRetryCount++;
-            const delayMs = Math.min(120000, 5000 * Math.pow(2, epgRetryCount - 1));
-            const secs = Math.round(delayMs / 1000);
-            const badge = document.getElementById('epgStatus');
-            badge.innerText = `EPG: Σφάλμα φόρτωσης — νέα προσπάθεια σε ${secs}s (κλικ για τώρα)`;
-            badge.style.color = 'var(--warn)';
-            epgRetryTimer = setTimeout(() => {
-                if (!EPG_DATA) fetchServerEPG();
-            }, delayMs);
-        });
-}
-
-function retryEpgNow() {
-    const badge = document.getElementById('epgStatus');
-    badge.innerText = 'EPG: Ανανέωση…';
-    badge.style.color = '';
-    // Αν το EPG έχει ήδη φορτωθεί μια φορά, ένα απλό ξανα-fetch του /epg.xml απλώς θα
-    // ξανασέρβιρε το ήδη-cache-αρισμένο αρχείο (ο server δεν ξαναφέρνει τίποτα από
-    // μόνος του παρά μόνο στο προγραμματισμένο interval ή σε restart). Γι' αυτό εδώ
-    // καλούμε πρώτα το backend να αναγκάσει πραγματικό ξανακατέβασμα, και μετά
-    // ξαναδιαβάζουμε το αποτέλεσμα.
-    fetch('/api/epg/refresh', { method: 'POST' })
-        .then(r => r.json())
-        .then(res => {
-            if (res.status !== 'success') {
-                badge.innerText = `EPG: ${res.message || 'Σφάλμα ανανέωσης'}`;
-                badge.style.color = 'var(--warn)';
-                return;
-            }
-            epgRetryCount = 0;
-            EPG_DATA = null;
-            fetchServerEPG();
-        })
-        .catch(() => {
-            badge.innerText = 'EPG: Αποτυχία επικοινωνίας με τον server.';
-            badge.style.color = 'var(--warn)';
-        });
-}
-
-function parseXmlTime(s) {
-    if (!s) return null;
-    // Μορφή XMLTV: "YYYYMMDDHHMMSS +HHMM" (π.χ. "20260915090000 +0300").
-    // Το offset ζώνης ώρας ΠΡΕΠΕΙ να αφαιρεθεί για να βγει το σωστό UTC instant —
-    // αγνοώντας το, όλες οι ώρες εμφανίζονται μετατοπισμένες κατά το offset.
-    const m = s.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})\s*([+-]\d{4})?/);
-    if (!m) return null;
-    const [, y, mo, d, h, mi, se, offset] = m;
-    let ms = Date.UTC(+y, +mo - 1, +d, +h, +mi, +se);
-    if (offset) {
-        const sign = offset[0] === '-' ? -1 : 1;
-        const offMinutes = sign * (parseInt(offset.slice(1, 3), 10) * 60 + parseInt(offset.slice(3, 5), 10));
-        ms -= offMinutes * 60000;
-    }
-    return new Date(ms);
-}
-
-function getEpgIdForChannel(channelIndex) {
-    const ch = CHANNELS.find(c => c._id === channelIndex);
-    // Το χειροκίνητο mapping (αν υπάρχει) έχει πάντα προτεραιότητα — ο χρήστης το
-    // όρισε ρητά επειδή το αυτόματο ταίριασμα δεν δούλευε ή ήταν λάθος.
-    if (ch && EPG_OVERRIDES[ch.key]) return EPG_OVERRIDES[ch.key];
-    if (EPG_MAP[channelIndex]) return EPG_MAP[channelIndex];
-    if (!ch || !EPG_DATA) return null;
-    const cleanName = ch.name.toLowerCase().replace(/hd|tv|\s+/g, '');
-    return Object.keys(EPG_DATA).find(epgId => epgId.toLowerCase().replace(/hd|tv|\s+/g, '') === cleanName) || null;
-}
-
-function epgBadgeHtml(channelIndex) {
-    if (!EPG_DATA) return '<div class="epg-line">Ζωντανή Ροή</div>';
-    const epgId = getEpgIdForChannel(channelIndex);
-    if (!epgId || !EPG_DATA[epgId]) return '<div class="epg-line">Ζωντανή Ροή</div>';
-
-    const list = EPG_DATA[epgId];
-    const now = new Date();
-    const curr = list.find(p => p.start <= now && now < p.stop);
-    if (!curr) return '<div class="epg-line">Ζωντανή Ροή</div>';
-
-    const pct = Math.min(100, Math.round(((now - curr.start) / (curr.stop - curr.start)) * 100));
-    return `<div class="epg-line"><span class="now-time">${esc(fmtTime(curr.start))}</span>${esc(curr.title)}</div><div class="epg-bar"><div class="fill" style="width:${pct}%"></div></div>`;
-}
-
-function updateEpgForCurrent() {
-    const box = document.getElementById('nowEpgBox');
-    if (currentChannelIndex === null || !EPG_DATA) { box.style.display = 'none'; return; }
-
-    const epgId = getEpgIdForChannel(currentChannelIndex);
-    if (!epgId || !EPG_DATA[epgId]) { box.style.display = 'none'; return; }
-
-    const list = EPG_DATA[epgId];
-    const now = new Date();
-    const currIdx = list.findIndex(p => p.start <= now && now < p.stop);
-
-    if (currIdx === -1) { box.style.display = 'none'; return; }
-
-    const curr = list[currIdx];
-    const next = list[currIdx + 1];
-
-    box.style.display = 'block';
-    document.getElementById('epgNowTime').textContent = `${fmtTime(curr.start)} - ${fmtTime(curr.stop)}`;
-    document.getElementById('epgNextTime').textContent = next ? `Μετά: ${fmtTime(next.start)} ${next.title}` : '';
-    document.getElementById('epgNowTitle').textContent = curr.title;
-    document.getElementById('epgNowDesc').textContent = curr.desc || '';
-}
-
-function fmtTime(d) {
-    // Το app δείχνει πάντα ελληνικό EPG, οπότε κλειδώνουμε την εμφάνιση σε ώρα Ελλάδας —
-    // ανεξάρτητα από τη ζώνη ώρας της συσκευής/browser του θεατή.
-    return d.toLocaleTimeString('el-GR', {hour:'2-digit', minute:'2-digit', timeZone: 'Europe/Athens'});
-}
-
-function openScheduleModal() {
-    if (currentChannelIndex === null) return showToast("Επιλέξτε πρώτα ένα κανάλι από τη λίστα!");
-    const suggestedTitle = getCurrentProgramTitle(currentChannelIndex);
-    document.getElementById('schedProgramTitle').value = suggestedTitle || '';
-    document.getElementById('schedRecurrence').value = 'none';
-    document.getElementById('scheduleModal').style.display = 'flex';
-}
-function closeScheduleModal() { document.getElementById('scheduleModal').style.display = 'none'; }
-
-function submitSchedule() {
-    const ch = CHANNELS.find(c => c._id === currentChannelIndex);
-    const timeVal = document.getElementById('schedStartTime').value;
-    const durationMin = parseInt(document.getElementById('schedDuration').value, 10);
-    const programTitle = document.getElementById('schedProgramTitle').value.trim();
-    const recurrence = document.getElementById('schedRecurrence').value;
-
-    if (!timeVal) return showToast("Επιλέξτε ημερομηνία και ώρα!");
-    if (!durationMin || durationMin <= 0) return showToast("Μη έγκυρη διάρκεια!");
-
-    const formattedTime = timeVal.replace('T', ' ');
-
-    fetch('/api/schedule', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            url: ch.url,
-            name: ch.name,
-            start_time: formattedTime,
-            duration: durationMin * 60,
-            channel_id: ch.key,
-            program: programTitle || null,
-            recurrence: recurrence
-        })
-    })
-    .then(r => r.json())
-    .then(res => {
-        showToast(`[Server FFmpeg] ${res.message}`);
-        closeScheduleModal();
-        fetchRecordings();
-    });
-}
-
-// ---------------------------------------------------------------------
-// Εγγραφές: κεντρικό polling (τρέχει πάντα, όχι μόνο με ανοιχτό modal)
-// ώστε να ξέρουμε ποια κανάλια γράφονται τώρα και να αναβοσβήνει το REC.
-// ---------------------------------------------------------------------
-const STATUS_LABELS = {
-    scheduled: 'Προγραμματισμένη', recording: 'Καταγράφεται', completed: 'Ολοκληρώθηκε',
-    cancelled: 'Ακυρώθηκε', missed: 'Χάθηκε', interrupted: 'Διακόπηκε', failed: 'Απέτυχε',
-};
-
-function fetchRecordings() {
-    fetch('/api/recordings')
-        .then(r => r.json())
-        .then(list => {
-            recordingsCache = list;
-
-            const nowRecordingIds = new Set(
-                list.filter(r => r.status === 'recording' && r.channel_id !== null && r.channel_id !== undefined)
-                    .map(r => r.channel_id)
-            );
-            const changed = nowRecordingIds.size !== activeRecordingChannelIds.size ||
-                [...nowRecordingIds].some(id => !activeRecordingChannelIds.has(id));
-            activeRecordingChannelIds = nowRecordingIds;
-
-            updateRecCountBadge(list);
-            updateQuickRecButton();
-            if (changed) renderChannels();
-            if (document.getElementById('recordingsModal').style.display === 'flex') {
-                renderRecordingsModal(list);
-            }
-        })
-        .catch(() => { /* server ίσως ακόμα ξεκινά· ξαναδοκιμάζει στο επόμενο poll */ });
-}
-
-function updateRecCountBadge(list) {
-    const activeCount = list.filter(r => r.status === 'recording').length;
-    const badge = document.getElementById('recCountBadge');
-    if (activeCount > 0) {
-        badge.style.display = 'inline-flex';
-        badge.innerText = activeCount;
-    } else {
-        badge.style.display = 'none';
-    }
-}
-
-function updateQuickRecButton() {
-    const btn = document.getElementById('quickRecBtn');
-    const isRecording = currentChannelKey !== null && activeRecordingChannelIds.has(currentChannelKey);
-    btn.classList.toggle('rec-live', isRecording);
-    btn.innerText = isRecording ? '🔴 Γίνεται Εγγραφή...' : '🔴 Άμεση Εγγραφή (Server)';
-}
-
-function openRecordingsModal() {
-    document.getElementById('recordingsModal').style.display = 'flex';
-    renderRecordingsModal(recordingsCache);
-    fetchRecordings();
-}
-
-function closeRecordingsModal() {
-    document.getElementById('recordingsModal').style.display = 'none';
-}
-
-function renderRecordingsModal(list) {
-    lastRecordingsList = list || [];
-    const container = document.getElementById('recordingsList');
-    if (!list || list.length === 0) {
-        container.innerHTML = '<div style="color:var(--text-muted); font-size:0.82rem;">Δεν υπάρχουν εγγραφές ακόμα.</div>';
-        updateRecBulkBar();
-        return;
-    }
-
-    const active = list.filter(r => r.status === 'scheduled' || r.status === 'recording');
-    const history = list.filter(r => !(r.status === 'scheduled' || r.status === 'recording'));
-
-    // Αν κάποια επιλεγμένη εγγραφή δεν υπάρχει πια στη λίστα (π.χ. διαγράφηκε αλλού), καθάρισέ την.
-    const historyIds = new Set(history.map(r => r.id));
-    for (const id of Array.from(selectedRecordingIds)) {
-        if (!historyIds.has(id)) selectedRecordingIds.delete(id);
-    }
-
-    let html = '';
-    html += `<div class="rec-section-title">Ενεργές (${active.length})</div>`;
-    html += active.length
-        ? active.map(recordingItemHtml).join('')
-        : '<div style="color:var(--text-muted); font-size:0.78rem;">Καμία ενεργή ή προγραμματισμένη εγγραφή.</div>';
-
-    if (history.length > 0) {
-        html += `<div class="rec-section-title" style="display:flex; justify-content:space-between; align-items:center;">
-            <span>Ιστορικό</span>
-            <label style="font-size:0.72rem; font-weight:400; display:flex; align-items:center; gap:4px; cursor:pointer;">
-                <input type="checkbox" id="selectAllHistoryCb" onchange="toggleSelectAllHistory(this.checked)" style="width:auto;">
-                Επιλογή όλων
-            </label>
-        </div>`;
-        html += history.map(recordingItemHtml).join('');
-    }
-
-    container.innerHTML = html;
-    updateRecBulkBar();
-}
-
-const selectedRecordingIds = new Set();
-let lastRecordingsList = [];
-
-function toggleRecordingSelection(id, checked) {
-    if (checked) selectedRecordingIds.add(id); else selectedRecordingIds.delete(id);
-    updateRecBulkBar();
-    // Ενημέρωσε το "Επιλογή όλων" αν πλέον ταιριάζει/δεν ταιριάζει με το σύνολο.
-    const allCb = document.getElementById('selectAllHistoryCb');
-    if (allCb) {
-        const historyIds = lastRecordingsList
-            .filter(r => !(r.status === 'scheduled' || r.status === 'recording'))
-            .map(r => r.id);
-        allCb.checked = historyIds.length > 0 && historyIds.every(id2 => selectedRecordingIds.has(id2));
-    }
-}
-
-function toggleSelectAllHistory(checked) {
-    const historyIds = lastRecordingsList
-        .filter(r => !(r.status === 'scheduled' || r.status === 'recording'))
-        .map(r => r.id);
-    if (checked) {
-        historyIds.forEach(id => selectedRecordingIds.add(id));
-    } else {
-        historyIds.forEach(id => selectedRecordingIds.delete(id));
-    }
-    renderRecordingsModal(lastRecordingsList);
-}
-
-function clearRecordingSelection() {
-    selectedRecordingIds.clear();
-    renderRecordingsModal(lastRecordingsList);
-}
-
-function updateRecBulkBar() {
-    const bar = document.getElementById('recBulkBar');
-    const n = selectedRecordingIds.size;
-    bar.style.display = n > 0 ? 'flex' : 'none';
-    document.getElementById('recBulkCount').innerText = `${n} επιλεγμένα`;
-}
-
-function bulkDeleteRecordings() {
-    const ids = Array.from(selectedRecordingIds);
-    if (!ids.length) return;
-    if (!confirm(`Διαγραφή ${ids.length} εγγραφών; Η ενέργεια δεν αναιρείται.`)) return;
-    fetch('/api/recordings/bulk_delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids }),
-    })
-        .then(r => r.json())
-        .then(() => { selectedRecordingIds.clear(); fetchRecordings(); });
-}
-
-function bulkDownloadRecordings() {
-    const ids = Array.from(selectedRecordingIds);
-    if (!ids.length) return;
-    fetch('/api/recordings/bulk_download', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids }),
-    })
-        .then(r => {
-            if (!r.ok) throw new Error('Αποτυχία λήψης.');
-            return r.blob();
-        })
-        .then(blob => {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'recordings.zip';
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            URL.revokeObjectURL(url);
-        })
-        .catch(() => showToast('Η μαζική λήψη απέτυχε.'));
-}
-
-function deleteRecording(id) {
-    if (!confirm('Διαγραφή αυτής της εγγραφής;')) return;
-    fetch(`/api/recordings/${id}`, { method: 'DELETE' })
-        .then(r => r.json())
-        .then(() => { selectedRecordingIds.delete(id); fetchRecordings(); });
-}
-
-// ---------------------------------------------------------------------
-// Χειροκίνητο EPG mapping
-// ---------------------------------------------------------------------
-let epgMappingChannelKey = null;
-
-function openEpgMappingModal(channelKey, channelIndex) {
-    epgMappingChannelKey = channelKey;
-    const ch = CHANNELS.find(c => c._id === channelIndex);
-    document.getElementById('epgMappingChannelName').innerText = ch ? `Κανάλι: ${ch.name}` : '';
-    document.getElementById('epgMappingSearch').value = '';
-    document.getElementById('epgMappingModal').style.display = 'flex';
-    renderEpgMappingResults();
-}
-
-function closeEpgMappingModal() {
-    document.getElementById('epgMappingModal').style.display = 'none';
-}
-
-function renderEpgMappingResults() {
-    const query = document.getElementById('epgMappingSearch').value.toLowerCase();
-    const currentEpgId = EPG_OVERRIDES[epgMappingChannelKey] || null;
-
-    const currentBox = document.getElementById('epgMappingCurrent');
-    currentBox.innerHTML = currentEpgId
-        ? `Τρέχουσα χειροκίνητη αντιστοίχιση: <strong>${esc(currentEpgId)}</strong> `
-          + `<button style="padding:2px 8px; font-size:0.72rem;" onclick="saveEpgOverride(null)">Καθαρισμός</button>`
-        : `<span style="color:var(--text-muted);">Καμία χειροκίνητη αντιστοίχιση (χρησιμοποιείται αυτόματο ταίριασμα).</span>`;
-
-    const container = document.getElementById('epgMappingResults');
-    if (!EPG_CHANNELS_LIST || EPG_CHANNELS_LIST.length === 0) {
-        container.innerHTML = '<div style="color:var(--text-muted); font-size:0.8rem;">Το EPG δεν έχει φορτωθεί ακόμα.</div>';
-        return;
-    }
-
-    const results = EPG_CHANNELS_LIST
-        .filter(c => !query || c.name.toLowerCase().includes(query) || c.id.toLowerCase().includes(query))
-        .slice(0, 60); // περιόρισε το πλήθος αποτελεσμάτων για ταχύτητα rendering
-
-    container.innerHTML = results.map(c => `
-        <div class="channel-card" style="cursor:pointer;" onclick="saveEpgOverride('${esc(c.id)}')">
-            <div class="channel-info">
-                <div class="channel-name">${esc(c.name)}</div>
-                <div class="epg-line">${esc(c.id)}</div>
-            </div>
-        </div>
-    `).join('') || '<div style="color:var(--text-muted); font-size:0.8rem;">Κανένα αποτέλεσμα.</div>';
-}
-
-function saveEpgOverride(epgId) {
-    fetch('/api/epg/overrides', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ channel_key: epgMappingChannelKey, epg_id: epgId }),
-    })
-        .then(r => r.json())
-        .then(res => {
-            if (res.overrides) EPG_OVERRIDES = res.overrides;
-            renderChannels();
-            closeEpgMappingModal();
-        })
-        .catch(() => showToast('Αποτυχία αποθήκευσης mapping.'));
-}
-
-const RECURRENCE_LABELS_FE = {
-    none: null, daily: 'Καθημερινά', weekly: 'Εβδομαδιαία', weekdays: 'Δευτ-Παρ', weekend: 'Σαβ-Κυρ',
-};
-
-function recordingItemHtml(rec) {
-    const start = new Date(rec.start_time);
-    const mins = Math.round(rec.duration / 60);
-    const canCancel = rec.status === 'scheduled' || rec.status === 'recording';
-    const canDownload = rec.status === 'completed' && rec.filename;
-    const isHistory = !canCancel;
-    const recurrenceLabel = RECURRENCE_LABELS_FE[rec.recurrence];
-    const titleLine = rec.program ? `${esc(rec.name)} · ${esc(rec.program)}` : esc(rec.name);
-    const checkbox = isHistory
-        ? `<input type="checkbox" ${selectedRecordingIds.has(rec.id) ? 'checked' : ''} onchange="toggleRecordingSelection('${esc(rec.id)}', this.checked)" style="margin-right:6px;">`
-        : '';
-    return `
-        <div class="rec-item">
-            ${checkbox}
-            <div class="rec-info">
-                <div class="rec-name">${rec.status === 'recording' ? '🔴 ' : ''}${titleLine}</div>
-                <div class="rec-meta">${esc(fmtTime(start))} · ${mins} λεπτά${recurrenceLabel ? ' · 🔁 ' + esc(recurrenceLabel) : ''}${rec.error ? ' · ' + esc(rec.error) : ''}</div>
-            </div>
-            <span class="rec-status ${esc(rec.status)}">${esc(STATUS_LABELS[rec.status] || rec.status)}</span>
-            <div class="rec-actions">
-                ${canDownload ? `<button title="Λήψη" onclick="window.open('/recordings/${encodeURIComponent(rec.filename)}', '_blank')">⬇</button>` : ''}
-                ${canCancel ? `<button class="danger" title="Ακύρωση" onclick="cancelRecording('${esc(rec.id)}')">✕</button>` : ''}
-                ${isHistory ? `<button class="danger" title="Διαγραφή" onclick="deleteRecording('${esc(rec.id)}')">🗑</button>` : ''}
-            </div>
-        </div>
-    `;
-}
-
-function cancelRecording(id) {
-    fetch(`/api/schedule/${id}`, { method: 'DELETE' })
-        .then(r => r.json())
-        .then(() => fetchRecordings());
-}
-
-// ---------------------------------------------------------------------
-// Εξτρα λίστες M3U (δημιουργούν νέα κατηγορία καναλιών)
-// ---------------------------------------------------------------------
-function openAddPlaylistModal() {
-    document.getElementById('addPlaylistModal').style.display = 'flex';
-    refreshPlaylistsList();
-}
-
-function closeAddPlaylistModal() {
-    document.getElementById('addPlaylistModal').style.display = 'none';
-}
-
-function refreshPlaylistsList() {
-    fetch('/api/playlists')
-        .then(r => r.json())
-        .then(list => {
-            const container = document.getElementById('playlistsList');
-            if (!list || list.length === 0) {
-                container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">Δεν έχεις προσθέσει ακόμα κάποια λίστα.</div>';
-                return;
-            }
-            container.innerHTML = list.map(pl => {
-                const hidden = Math.max(0, (pl.channel_count || 0) - (pl.visible_count || 0));
-                const hiddenNote = hidden > 0
-                    ? ` <span style="color:var(--warn);" title="Αυτά τα κανάλια έχουν ίδιο URL με κανάλια από άλλη λίστα/βασική λίστα, οπότε κρύβονται αυτόματα ως διπλότυπα και δεν φαίνονται πουθενά στη λίστα καναλιών.">(${hidden} κρυμμένα ως διπλότυπα)</span>`
-                    : '';
-                return `
-                <div class="playlist-item">
-                    <div class="playlist-info">
-                        <div class="playlist-name">${esc(pl.category)}</div>
-                        <div class="playlist-meta">${esc(pl.channel_count)} κανάλια${hiddenNote} · ${esc(pl.source)}</div>
-                    </div>
-                    <button class="danger" title="Αφαίρεση λίστας" onclick="deletePlaylist('${esc(pl.id)}')">✕</button>
-                </div>
-            `;
-            }).join('');
-        })
-        .catch(() => {
-            document.getElementById('playlistsList').innerHTML =
-                '<div style="color:var(--danger); font-size:0.78rem;">Αποτυχία φόρτωσης λιστών.</div>';
-        });
-}
-
-function handlePlaylistFileSelect(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    document.getElementById('playlistFileName').innerText = `Επιλέχθηκε: ${file.name}`;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        document.getElementById('playlistTextInput').value = e.target.result;
-    };
-    reader.onerror = () => {
-        showToast('Αποτυχία ανάγνωσης του αρχείου.');
-    };
-    reader.readAsText(file);
-}
-
-function submitAddPlaylist() {
-    const category = document.getElementById('playlistCategoryInput').value.trim();
-    const url = document.getElementById('playlistUrlInput').value.trim();
-    const text = document.getElementById('playlistTextInput').value.trim();
-    const forceDuplicates = document.getElementById('forceDuplicatesCheckbox').checked;
-
-    if (!category) return showToast('Δώσε ένα όνομα για τη λίστα.');
-    if (!url && !text) return showToast('Δώσε είτε URL M3U είτε επικόλλησε το περιεχόμενο.');
-
-    fetch('/api/playlists', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category, url: url || null, m3u_text: text || null, force_duplicates: forceDuplicates })
-    })
-    .then(r => r.json())
-    .then(res => {
-        showToast(res.message);
-        if (res.status === 'success') {
-            document.getElementById('playlistCategoryInput').value = '';
-            document.getElementById('playlistUrlInput').value = '';
-            document.getElementById('playlistTextInput').value = '';
-            document.getElementById('playlistFileInput').value = '';
-            document.getElementById('playlistFileName').innerText = '';
-            document.getElementById('forceDuplicatesCheckbox').checked = false;
-            loadChannels(false);
-            refreshPlaylistsList();
-        }
-    })
-    .catch(() => showToast('Αποτυχία επικοινωνίας με τον server.'));
-}
-
-function deletePlaylist(id) {
-    if (!confirm('Αφαίρεση αυτής της λίστας και των καναλιών της;')) return;
-    fetch(`/api/playlists/${id}`, { method: 'DELETE' })
-        .then(r => r.json())
-        .then(() => {
-            loadChannels(false);
-            refreshPlaylistsList();
-        });
-}
-
-// ---------------------------------------------------------------------
-// Ρυθμίσεις (⚙) — ώστε να μη χρειάζεται να αλλάζεις κώδικα/env vars
-// ---------------------------------------------------------------------
-function openSettingsModal() {
-    document.getElementById('settingsModal').style.display = 'flex';
-    fetch('/api/settings')
-        .then(r => r.json())
-        .then(s => {
-            APP_SETTINGS = s;
-            document.getElementById('setTimezone').value = s.timezone || 'Europe/Athens';
-            document.getElementById('setPrePad').value = s.rec_pre_pad_min ?? 10;
-            document.getElementById('setPostPad').value = s.rec_post_pad_min ?? 25;
-            document.getElementById('setMaxDuration').value = s.max_duration_hours ?? 6;
-            document.getElementById('setCleanupDays').value = s.cleanup_days ?? 0;
-            document.getElementById('setAuthEnabled').checked = !!s.auth_enabled;
-            document.getElementById('setProtectAll').checked = !!s.protect_all;
-            renderLockedCategoriesBox(s.locked_categories || []);
-            // epg_url / epg_refresh_hours δεν είναι δημόσια (μπορούν να αποκαλύψουν το feed source),
-            // οπότε δεν προσυμπληρώνονται· ο χρήστης τα δίνει μόνο αν θέλει να τα αλλάξει.
-        })
-        .catch(() => {});
-    refreshServerStatus();
-    refreshHealthCheckStatus();
-}
-
-function closeSettingsModal() {
-    document.getElementById('settingsModal').style.display = 'none';
-}
-
-function refreshServerStatus() {
-    fetch('/api/status')
-        .then(r => r.json())
-        .then(s => {
-            const fmtBytes = (b) => {
-                if (b === null || b === undefined) return '—';
-                const gb = b / (1024 ** 3);
-                return gb >= 1 ? `${gb.toFixed(1)} GB` : `${(b / (1024 ** 2)).toFixed(0)} MB`;
-            };
-            const fmtUptime = (sec) => {
-                const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60);
-                return `${h}ω ${m}λ`;
-            };
-            const cpuLine = (s.cpu_percent !== null && s.cpu_percent !== undefined)
-                ? `CPU: ${s.cpu_percent.toFixed(0)}% · RAM: ${s.mem_percent.toFixed(0)}%<br>` : '';
-            const epgLine = s.epg_last_success
-                ? `EPG τελευταία επιτυχία: ${new Date(s.epg_last_success).toLocaleString('el-GR', {timeZone:'Europe/Athens'})}`
-                : `EPG: ${s.epg_last_error ? 'σφάλμα — ' + esc(s.epg_last_error) : 'δεν έχει ανανεωθεί ακόμα'}`;
-            document.getElementById('serverStatusBox').innerHTML = `
-                Uptime: ${fmtUptime(s.uptime_sec)} · Ζώνη ώρας: ${esc(s.timezone)}<br>
-                Ενεργές εγγραφές: ${s.active_recordings} · Προγραμματισμένες: ${s.scheduled_recordings}<br>
-                ${cpuLine}
-                Χώρος εγγραφών: ${fmtBytes(s.recordings_dir_size_bytes)} · Ελεύθερος δίσκος: ${fmtBytes(s.disk_free_bytes)}<br>
-                ${epgLine}
-            `;
-        })
-        .catch(() => {
-            document.getElementById('serverStatusBox').innerText = 'Αποτυχία φόρτωσης κατάστασης server.';
-        });
-}
-
-function submitSettings() {
-    const payload = {
-        timezone: document.getElementById('setTimezone').value.trim(),
-        rec_pre_pad_min: parseInt(document.getElementById('setPrePad').value, 10),
-        rec_post_pad_min: parseInt(document.getElementById('setPostPad').value, 10),
-        max_duration_hours: parseInt(document.getElementById('setMaxDuration').value, 10),
-        cleanup_days: parseInt(document.getElementById('setCleanupDays').value, 10),
-        auth_enabled: document.getElementById('setAuthEnabled').checked,
-        protect_all: document.getElementById('setProtectAll').checked,
-        locked_categories: Array.from(document.querySelectorAll('#lockedCategoriesBox input[type=checkbox]:checked')).map(el => el.value),
-    };
-
-    const epgUrl = document.getElementById('setEpgUrl').value.trim();
-    if (epgUrl) payload.epg_url = epgUrl;
-    const epgHours = document.getElementById('setEpgRefreshHours').value.trim();
-    if (epgHours) payload.epg_refresh_hours = parseInt(epgHours, 10);
-    const epgExtraRaw = document.getElementById('setEpgExtraUrls').value.trim();
-    if (epgExtraRaw) payload.epg_extra_urls = epgExtraRaw.split('\n').map(s => s.trim()).filter(Boolean);
-    const recDir = document.getElementById('setRecordingsDir').value.trim();
-    if (recDir) payload.recordings_dir = recDir;
-
-    const newUser = document.getElementById('setNewUsername').value.trim();
-    if (newUser) payload.new_username = newUser;
-    const newPass = document.getElementById('setNewPassword').value;
-    if (newPass) payload.new_password = newPass;
-
-    fetch('/api/settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-    .then(r => r.json())
-    .then(res => {
-        showToast(res.message);
-        if (res.status === 'success') {
-            document.getElementById('setNewUsername').value = '';
-            document.getElementById('setNewPassword').value = '';
-            loadAppSettings();
-            if (newUser || newPass) {
-                showToast('Άλλαξες τα στοιχεία σύνδεσης — ο browser θα σου ζητήσει να ξανασυνδεθείς στο επόμενο προστατευμένο αίτημα.');
-            }
-        }
-    })
-    .catch(() => showToast('Αποτυχία επικοινωνίας με τον server.'));
-}
-
-// ---------------------------------------------------------------------
-// Mini file-browser (φάκελοι του SERVER, όχι του browser) — για επιλογή
-// φακέλου εγγραφών, αφού ένας browser δεν μπορεί να δείξει native dialog
-// για το filesystem ενός απομακρυσμένου server.
-// ---------------------------------------------------------------------
-let folderBrowserCurrentPath = null;
-
-function openFolderBrowser() {
-    document.getElementById('folderBrowserModal').style.display = 'flex';
-    const startPath = document.getElementById('setRecordingsDir').value.trim();
-    loadFolderBrowser(startPath || null);
-}
-
-function closeFolderBrowser() {
-    document.getElementById('folderBrowserModal').style.display = 'none';
-}
-
-function loadFolderBrowser(path) {
-    const url = path ? `/api/browse_dirs?path=${encodeURIComponent(path)}` : '/api/browse_dirs';
-    fetch(url)
-        .then(r => r.json())
-        .then(res => {
-            if (res.status !== 'success') {
-                showToast(res.message || 'Σφάλμα περιήγησης φακέλων.');
-                return;
-            }
-            folderBrowserCurrentPath = res.current_path;
-            document.getElementById('folderBrowserPath').innerText = res.current_path + (res.writable ? '' : '  (χωρίς δικαίωμα εγγραφής!)');
-            const listEl = document.getElementById('folderBrowserList');
-            listEl.innerHTML = '';
-
-            if (res.drives && res.drives.length > 1) {
-                const drivesRow = document.createElement('div');
-                drivesRow.style.display = 'flex';
-                drivesRow.style.gap = '4px';
-                drivesRow.style.flexWrap = 'wrap';
-                drivesRow.style.marginBottom = '6px';
-                res.drives.forEach(drive => {
-                    const btn = document.createElement('button');
-                    btn.style.fontSize = '0.72rem';
-                    btn.style.padding = '3px 8px';
-                    btn.textContent = `💽 ${drive}`;
-                    btn.onclick = () => loadFolderBrowser(drive);
-                    drivesRow.appendChild(btn);
-                });
-                listEl.appendChild(drivesRow);
-            }
-
-            if (res.parent_path) {
-                const up = document.createElement('div');
-                up.className = 'channel-card';
-                up.style.cursor = 'pointer';
-                up.innerHTML = '<div class="channel-info">.. (πάνω)</div>';
-                up.onclick = () => loadFolderBrowser(res.parent_path);
-                listEl.appendChild(up);
-            }
-            res.entries.forEach(name => {
-                const row = document.createElement('div');
-                row.className = 'channel-card';
-                row.style.cursor = 'pointer';
-                row.innerHTML = `<div class="channel-info">📁 ${esc(name)}</div>`;
-                row.onclick = () => loadFolderBrowser(res.current_path + '/' + name);
-                listEl.appendChild(row);
-            });
-        })
-        .catch(() => showToast('Αποτυχία επικοινωνίας με τον server.'));
-}
-
-function confirmFolderSelection() {
-    if (!folderBrowserCurrentPath) return;
-    document.getElementById('setRecordingsDir').value = folderBrowserCurrentPath;
-    closeFolderBrowser();
-}
-
-// ---------------------------------------------------------------------
-// Γονικός έλεγχος (PIN + κλειδωμένες κατηγορίες)
-// ---------------------------------------------------------------------
-const PARENTAL_UNLOCK_KEY = 'iptv_unlocked_categories'; // sessionStorage — ξεκλειδώνει μόνο για αυτό το tab
-
-function renderLockedCategoriesBox(lockedList) {
-    const box = document.getElementById('lockedCategoriesBox');
-    const categories = ['ALL', ...new Set(CHANNELS.map(c => c.group || 'Γενικά'))].filter(c => c !== 'ALL');
-    box.innerHTML = categories.map(cat => `
-        <label style="display:flex; align-items:center; gap:4px;">
-            <input type="checkbox" value="${esc(cat)}" ${lockedList.includes(cat) ? 'checked' : ''} style="width:auto;">
-            ${esc(cat)}
-        </label>
-    `).join('') || '<span style="color:var(--text-muted);">Δεν υπάρχουν ακόμα κατηγορίες (φόρτωσε πρώτα κανάλια).</span>';
-}
-
-function saveParentalPin() {
-    const pin = document.getElementById('setParentalPin').value.trim();
-    fetch('/api/parental/set_pin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin }),
-    })
-        .then(r => r.json())
-        .then(res => {
-            showToast(res.message);
-            document.getElementById('setParentalPin').value = '';
-        })
-        .catch(() => showToast('Αποτυχία αποθήκευσης PIN.'));
-}
-
-function getUnlockedCategories() {
-    try {
-        return new Set(JSON.parse(sessionStorage.getItem(PARENTAL_UNLOCK_KEY) || '[]'));
-    } catch (e) { return new Set(); }
-}
-
-function isCategoryLocked(category) {
-    const locked = APP_SETTINGS.locked_categories || [];
-    if (!locked.includes(category)) return false;
-    return !getUnlockedCategories().has(category);
-}
-
-function requestCategoryUnlock(category, onSuccess) {
-    const pin = prompt(`Η κατηγορία «${category}» είναι κλειδωμένη. Δώσε το PIN γονικού ελέγχου:`);
-    if (pin === null) return;
-    fetch('/api/parental/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin }),
-    })
-        .then(r => r.json())
-        .then(res => {
-            if (res.ok) {
-                const unlocked = getUnlockedCategories();
-                unlocked.add(category);
-                sessionStorage.setItem(PARENTAL_UNLOCK_KEY, JSON.stringify(Array.from(unlocked)));
-                onSuccess();
-            } else {
-                showToast('Λάθος PIN.');
-            }
-        })
-        .catch(() => showToast('Αποτυχία επικοινωνίας με τον server.'));
-}
-
-// ---------------------------------------------------------------------
-// Υγεία καναλιών (dead-stream detection)
-// ---------------------------------------------------------------------
-let CHANNEL_HEALTH_RESULTS = {}; // url -> {ok, error}
-let healthCheckPollTimer = null;
-
-function startChannelHealthCheck() {
-    fetch('/api/channels/health_check', { method: 'POST' })
-        .then(r => r.json())
-        .then(() => {
-            clearInterval(healthCheckPollTimer);
-            healthCheckPollTimer = setInterval(refreshHealthCheckStatus, 2000);
-            refreshHealthCheckStatus();
-        })
-        .catch(() => showToast('Αποτυχία εκκίνησης ελέγχου.'));
-}
-
-function refreshHealthCheckStatus() {
-    fetch('/api/channels/health')
-        .then(r => r.json())
-        .then(res => {
-            CHANNEL_HEALTH_RESULTS = res.results || {};
-            const el = document.getElementById('healthCheckStatus');
-            if (el) {
-                if (res.scanning) {
-                    el.innerText = `Έλεγχος σε εξέλιξη… ${res.done}/${res.total}`;
-                } else if (res.total > 0) {
-                    const dead = Object.values(res.results).filter(r => !r.ok).length;
-                    el.innerText = `Τελευταίος έλεγχος: ${res.total} κανάλια, ${dead} εκτός λειτουργίας.`;
-                    clearInterval(healthCheckPollTimer);
-                } else {
-                    el.innerText = '';
-                }
-            }
-            renderChannels();
-        })
-        .catch(() => {});
-}
-
-// ---------------------------------------------------------------------
-// Backup / Επαναφορά
-// ---------------------------------------------------------------------
-function importBackup() {
-    const input = document.getElementById('backupImportFile');
-    const statusEl = document.getElementById('backupImportStatus');
-    if (!input.files || !input.files[0]) {
-        statusEl.innerText = 'Διάλεξε πρώτα ένα αρχείο .zip.';
-        return;
-    }
-    const formData = new FormData();
-    formData.append('file', input.files[0]);
-    statusEl.innerText = 'Επαναφορά σε εξέλιξη…';
-    fetch('/api/backup/import', { method: 'POST', body: formData })
-        .then(r => r.json())
-        .then(res => {
-            statusEl.innerText = res.message || '';
-            if (res.status === 'success') {
-                input.value = '';
-                loadChannels(true);
-                loadAppSettings();
-            }
-        })
-        .catch(() => { statusEl.innerText = 'Αποτυχία επαναφοράς.'; });
-}
+    return true;
+  });
+  if(changed) saveReminders(rems);
+}
+setInterval(checkReminders, 10000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden) checkReminders();});
+window.addEventListener("focus",checkReminders);
+
+function tick(){const now=new Date(); document.getElementById("clock").textContent=fmtFull(now); document.getElementById("dateLine").textContent=now.toLocaleDateString("el-GR",{weekday:"long",day:"numeric",month:"long",year:"numeric"});}
+document.getElementById("search").addEventListener("input",render);
+document.getElementById("channelFilter").addEventListener("change",render);
+document.getElementById("sportFilter").addEventListener("change",render);
+document.querySelectorAll("#quick .chip").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll("#quick .chip").forEach(x=>x.classList.remove("active")); b.classList.add("active"); quick=b.dataset.f; renderPanathinaikosScores(); render();}));
+// Για quick live/upcoming: φιλτράρουμε οπτικά κρατώντας όλες τις ενότητες αλλά τονίζουμε
+tick(); renderReminders(); updateNotifBar(); useFallback(); loadLive(false); loadSport24Scores(); setInterval(loadSport24Scores,120000); setInterval(()=>{tick();render();},30000); setInterval(tick,1000);
 </script>
-</body>
-</html>
+<div id="installBar" style="display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:50;background:#fff;color:#121212;border-radius:16px;padding:13px 14px;box-shadow:0 10px 30px rgba(0,0,0,.5)">
+<div style="display:flex;gap:10px;align-items:center"><span style="font-size:24px">📱</span><div style="flex:1"><b>Εγκατάσταση εφαρμογής</b><div style="font-size:12.5px;color:#444">Άνοιξέ την σαν κανονική εφαρμογή, χωρίς μπάρα browser.</div></div><button id="installBtn" style="background:#ff4757;color:#fff;border:0;padding:10px 14px;border-radius:999px;font-weight:800;cursor:pointer">Εγκατάσταση</button><button onclick="document.getElementById('installBar').style.display='none'" style="background:#eee;border:0;padding:8px 10px;border-radius:999px;cursor:pointer">✕</button></div>
+</div>
+<script>
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt=e; document.getElementById('installBar').style.display='block'; });
+document.getElementById('installBtn')?.addEventListener('click', async ()=>{ if(!deferredPrompt) return; deferredPrompt.prompt(); const {outcome}=await deferredPrompt.userChoice; if(outcome==='accepted') document.getElementById('installBar').style.display='none'; deferredPrompt=null; });
+window.addEventListener('appinstalled', ()=>{ document.getElementById('installBar').style.display='none'; });
+if('serviceWorker' in navigator){ window.addEventListener('load', ()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }); }
+</script>
+</body></html>
