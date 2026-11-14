@@ -30,6 +30,7 @@ h2{font-size:18px;margin:20px 0 12px}.count{background:#2a2a2a;padding:3px 9px;b
 <div id="stxt" style="margin-top:6px;color:#bbb"></div><div id="dbg" class="dim"></div><div style="margin-top:9px"><button class="btn" id="refresh">🔄 Ανανέωση τώρα</button></div></div>
 <input id="search" aria-label="Αναζήτηση" autocomplete="off" placeholder="Αναζήτηση: ομάδα, διοργάνωση ή κανάλι…" style="margin-bottom:10px">
 <div class="row"><select id="chSel" aria-label="Κανάλι"></select><select id="spSel" aria-label="Άθλημα"></select><select id="remSel" aria-label="Υπενθύμιση πριν"><option value="5">Υπενθύμιση 5′ πριν</option><option value="15">Υπενθύμιση 15′ πριν</option><option value="30">Υπενθύμιση 30′ πριν</option></select></div>
+<div class="row"><select id="freeSel" aria-label="Τύπος καναλιού"><option value="all">Όλα τα κανάλια</option><option value="free">Μόνο δωρεάν επίγεια / online</option></select></div>
 <div class="row" id="quick"><button class="chip" data-f="all">Όλα</button><button class="chip" data-f="live">🔴 Live</button><button class="chip" data-f="up">⏭️ Επόμενα</button><button class="chip" data-f="fav">⭐ Αγαπημένες</button><button class="chip" data-f="today">📅 Σήμερα</button><button class="chip" data-f="tomorrow">📅 Αύριο</button></div>
 <div class="row"><button class="chip" id="hide">Κρύψε ολοκληρωμένα</button><button class="chip" id="favEdit">✏️ Αλλαγή αγαπημένων ομάδων</button></div>
 <div id="notifBar" class="box" style="display:none;border-color:#ff4757">🔔 Οι ειδοποιήσεις είναι κλειστές. <button class="btn" id="notifBtn" style="margin-left:6px">Ενεργοποίηση</button></div>
@@ -52,7 +53,9 @@ const norm=s=>String(s??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLo
 // [άθλημα, regex, διάρκεια σε λεπτά] — η σειρά μετράει
 const SP=[["Στίβος",/μαραθ|δρόμου/,300],["Formula 1",/formula|γκραν πρι/,150],["Εκπομπή",/εκπομπή|athletiko fc/,90],["Τένις",/\batp\b|\bwta\b|τένις|tennis|roland|wimbledon/,150],["Χάντμπολ",/ehf|handball|χάντμπολ/,100],["Βόλεϊ",/volley|βόλεϊ/,120],["Μπάσκετ",/gbl|nba|basket|acb|μπάσκετ|euroleague/,120],["NFL",/nfl/,200],["Ποδόσφαιρο",/league|liga|serie|bundesliga|eredivisie|premier|copa|torneo|cup|champions|conference|europa|ποδόσφαιρο/,120]];
 const sportOf=(c,t)=>{const s=(c+" "+t).toLowerCase();return SP.find(x=>x[1].test(s))||["Άλλο",0,120]};
-let EV=[],SC=[],scErr="",SCM=new Map(),st={q:"",ch:"all",sp:"all",f:"all",hide:true,rem:15,fav:"Παναθηναϊκός",...jget("sports_state",{})};
+const FREE_CHANNEL_KEYS=["ert1","ert 1","ερτ1","ερτ 1","ert2","ert 2","ερτ2","ερτ 2","ert2 sport","ert 2 sport","ερτ2 σπορ","ερτ 2 σπορ","ert sports","ερτ sports","ert3","ert 3","ερτ3","ερτ 3","ert news","ερτ news","ertflix","ert flix","ερτflix","ερτ flix","mega","μεγα","ant1","αντ1","alpha","αλφα","skai","σκαι","star","σταρ","open","οπεν","action 24","action24","makedonia tv","μακεδονια tv","mak tv","tv100","vouli","βουλη","youtube"];
+function isFreeChannel(channel){const key=norm(channel).replace(/[^a-z0-9α-ω]+/g," ").trim();return FREE_CHANNEL_KEYS.some(name=>key===name||key.startsWith(name+" ")||key.includes(" "+name+" "))}
+let EV=[],SC=[],scErr="",SCM=new Map(),st={q:"",ch:"all",sp:"all",freeOnly:false,f:"all",hide:true,rem:15,fav:"Παναθηναϊκός",...jget("sports_state",{})};
 const save=()=>jset("sports_state",st);
 const setStatus=(c,t,d)=>{$("pill").className="pill "+c;$("pill").textContent=t;$("stxt").textContent=d||""};
 function setEvents(list){EV=list.map(e=>{const x=sportOf(e.c,e.t),start=new Date(e.s);return{start,end:new Date(start.getTime()+x[2]*6e4),comp:e.c,title:e.t,channel:e.h||"—",sport:x[0]}}).sort((a,b)=>a.start-b.start);
@@ -101,7 +104,7 @@ function dayLabel(d,now){const a=new Date(now).setHours(0,0,0,0),b=new Date(d).s
 function filtered(now){const q=norm(st.q),favs=st.fav.split(",").map(norm).filter(Boolean);
  return EV.filter(ev=>{const s=state(ev,now);
   if(q&&!norm(ev.title+" "+ev.comp+" "+ev.channel).includes(q))return false;
-  if(st.ch!=="all"&&ev.channel!==st.ch)return false;if(st.sp!=="all"&&ev.sport!==st.sp)return false;
+  if(st.ch!=="all"&&ev.channel!==st.ch)return false;if(st.sp!=="all"&&ev.sport!==st.sp)return false;if(st.freeOnly&&!isFreeChannel(ev.channel))return false;
   if(st.hide&&s==="done")return false;if(st.f==="live"&&s!=="live")return false;if(st.f==="up"&&s!=="up")return false;
   if(st.f==="fav"&&!favs.some(f=>norm(ev.title).includes(f)))return false;
   const dd=Math.round((new Date(ev.start).setHours(0,0,0,0)-new Date(now).setHours(0,0,0,0))/864e5);
@@ -129,8 +132,8 @@ function ics(ev){const z=d=>d.toISOString().replace(/[-:]|\.\d{3}/g,""),t=ev.tit
  const f=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Sports Live//EL","BEGIN:VEVENT","UID:"+rid(ev)+"@sports-live","DTSTAMP:"+z(new Date()),"DTSTART:"+z(ev.start),"DTEND:"+z(ev.end),"SUMMARY:"+t,"DESCRIPTION:"+ev.channel,"BEGIN:VALARM","TRIGGER:-PT"+st.rem+"M","ACTION:DISPLAY","DESCRIPTION:"+t,"END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n");
  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([f],{type:"text/calendar"}));a.download="match.ics";a.click()}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b)return;const ev=EV[+b.dataset.i];if(ev)b.dataset.a==="rem"?toggleRem(ev):ics(ev)});
-$("search").value=st.q;$("remSel").value=st.rem;
-$("search").oninput=e=>{st.q=e.target.value;save();render()};$("chSel").onchange=e=>{st.ch=e.target.value;save();render()};$("spSel").onchange=e=>{st.sp=e.target.value;save();render()};
+$("search").value=st.q;$("remSel").value=st.rem;$("freeSel").value=st.freeOnly?"free":"all";
+$("search").oninput=e=>{st.q=e.target.value;save();render()};$("chSel").onchange=e=>{st.ch=e.target.value;save();render()};$("spSel").onchange=e=>{st.sp=e.target.value;save();render()};$("freeSel").onchange=e=>{st.freeOnly=e.target.value==="free";save();render()};
 $("remSel").onchange=e=>{st.rem=+e.target.value;save()};
 document.querySelectorAll("#quick [data-f]").forEach(b=>b.onclick=()=>{st.f=b.dataset.f;save();render()});
 $("hide").onclick=()=>{st.hide=!st.hide;save();render()};
